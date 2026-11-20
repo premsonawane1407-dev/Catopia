@@ -165,15 +165,21 @@ export default function HomeExperience() {
       </section>
 
       <section className="meow-section" aria-labelledby="meow-title">
-        <h2 id="meow-title" aria-label="Meow">MEOW</h2>
-        <Image
-          className="meow-cat"
-          src="/images/cat-effect/1.png"
-          alt="A cream-colored cat playing with a dark blue ball of yarn"
-          width={1228}
-          height={1536}
-          sizes="(max-width: 760px) 86vw, 52vw"
-        />
+        <div className="meow-frame">
+          <p className="overline meow-overline"><span className="overline-mark">✳</span> A little play, caught mid-pounce</p>
+          <h2 id="meow-title" aria-label="Meow">MEOW</h2>
+          <Image
+            className="meow-cat"
+            src="/images/cat-effect/1.png"
+            alt="A cream-colored cat playing with a dark blue ball of yarn"
+            width={1228}
+            height={1536}
+            sizes="(max-width: 760px) 86vw, 52vw"
+          />
+          <p className="meow-caption">For the ones who make<br />ordinary afternoons feel like a story.</p>
+          <span className="meow-edition">CATOPIA FIELD NOTE&nbsp; · &nbsp;NO. 01</span>
+          <span className="meow-orbit" aria-hidden="true" />
+        </div>
       </section>
 
       <section className="promise-section" aria-labelledby="promise-title">
