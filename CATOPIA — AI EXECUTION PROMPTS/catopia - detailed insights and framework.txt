@@ -1,0 +1,1362 @@
+# CATOPIA
+## Product Requirements, Technical Architecture & Codex Implementation Specification
+
+Version 1.0  
+Project type Interactive community platform + exploration game  
+Geographic scope Campus + surrounding locality  
+Visual direction Cozy indie game, stylized 3D, illustrated maps, artistic UI  
+Development approach AI-assisted development using OpenAI Codex
+
+---
+
+# 1. PRODUCT VISION
+
+Catopia is a community-powered digital world dedicated to the real cats living around a university campus and its surrounding neighbourhood.
+
+Users should be able to
+
+- Discover cats living around their campus and locality.
+- Upload photographs of cats they encounter.
+- Record where and when they spotted a cat.
+- Give unidentified cats names through community voting.
+- Create permanent identities for individual cats.
+- Explore an interactive virtual representation of the campus.
+- View cat profiles, personalities, stories and sighting histories.
+- Participate in community activities and earn achievements.
+
+Catopia should feel like a small, living indie game rather than a conventional social networking website.
+
+## Core product philosophy
+
+1. Every cat deserves an identity.
+2. Every sighting contributes to a cat's story.
+3. Every user can contribute to the community.
+4. The virtual environment should reflect real-world locations.
+5. The experience should be delightful even when users are simply exploring.
+
+## 1.1 Primary objectives
+
+- Build a beautiful and functional interactive world.
+- Make cat discovery intuitive and enjoyable.
+- Establish reliable cat identities and prevent duplicate records.
+- Make community contributions easy.
+- Connect virtual locations to actual geographical locations.
+- Ensure the application works on desktop and mobile.
+- Maintain a scalable architecture for additional campuses and localities.
+
+## 1.2 Non-goals for the first release
+
+Do not attempt to build
+
+- A complete open-world multiplayer game.
+- Real-time multiplayer character movement.
+- Complex combat or RPG mechanics.
+- AI-powered facial recognition as the sole method of identifying cats.
+- A massive photorealistic city simulation.
+- A complicated social networking system.
+- Native Android or iOS applications.
+
+These features may be considered in future versions.
+
+---
+
+# 2. USER EXPERIENCE AND NAVIGATION
+
+The application should have two main experiences.
+
+## A. Exploration mode
+
+A 3D or isometric interactive environment representing the campus and surrounding locality.
+
+Features
+- Animated cats.
+- Clickable buildings and landmarks.
+- Interactive cat locations.
+- Location discovery.
+- Environment animations.
+- Daynight atmosphere.
+- Exploration points and achievements.
+
+## B. Community mode
+
+A functional application interface for managing real cat information.
+
+Features
+- Cat directory.
+- Individual cat profiles.
+- Sighting submissions.
+- Photo uploads.
+- Naming and voting.
+- Community stories.
+- User profiles.
+- Moderation and administration.
+
+## 2.1 Main navigation
+
+The interface should avoid the conventional large navbar design.
+
+Use a floating, game-inspired navigation system.
+
+Suggested navigation
+
+- Explore — enter the interactive world.
+- Discover — browse all registered cats.
+- Sightings — recent community observations.
+- Map — view actual geographical locations.
+- Community — stories, naming and discussions.
+- Profile — personal achievements and contributions.
+
+On desktop, use a compact floating side panel or corner-based interface.
+
+On mobile, use a compact bottom navigation.
+
+---
+
+# 3. VISUAL AND ART DIRECTION
+
+## 3.1 Design language
+
+The visual style should combine
+
+- Cozy indie games.
+- Stylized 3D environments.
+- Hand-painted environmental textures.
+- Soft lighting.
+- Rich natural colours.
+- Organic shapes.
+- Subtle paper and illustrated textures.
+- Playful micro-interactions.
+
+Avoid generic SaaS dashboards, excessive gradients, generic AI-generated landing page designs and repetitive rectangular cards.
+
+## 3.2 Suggested colour palette
+
+ Element  Colour 
+------
+ Background  Warm cream 
+ Main green  Sage green 
+ Forest  Deep muted green 
+ Accent  Soft terracotta 
+ Secondary accent  Butter yellow 
+ UI surface  Warm off-white 
+ Text  Dark brown 
+ Highlight  Muted sky blue 
+
+Use colours consistently. Maintain sufficient text contrast and readable typography.
+
+## 3.3 Typography
+
+Use
+- A friendly rounded display font for headings.
+- A highly readable sans-serif for body text.
+- Small decorative typography for game-like labels.
+
+Possible fonts
+- Nunito
+- DM Sans
+- Fraunces
+
+## 3.4 Environmental design
+
+The environment should contain
+
+- University buildings.
+- Gardens and lawns.
+- Walkways.
+- Cafeterias.
+- Library.
+- Parking areas.
+- Benches.
+- Trees and bushes.
+- Cat resting spots.
+- Water bowls and feeding locations where documented.
+
+The environment should feel lived-in, not like an empty 3D architectural model.
+
+## 3.5 Animation requirements
+
+Environmental animations
+- Swaying trees.
+- Moving grass and flowers.
+- Birds flying occasionally.
+- Animated clouds.
+- Subtle environmental particles.
+- Dynamic lighting.
+
+Cat animations
+- Walking.
+- Idle standing.
+- Sitting.
+- Sleeping.
+- Stretching.
+- Grooming.
+- Tail movement.
+- Occasional playful movement.
+
+UI animations
+- Smooth panel transitions.
+- Hover reactions.
+- Floating labels.
+- Gentle button feedback.
+- Animated achievement unlocks.
+- Loading transitions.
+
+Animations should enhance the experience without making the application slow or distracting.
+
+---
+
+# 4. INTERACTIVE WORLD ARCHITECTURE
+
+This is the most visually important part of Catopia.
+
+## 4.1 Hybrid exploration system
+
+Implement two connected representations of the same geographical world.
+
+Representation 1 Interactive 3D world
+
+A stylized, explorable environment with
+- Buildings.
+- Trees.
+- Roads.
+- Gardens.
+- Walkways.
+- Animated cats.
+- Clickable landmarks.
+
+Representation 2 Illustrated 2D map
+
+A stylized map showing
+- Real-world landmarks.
+- Cat sighting locations.
+- Cat population hotspots.
+- User-submitted sightings.
+- Areas of interest.
+
+Switching between these views must preserve the selected location whenever possible.
+
+## 4.2 Camera system
+
+Desktop
+- Third-person or free exploration camera.
+- Orbit and pan controls.
+- Zoom controls.
+- Smooth transitions.
+- Click-to-focus on locations.
+
+Mobile
+- Touch-based camera controls.
+- Pinch-to-zoom.
+- Tap-to-select.
+- Simplified movement controls.
+
+Do not make first-person movement mandatory.
+
+## 4.3 World interaction
+
+When users click a building
+- Highlight the selected building.
+- Display its name.
+- Show cats associated with that area.
+- Display recent sightings.
+- Provide an option to view the corresponding real-world map location.
+
+When users click a cat
+- Display a small floating nameplate.
+- Show its photograph or avatar.
+- Provide a View Profile action.
+- Highlight its associated real-world location.
+
+When users hover over a cat
+- The cat may look toward the cursor.
+- Display its name.
+- Show a subtle outline or visual highlight.
+
+## 4.4 World data model
+
+Do not hardcode every building and cat inside the 3D scene.
+
+Create a data-driven world system.
+
+Every landmark must have
+- Unique landmark ID.
+- Name.
+- Description.
+- Geographic coordinates, if available.
+- 3D world position.
+- Associated map position.
+- Associated cats.
+- Visibility status.
+
+Every cat must have
+- Cat ID.
+- Current profile data.
+- Associated sightings.
+- Virtual world position.
+- Location association.
+- Display model or sprite.
+
+The 3D environment should retrieve these records from the backend.
+
+## 4.5 Performance requirements
+
+- Use instancing for repeated environmental objects.
+- Use low-poly or optimized models.
+- Compress textures.
+- Implement level-of-detail where appropriate.
+- Lazy-load environment assets.
+- Avoid loading the entire environment before rendering the interface.
+- Provide a lower-quality graphics mode.
+- Provide a 2D fallback for unsupported devices.
+
+Target smooth performance on ordinary modern laptops and mid-range mobile devices. Treat 60 FPS as a desktop optimization target, not a guaranteed minimum.
+
+---
+
+# 5. CAT IDENTITY SYSTEM
+
+Every cat must have a permanent unique identity.
+
+Example
+
+CAT-0001 — Mochi  
+CAT-0002 — Simba  
+CAT-0003 — Unknown Cat
+
+## 5.1 Cat profile
+
+Each profile should contain
+
+- Unique Cat ID.
+- Community-approved name.
+- Alternative names or previous names.
+- Main photograph.
+- Additional photographs.
+- Description.
+- Personality tags.
+- Physical identification features.
+- First discovered date.
+- Last sighted date.
+- Frequently visited locations.
+- Total verified sightings.
+- Community stories.
+- Naming history.
+- Verification status.
+
+## 5.2 Unidentified cats
+
+New sightings should not automatically create a permanent cat identity.
+
+Instead
+
+1. User submits a photograph.
+2. User provides location and description.
+3. The platform searches for potentially matching existing cats.
+4. User can select an existing cat.
+5. User can flag a possible match for moderator review.
+6. If no match exists, a provisional cat record can be created.
+7. The record receives a permanent Cat ID once accepted.
+
+## 5.3 Duplicate prevention
+
+Implement a manual-first identification process.
+
+Use
+- Similarity in photographs as an optional suggestion.
+- Physical descriptions.
+- Location proximity.
+- Sighting history.
+- Community reports.
+- Moderator review.
+
+Do not automatically merge two cats based only on image similarity.
+
+## 5.4 Community naming
+
+Unidentified cats should have a naming process.
+
+Workflow
+1. An unidentified cat receives a temporary name such as Mystery Cat #12.
+2. Community members submit name suggestions.
+3. Users vote on suggested names.
+4. Voting remains open for a configurable period.
+5. Moderators can approve the winning name.
+6. The selected name becomes the official community name.
+
+Maintain a record of previous names and naming decisions.
+
+---
+
+# 6. SIGHTING SYSTEM
+
+The sighting system is the primary source of new content.
+
+## 6.1 Create a sighting
+
+Users should be able to
+
+- Upload one or more photographs.
+- Select an existing cat or propose a new cat.
+- Select the location.
+- Add a caption.
+- Add the date and approximate time.
+- Add optional behaviour tags.
+- Submit the sighting.
+
+Example
+
+Spotted this little orange fellow sleeping outside the library again. He seems to own the place.
+
+Location Library Garden  
+Date 20 November 2026  
+Cat Mochi
+
+## 6.2 Sighting feed
+
+Create a visually engaging feed featuring
+- Latest sightings.
+- Recently discovered cats.
+- Popular cats.
+- Nearby areas.
+- Community contributions.
+
+Each sighting should connect to the cat profile and location.
+
+## 6.3 Sighting verification
+
+Possible statuses
+- Pending.
+- Approved.
+- Rejected.
+- Flagged.
+
+A sighting should not increase verified statistics until approved or otherwise accepted under the moderation rules.
+
+## 6.4 Location accuracy
+
+Do not expose precise feeding spots, nests or sensitive animal locations publicly by default.
+
+Use approximate map locations or designated public landmarks.
+
+Allow moderators to access more precise information when operationally necessary.
+
+---
+
+# 7. GAMIFICATION
+
+Gamification should encourage genuine contributions rather than meaningless activity.
+
+## 7.1 Experience points
+
+Illustrative reward system
+
+ Activity  XP 
+------
+ Submit an approved sighting  20 
+ Add useful identification details  10 
+ Submit an approved new cat  30 
+ Contribute a verified photograph  15 
+ Participate in naming  5 
+ Submit an approved story  10 
+
+Apply anti-spam rules and prevent repeated submissions from farming XP.
+
+## 7.2 Explorer levels
+
+Example progression
+
+- Level 1 Curious Visitor
+- Level 2 Cat Spotter
+- Level 3 Neighbourhood Explorer
+- Level 4 Cat Guardian
+- Level 5 Local Legend
+
+## 7.3 Achievement badges
+
+Examples
+- First Sighting.
+- Cat Collector.
+- Campus Explorer.
+- Naming Expert.
+- Photo Contributor.
+- Storyteller.
+- Community Guardian.
+
+## 7.4 Daily quests
+
+Optional missions
+- Discover a new cat.
+- Visit a new area.
+- Add a useful cat description.
+- Confirm a previously reported sighting.
+
+Quests must encourage responsible observation, not disturbing cats or repeatedly approaching them.
+
+---
+
+# 8. USER ROLES AND PERMISSIONS
+
+## Guest
+- Browse approved cats.
+- Explore the world.
+- View public sightings.
+- View public locations.
+
+## Registered user
+- Submit sightings.
+- Upload photographs.
+- Suggest cat names.
+- Vote on naming proposals.
+- Write stories.
+- Earn XP.
+- Manage personal profile.
+
+## Moderator
+- Review sightings.
+- Approve or reject content.
+- Review duplicate reports.
+- Manage naming proposals.
+- Handle reports and abuse.
+
+## Administrator
+- Manage users.
+- Manage landmarks.
+- Manage geographical areas.
+- Configure gamification.
+- Manage platform settings.
+- Review moderation activity.
+
+Implement role-based access control on the server, not just by hiding buttons in the frontend.
+
+---
+
+# 9. TECHNICAL ARCHITECTURE
+
+## 9.1 Recommended technology stack
+
+ Layer  Technology  Responsibility 
+---------
+ Frontend  Next.js + React + TypeScript  Application 
+ Styling  Tailwind CSS  Interface 
+ 3D rendering  Three.js + React Three Fiber  Interactive environment 
+ 3D utilities  Drei  Camera, controls and helpers 
+ Animation  GSAP  React Spring  UI transitions 
+ 2D animations  Rive or Lottie  Interface animations 
+ Database  Supabase PostgreSQL  Application data 
+ Authentication  Supabase Auth  User accounts 
+ File storage  Supabase Storage  Photographs and assets 
+ Mapping  MapLibre GL JS  Geographical map 
+ Validation  Zod  Data validation 
+ Forms  React Hook Form  User submissions 
+ Testing  Vitest + Playwright  Automated testing 
+ Deployment  Vercel  Web application 
+ Source control  GitHub  Version control 
+
+Use stable, mutually compatible package versions. Pin versions in the lockfile.
+
+## 9.2 Application architecture
+
+Use a modular architecture with separate domains
+
+- Authentication.
+- Cat management.
+- Sightings.
+- Locations.
+- Community.
+- Gamification.
+- Moderation.
+- World rendering.
+- Administration.
+
+Suggested directory structure
+
+```text
+catopia
+│
+├── app
+│   ├── page.tsx
+│   ├── explore
+│   ├── discover
+│   ├── cats
+│   ├── sightings
+│   ├── map
+│   ├── community
+│   ├── profile
+│   └── admin
+│
+├── components
+│   ├── ui
+│   ├── navigation
+│   ├── cats
+│   ├── sightings
+│   ├── maps
+│   └── gamification
+│
+├── world
+│   ├── scenes
+│   ├── cameras
+│   ├── environment
+│   ├── characters
+│   ├── interactions
+│   └── world-data
+│
+├── features
+│   ├── auth
+│   ├── cats
+│   ├── sightings
+│   ├── locations
+│   ├── naming
+│   ├── moderation
+│   └── rewards
+│
+├── lib
+│   ├── supabase
+│   ├── validation
+│   ├── permissions
+│   └── utilities
+│
+├── public
+│   ├── models
+│   ├── textures
+│   ├── animations
+│   ├── sprites
+│   ├── sounds
+│   └── maps
+│
+├── supabase
+│   ├── migrations
+│   └── seed.sql
+│
+├── tests
+│   ├── unit
+│   ├── integration
+│   └── e2e
+│
+├── docs
+│
+└── package.json
+```
+
+Adapt this structure as the application grows. Do not create empty modules merely to match a directory diagram.
+
+---
+
+# 10. DATABASE DESIGN
+
+Use PostgreSQL through Supabase.
+
+Enable Row Level Security (RLS) for all user-facing tables.
+
+## 10.1 profiles
+
+Stores registered user information.
+
+Fields
+- id UUID, references auth.users.
+- username unique.
+- display_name.
+- avatar_url.
+- bio.
+- role.
+- xp.
+- level.
+- created_at.
+
+## 10.2 cats
+
+Stores permanent cat identities.
+
+Fields
+- id UUID.
+- cat_code unique human-readable identifier.
+- name.
+- temporary_name.
+- description.
+- personality_tags text array.
+- physical_features JSONB.
+- primary_photo_url.
+- status.
+- verification_status.
+- first_discovered_at.
+- created_by.
+- created_at.
+- updated_at.
+
+## 10.3 cat_photos
+
+Fields
+- id.
+- cat_id.
+- storage_path.
+- uploaded_by.
+- caption.
+- approval_status.
+- created_at.
+
+## 10.4 locations
+
+Fields
+- id.
+- name.
+- description.
+- location_type.
+- latitude.
+- longitude.
+- public_latitude.
+- public_longitude.
+- campus_id.
+- is_active.
+
+Use PostGIS for spatial queries if geographic search and proximity become important.
+
+## 10.5 sightings
+
+Fields
+- id.
+- cat_id, nullable for unidentified sightings.
+- location_id.
+- submitted_by.
+- caption.
+- photo_url.
+- observed_at.
+- latitude, optional restricted coordinates.
+- longitude, optional restricted coordinates.
+- moderation_status.
+- created_at.
+
+## 10.6 cat_name_suggestions
+
+Fields
+- id.
+- cat_id.
+- suggested_name.
+- suggested_by.
+- status.
+- created_at.
+
+## 10.7 cat_name_votes
+
+Fields
+- id.
+- suggestion_id.
+- user_id.
+- created_at.
+
+Enforce one vote per user per naming round using a suitable unique constraint.
+
+## 10.8 cat_stories
+
+Fields
+- id.
+- cat_id.
+- author_id.
+- title.
+- content.
+- status.
+- created_at.
+
+## 10.9 landmarks
+
+Fields
+- id.
+- name.
+- description.
+- location_id.
+- world_x.
+- world_y.
+- world_z.
+- map_x.
+- map_y.
+- model_key.
+- created_at.
+
+## 10.10 cat_world_positions
+
+Fields
+- id.
+- cat_id.
+- landmark_id.
+- world_x.
+- world_y.
+- world_z.
+- movement_profile.
+- updated_at.
+
+These are presentation positions, not real-time tracking coordinates.
+
+## 10.11 achievements
+
+Fields
+- id.
+- code.
+- name.
+- description.
+- icon_url.
+- xp_reward.
+
+## 10.12 user_achievements
+
+Fields
+- id.
+- user_id.
+- achievement_id.
+- earned_at.
+
+## 10.13 xp_transactions
+
+Fields
+- id.
+- user_id.
+- activity_type.
+- reference_id.
+- xp_amount.
+- created_at.
+
+Use server-side functions and idempotency protections to award XP only for eligible contributions.
+
+## 10.14 reports
+
+Fields
+- id.
+- reporter_id.
+- content_type.
+- content_id.
+- reason.
+- description.
+- status.
+- reviewed_by.
+- created_at.
+
+## 10.15 campuses
+
+Fields
+- id.
+- name.
+- slug.
+- description.
+- boundary_geojson.
+- is_active.
+
+## 10.16 Database relationships
+
+```text
+PROFILES
+  │
+  ├── SIGHTINGS
+  ├── CAT_PHOTOS
+  ├── CAT_NAME_SUGGESTIONS
+  ├── CAT_NAME_VOTES
+  ├── CAT_STORIES
+  ├── USER_ACHIEVEMENTS
+  └── XP_TRANSACTIONS
+
+CATS
+  │
+  ├── CAT_PHOTOS
+  ├── SIGHTINGS
+  ├── CAT_NAME_SUGGESTIONS
+  ├── CAT_STORIES
+  └── CAT_WORLD_POSITIONS
+
+CAMPUSES
+  │
+  └── LOCATIONS
+        │
+        ├── LANDMARKS
+        └── SIGHTINGS
+```
+
+Use foreign keys, indexes, uniqueness constraints and migration files.
+
+Never use frontend-only validation as a security boundary.
+
+---
+
+# 11. SECURITY AND MODERATION
+
+Security must be implemented from the beginning.
+
+Requirements
+
+- Secure authentication.
+- Server-side authorization.
+- Row Level Security.
+- Validated image uploads.
+- File size restrictions.
+- MIME-type validation.
+- Rate limiting.
+- Spam prevention.
+- Report functionality.
+- Moderation queue.
+- Audit logs for administrative actions.
+- Secure environment variables.
+- No service-role key in browser code.
+
+Protect users' personal information.
+
+Do not publish precise private user locations.
+
+For cat sightings, show public landmarks or approximate coordinates by default.
+
+Never expose sensitive animal locations, such as vulnerable nesting areas, publicly.
+
+The platform must not encourage users to chase, feed, handle or disturb cats.
+
+---
+
+# 12. ASSET ACQUISITION STRATEGY
+
+Do not spend weeks creating every 3D asset from scratch.
+
+Reuse properly licensed assets.
+
+Potential sources
+
+1. Kenney — stylized environment and game assets.
+2. Poly Pizza — low-poly 3D assets.
+3. Sketchfab — 3D models with suitable licenses.
+4. itch.io — indie game asset packs.
+5. Mixamo — compatible character animations.
+6. Blender — custom models and adjustments.
+7. Rive — interactive UI animations.
+
+For each asset, maintain a record of
+- Asset name.
+- Original source.
+- Creator.
+- License.
+- Attribution requirements.
+- Local file path.
+
+Do not assume that an asset is free for commercial use just because it can be downloaded for free.
+
+## 12.1 Asset priorities
+
+Essential
+- Cat models or sprites.
+- Cat animations.
+- Trees.
+- Grass.
+- Buildings.
+- Benches.
+- Paths.
+- Flowers.
+- Lighting assets.
+- UI icons.
+- Environmental sounds.
+
+Optional
+- Birds.
+- Butterflies.
+- Decorative particles.
+- Ambient music.
+- Weather effects.
+
+## 12.2 Art consistency
+
+Do not mix
+- Photorealistic buildings.
+- Cartoon cats.
+- Low-poly trees.
+- Completely unrelated illustration styles.
+
+Choose a consistent asset family and adjust materials, lighting and scale to create a coherent world.
+
+---
+
+# 13. IMPLEMENTATION ROADMAP
+
+Development must happen incrementally.
+
+Each phase must be completed, tested and reviewed before progressing.
+
+## PHASE 0 — Project foundation
+
+Tasks
+- Create GitHub repository.
+- Initialize Next.js.
+- Configure TypeScript.
+- Configure Tailwind.
+- Install required dependencies.
+- Configure Supabase.
+- Establish environment variables.
+- Create initial database migrations.
+- Establish code formatting and linting.
+
+Deliverable Running application with a working backend connection.
+
+Acceptance criteria
+- Application starts successfully.
+- No TypeScript errors.
+- No environment secrets are exposed.
+- Database connection works.
+- Initial migrations run successfully.
+
+## PHASE 1 — Visual foundation
+
+Tasks
+- Design Catopia's visual identity.
+- Build the main homepage.
+- Create floating navigation.
+- Build responsive layouts.
+- Create reusable UI components.
+- Implement loading and error states.
+- Add initial animations.
+
+Deliverable Beautiful, navigable application shell.
+
+Acceptance criteria
+- Consistent art direction.
+- Responsive desktop and mobile layouts.
+- No placeholder buttons pretending to work.
+- Accessible navigation.
+- No broken routes.
+
+## PHASE 2 — Interactive world
+
+Tasks
+- Create the 3D scene.
+- Add terrain.
+- Add buildings and landmarks.
+- Add vegetation.
+- Implement camera controls.
+- Add animated cats.
+- Implement clickable objects.
+- Add cat information panels.
+- Implement 2D map mode.
+- Connect world objects to location records.
+
+Deliverable An interactive Catopia environment.
+
+Acceptance criteria
+- Camera controls work.
+- Cats animate correctly.
+- Clicking a cat opens its real profile.
+- Clicking a landmark displays its associated data.
+- Switching mapworld views works.
+- Performance remains acceptable.
+
+## PHASE 3 — Cat identity system
+
+Tasks
+- Create cat directory.
+- Create cat profile pages.
+- Implement cat creation.
+- Implement unidentified cat workflow.
+- Implement duplicate suggestions.
+- Implement cat photographs.
+- Implement cat verification.
+
+Deliverable Functional cat identity platform.
+
+Acceptance criteria
+- Unique Cat IDs.
+- Correct profile data.
+- No accidental duplicate creation.
+- Approved photographs display.
+- Cat profiles link to sightings.
+
+## PHASE 4 — Sighting system
+
+Tasks
+- Create sighting submission form.
+- Implement image upload.
+- Implement location selection.
+- Implement captions.
+- Create sighting feed.
+- Implement moderation statuses.
+- Link sightings to cats.
+
+Deliverable Working community sighting platform.
+
+Acceptance criteria
+- Users can submit sightings.
+- Uploads are validated.
+- Moderators can review submissions.
+- Approved sightings appear in the feed.
+- Cat sighting counts update correctly.
+
+## PHASE 5 — Community features
+
+Tasks
+- Implement authentication.
+- Create user profiles.
+- Implement naming suggestions.
+- Implement voting.
+- Implement stories.
+- Implement likes or appreciation.
+- Add reporting and moderation.
+
+Deliverable Functional community experience.
+
+Acceptance criteria
+- User permissions are enforced.
+- Voting restrictions work.
+- Unauthorized actions fail securely.
+- Moderation is functional.
+- Reports are stored and reviewable.
+
+## PHASE 6 — Gamification
+
+Tasks
+- XP system.
+- Explorer levels.
+- Achievements.
+- Daily quests.
+- Contribution history.
+- Leaderboard.
+
+Deliverable Functional gamification system.
+
+Acceptance criteria
+- XP is awarded only for eligible actions.
+- Repeated submissions cannot farm XP.
+- Achievement rules work.
+- Leaderboards use verified activity.
+
+## PHASE 7 — Polish and release
+
+Tasks
+- Optimize 3D assets.
+- Optimize image loading.
+- Improve mobile experience.
+- Add reduced-motion support.
+- Add accessibility improvements.
+- Perform security review.
+- Perform regression testing.
+- Deploy to production.
+- Configure backups and monitoring.
+
+Deliverable Publicly accessible Catopia MVP.
+
+Acceptance criteria
+- Critical user journeys work.
+- No known critical security vulnerabilities.
+- Mobile and desktop tested.
+- Database backups configured.
+- Production environment verified.
+
+---
+
+# 14. TESTING STRATEGY
+
+Testing must happen continuously, not just at the end.
+
+## 14.1 Unit tests
+
+Test
+- XP calculations.
+- Level calculations.
+- Naming eligibility.
+- Voting restrictions.
+- Cat ID generation.
+- Data validation.
+- Permission logic.
+
+## 14.2 Integration tests
+
+Test
+- User registration.
+- Database writes.
+- Photo upload.
+- Sighting submission.
+- Cat creation.
+- Cat profile retrieval.
+- Naming and voting.
+- XP transaction creation.
+
+## 14.3 End-to-end tests
+
+Critical journeys
+
+Journey A Discover a cat
+1. Open Catopia.
+2. Enter Explore.
+3. Click an animated cat.
+4. Open its profile.
+5. View its sightings.
+
+Journey B Report a sighting
+1. Log in.
+2. Select Add Sighting.
+3. Upload photograph.
+4. Select cat.
+5. Select location.
+6. Enter caption.
+7. Submit.
+8. Verify moderation status.
+
+Journey C Name an unidentified cat
+1. Open unidentified cat.
+2. Suggest a name.
+3. Vote on available names.
+4. Verify voting restrictions.
+5. Verify moderator approval.
+
+Journey D Earn achievements
+1. Submit an eligible contribution.
+2. Approve the contribution.
+3. Verify XP.
+4. Verify level.
+5. Verify achievement unlock.
+
+## 14.4 Visual testing
+
+Check
+- Cat animations.
+- Camera movement.
+- UI transitions.
+- Responsive layout.
+- Image loading.
+- World rendering.
+- Map interaction.
+- Performance.
+
+Test on
+- Chrome.
+- Edge.
+- Firefox.
+- Mobile Chrome.
+- Safari where available.
+
+## 14.5 Performance targets
+
+Initial engineering targets
+- Fast initial page rendering.
+- Lazy-loaded 3D scene.
+- Compressed images.
+- Optimized models and textures.
+- No unnecessary database requests.
+- No major interaction-blocking tasks on the main thread.
+
+Use Lighthouse and browser profiling rather than relying on visual impressions alone.
+
+---
+
+# 15. ENVIRONMENT AND DEPLOYMENT
+
+Required configuration
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+Never expose SUPABASE_SERVICE_ROLE_KEY in frontend code.
+
+Deployment
+- GitHub for source control.
+- Vercel for hosting.
+- Supabase for database, authentication and storage.
+- A custom domain when ready.
+
+Set up separate development and production environments.
+
+Create repeatable database migrations and seed scripts.
+
+---
+
+# 16. FUTURE FEATURES
+
+Do not implement these until the core product works.
+
+Possible future releases
+
+- AI-assisted cat photo matching.
+- Interactive cat personality quizzes.
+- Weather and seasonal world changes.
+- Multiple campus worlds.
+- User-created community events.
+- Cat care and rescue information.
+- Volunteer coordination.
+- More sophisticated 3D character behaviour.
+- Multiplayer exploration.
+- Cat activity timelines.
+- PWA installation.
+- Advanced map-based discovery.
+
+Any AI-assisted matching must be treated as a suggestion system, not definitive proof of identity.
+
+---
+
+# 17. DEFINITION OF A SUCCESSFUL MVP
+
+Catopia MVP is complete when
+
+1. Users can access the platform.
+2. The homepage is visually polished.
+3. Users can explore a working interactive world.
+4. Cats are represented by animated characters.
+5. Every cat has a permanent identity.
+6. Users can browse cat profiles.
+7. Users can upload sightings.
+8. Sightings can be associated with existing cats.
+9. Unidentified cats can be named through the community.
+10. Real-world locations connect to virtual landmarks.
+11. Gamification works correctly.
+12. Moderators can manage submissions.
+13. Mobile users can use the essential features.
+14. Critical security and automated tests pass.
+
+A visually impressive demo that cannot save or retrieve real data is NOT an MVP.
+
+---
+
+# 18. DEVELOPMENT RULES FOR CODEX
+
+Codex must follow these rules throughout the project.
+
+1. Inspect the existing repository before making changes.
+2. Never replace working code without understanding its dependencies.
+3. Build features in small, testable increments.
+4. Do not generate the entire application in a single step.
+5. Never hardcode application data that belongs in the database.
+6. Use TypeScript strictly.
+7. Keep frontend and backend responsibilities separate.
+8. Validate all user-submitted information.
+9. Enforce permissions server-side.
+10. Create migrations for database changes.
+11. Test every major feature before moving forward.
+12. Do not silently ignore errors.
+13. Never leave non-functional placeholder interactions.
+14. Document asset licenses.
+15. Preserve existing functionality when implementing new features.
+16. Keep the application responsive.
+17. Optimize the 3D experience rather than sacrificing performance for visual effects.
+18. Record architectural decisions in documentation.
+
+If something cannot be implemented reliably, Codex must explain the limitation and propose a smaller working alternative.
+
+---
+
+# 19. FINAL PRODUCT EXPERIENCE
+
+The finished experience should feel like entering a cozy, living digital neighbourhood.
+
+A visitor opens Catopia.
+
+They see a beautifully illustrated world.
+
+A little orange cat is walking near the library.
+
+They click it.
+
+A profile opens.
+
+They discover that the cat is called Mochi, that people have spotted it 34 times, and that it likes sleeping near the garden.
+
+They notice another unidentified cat.
+
+They upload a photograph from their phone, add a caption and select the location.
+
+The community suggests names.
+
+People vote.
+
+The cat gets its identity.
+
+The next time someone opens Catopia, that cat is part of the world.
+
+The real world creates the stories. Catopia brings those stories to life.
+

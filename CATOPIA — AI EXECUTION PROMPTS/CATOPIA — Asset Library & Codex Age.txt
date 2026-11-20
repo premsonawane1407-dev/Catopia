@@ -1,0 +1,881 @@
+CATOPIA — Asset Library & Codex Agent Skills Kit
+This is the next thing I'd prepare before development.
+
+For Catopia, Codex needs two different kinds of resources:
+1. Visual assets: 3D cats, buildings, trees, environment models, animations, textures, UI illustrations, icons, sounds, fonts and map graphics.
+2. Agent skills: Specialized instructions that teach Codex how to build high-quality frontend interfaces, React Three Fiber environments, Supabase backends, animations, accessibility and automated tests.
+I would not just download random asset packs and throw them into the project. We should create a curated asset library with one consistent artistic direction.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+14
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The Catopia Asset Collection
+A coherent combination of stylized 3D world assets, animated characters, illustrated interface elements and atmospheric audio.
+
+Part 1. Where to get the assets
+Here are the sources I'd prioritize.
+A. 3D world assets
+
+
+
+
+
+
+
+
+
+
+1. Kenney
+First choice
+- Trees, grass, bushes, rocks.
+- Buildings and environmental props.
+- Roads, paths and fences.
+- UI packs and icons.
+Many assets are CC0, including the UI Pack. Check each pack's included license.
+
+Browse Kenney assets · UI Pack
+
+Kenney+1
+
+
+
+
+
+
+
+
+
+
+
+
+
+2. Quaternius
+Highly recommended
+- Low-poly environment packs.
+- Modular buildings.
+- Vegetation.
+- Character models and animations.
+Its current Quaternius Asset License allows use in commercial projects but prohibits standalone asset redistribution.
+
+Browse 3D asset packs · License
+
+Free Game Assets+1
+
+
+
+
+
+
+
+
+
+
+
+
+
+3. Poly Haven
+- PBR textures.
+- HDRI lighting.
+- Environmental models.
+- Ground and stone materials.
+Assets are CC0, including commercial use.
+
+Browse Poly Haven · License
+
+Poly Haven+1
+
+
+
+
+
+
+
+
+
+
+
+
+
+4. Sketchfab
+- Cat models.
+- Detailed props.
+- Campus objects.
+- Animated character models.
+Check each model's download availability and individual license. Prefer CC0 or appropriately attributed permissive licenses.
+Browse Sketchfab
+
+
+B. Cat models and animations
+This deserves a separate collection because the cats are the main characters of Catopia.
+
+
+
+
+
+
+
+
+
+
+Stylized cat models
+
+Different fur colours, body shapes, markings and sizes.
+
+
+
+
+
+
+
+
+
+
+
+Idle animations
+
+Sitting, blinking, tail movement, grooming.
+
+
+
+
+
+
+
+
+
+
+
+Movement animations
+
+Walking, running, turning, jumping.
+
+
+
+
+
+
+
+
+
+
+
+Resting animations
+
+Sleeping, stretching and lying down.
+
+
+Useful sources:
+- Sketchfab – stylized cats
+- Quaternius – 3D characters
+- Poly Pizza – low-poly models
+- Mixamo – character animation library
+Important technical detail: Mixamo animations generally target compatible humanoid skeletons. Don't assume you can directly apply them to quadrupedal cats. For cats, prefer models with their own compatible animations or use custom Blender animations.
+
+The desired model format is preferably .glb with embedded or properly referenced textures and animation clips.
+C. Textures and environmental materials
+
+
+
+
+
+
+
+
+
+
+Grass
+
+
+
+
+
+
+
+
+
+
+
+Pathways
+
+
+
+
+
+
+
+
+
+
+
+Buildings
+
+
+
+
+
+
+
+
+
+
+
+Soil
+
+
+
+
+
+
+
+
+
+
+
+Wood
+
+
+
+
+
+
+
+
+
+
+
+Stone
+
+
+Use:
+- ambientCG
+- Poly Haven Textures
+Both offer CC0 material libraries. 
+ambientCG Docs+1
+
+
+D. Website interface assets
+Don't overlook this. The website itself needs its own artistic asset library.
+
+I would create a consistent visual language using these resources:
+
+
+
+
+
+
+
+
+
+
+UI components and decorative elements
+- Buttons, panels, badges.
+- Floating menus.
+- Achievement frames.
+- Decorative borders.
+- Map pins.
+Kenney UI Pack · Other UI packs
+
+
+
+
+
+
+
+
+
+
+
+
+
+Illustrations and stickers
+- Cat paws.
+- Stars and hearts.
+- Flowers and leaves.
+- Speech bubbles.
+- Decorative cat silhouettes.
+itch.io game assets · Figma Community
+
+
+
+
+
+
+
+
+
+
+
+
+
+Avatars and profile illustrations
+- User avatars.
+- Cat profile placeholders.
+- Explorer badges.
+- Empty-state illustrations.
+Kenney assets
+
+
+
+
+
+
+
+
+
+
+
+
+Fonts and typography
+- Display typography.
+- Readable interface typography.
+- Decorative labels.
+Google Fonts · Bunny Fonts
+
+
+
+For icons, use Lucide. Its icon library uses a permissive ISC license. 
+Lucideicons
+
+
+My recommended combination:
+- Nunito for general interface text.
+- Fraunces for expressive headings.
+- Lucide for functional icons.
+- Custom cat illustrations for decorative elements.
+- Kenney UI assets as a starting point, restyled to match Catopia.
+Don't use the default Kenney UI appearance everywhere. Use its assets as raw building blocks, not as the finished design.
+E. Sound and ambient audio
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12
+
+
+
+
+
+
+
+
+
+
+
+Collect:
+- Birds chirping.
+- Gentle wind.
+- Leaves rustling.
+- Footsteps.
+- Cat purring.
+- Meowing.
+- Button clicks.
+- Achievement sounds.
+- Gentle ambient background music.
+Sources:
+- Freesound
+- Kenney audio assets
+- Pixabay sound effects
+Check individual licenses and attribution requirements. Make background audio optional and respect reduced-motion/accessibility preferences.
+Part 2. The actual asset download checklist
+You don't need hundreds of assets before starting.
+
+Here is the minimum useful collection I would assemble for the first version.
+Catopia asset collection
+0/32 collected
+
+
+
+3D environment
+[ ] 5–10 tree models
+[ ] 3–5 bushes and plant models
+[ ] 2–3 university building models
+[ ] 1 cafeteria or shop
+[ ] 1 library building
+[ ] Benches and streetlights
+[ ] Paths, fences and road assets
+[ ] Grass and ground materials
+
+
+Cat characters
+[ ] Orange tabby cat
+[ ] White cat
+[ ] Black cat
+[ ] Grey cat
+[ ] Calico cat
+[ ] Sitting animation
+[ ] Walking animation
+[ ] Sleeping animation
+[ ] Grooming or stretching animation
+
+
+Website UI
+[ ] Logo and favicon
+[ ] Cat profile placeholder
+[ ] User avatar placeholders
+[ ] Custom buttons and panels
+[ ] Cat paw icons
+[ ] Achievement badge illustrations
+[ ] Map location pins
+[ ] Loading animations
+
+
+Audio and finishing
+[ ] Bird ambience
+[ ] Wind ambience
+[ ] Cat purring
+[ ] Cat meows
+[ ] UI click sound
+[ ] Achievement sound
+[ ] Optional background music
+
+Track the assets as you download them.
+Reset
+
+You can start Codex after collecting the essential environment, cat and UI assets. Don't wait until the entire checklist is complete.
+
+Part 3. Recommended Codex agent skills
+This is where we can significantly improve the quality of Codex's output.
+
+A Codex skill is a folder containing a SKILL.md instruction file and optionally scripts, references and assets. Codex can load skills when a task matches their description or when you explicitly invoke them. 
+ChatGPT Learn+1
+
+
+I would use a combination of existing skills and a few Catopia-specific skills.
+Essential skills to install
+1. Frontend Design
+Essential
+
+Prevents generic-looking websites. Guides distinctive layouts, visual hierarchy, typography, responsive UI and polished interactions.
+
+SOURCE
+Codex Frontend Design SkillINSTALL
+npx skills add dobromirdikov/codex-frontend-design-skill --agent codex
+
+
+
+2. Three.js / React Three Fiber
+Essential
+
+For 3D scenes, GLB loading, camera controls, lighting, animated cats, materials, performance and scene interactions.
+
+SOURCE
+Three.js Skills collectionINSTALL
+npx skills add cesartevisual/threejs-skills --agent codex
+
+
+Select threejs-r3f and threejs-web if available.
+
+GitHub+1
+
+3. Supabase
+Essential
+
+Database schemas, authentication, storage, queries, RLS and backend implementation.
+
+SOURCE
+Official Supabase Agent SkillsINSTALL
+npx skills add supabase/agent-skills --agent codex
+
+
+Select supabase and supabase-postgres-best-practices.
+
+Supabase Docs+1
+
+4. Playwright
+Essential
+
+Browser automation, checking pages, interacting with UI, capturing screenshots and investigating broken flows.
+
+SOURCE
+OpenAI Playwright SkillINSTALL
+$skill-installer playwright
+
+
+
+GitHub+1
+
+Additional recommended skills
+Skill	What it contributes
+Accessibility	Keyboard navigation, screen readers, contrast and motion preferences
+Next.js	App Router, server/client components and rendering
+Animation	GSAP, transitions and interaction design
+Blender / 3D asset pipeline	Model preparation, GLB export and optimization
+PostgreSQL	Data modelling and query performance
+Security review	Authentication, authorization and upload security
+Image optimization	Responsive images and asset compression
+
+Not all of these need separate agent skills. Some are better handled by official documentation and project instructions. Avoid installing several skills that give conflicting instructions for the same framework.
+
+Part 4. Create custom skills specifically for Catopia
+This is something I particularly recommend.
+
+Generic skills teach Codex how to build software. Custom skills teach it how to build your particular project consistently.
+
+Create these three additional skills inside your Catopia repository.
+Custom skill 01
+catopia-art-direction
+
+Keeps the entire website visually consistent.
+
+Responsibilities:
+- Enforce the cozy indie visual identity.
+- Maintain colour and typography rules.
+- Prevent generic SaaS-style components.
+- Keep 2D and 3D assets visually coherent.
+- Guide illustrations and animations.
+
+
+Custom skill 02
+catopia-3d-world-builder
+
+Specialized instructions for building the actual world.
+
+Responsibilities:
+- Load and optimize GLB models.
+- Manage animated cat characters.
+- Build interactive landmarks.
+- Manage camera and scene interactions.
+- Implement fallback rendering.
+- Optimize scene performance.
+
+
+Custom skill 03
+catopia-asset-manager
+
+Prevents Codex from randomly importing assets.
+
+Responsibilities:
+- Inspect downloaded assets.
+- Check formats and compatibility.
+- Maintain license records.
+- Optimize textures and models.
+- Maintain consistent scale.
+- Avoid duplicate or unnecessary assets.
+
+
+Custom skill installation prompt
+Give Codex this instruction:
+Create three project-specific Codex agent skills inside .agents/skills/.
+
+Create:
+1. catopia-art-direction
+2. catopia-3d-world-builder
+3. catopia-asset-manager
+Each skill must contain a valid SKILL.md with YAML frontmatter containing name and description.
+
+For catopia-art-direction:
+- Follow Catopia's cozy indie game visual identity.
+- Use warm cream, sage green, muted forest green and terracotta.
+- Maintain consistent typography, illustrations, components and animation.
+- Avoid generic SaaS designs and repetitive card layouts.
+- Preserve visual consistency across desktop and mobile.
+For catopia-3d-world-builder:
+- Follow React Three Fiber and Three.js best practices.
+- Use optimized GLB assets.
+- Implement reusable animated cat components.
+- Support camera controls, clickable landmarks and cat interactions.
+- Optimize rendering, texture sizes and scene complexity.
+- Support reduced motion and low-performance devices.
+For catopia-asset-manager:
+- Maintain a centralized asset registry.
+- Track asset source, author, license and attribution requirements.
+- Check model formats and texture dependencies.
+- Ensure models have consistent scale and orientation.
+- Prefer GLB for web delivery.
+- Optimize images and textures.
+- Avoid duplicate assets and unlicensed downloads.
+- Never replace a high-quality approved asset with an arbitrary placeholder.
+Each skill must contain practical instructions, examples, applicable workflows and clear activation descriptions.
+
+Make these skills specific to Catopia rather than generic programming guides.
+
+Do not modify application functionality while creating them.
+
+
+
+
+Part 5. Organize all assets before importing them
+Give Codex a properly structured directory.
+
+catopia/
+│
+├── .agents/
+│   └── skills/
+│       ├── catopia-art-direction/
+│       │   └── SKILL.md
+│       ├── catopia-3d-world-builder/
+│       │   └── SKILL.md
+│       └── catopia-asset-manager/
+│           └── SKILL.md
+│
+├── assets/
+│   ├── 3d/
+│   │   ├── cats/
+│   │   │   ├── orange/
+│   │   │   ├── white/
+│   │   │   ├── black/
+│   │   │   └── mixed/
+│   │   │
+│   │   ├── buildings/
+│   │   ├── trees/
+│   │   ├── vegetation/
+│   │   ├── furniture/
+│   │   ├── roads/
+│   │   └── props/
+│   │
+│   ├── animations/
+│   │   ├── cats/
+│   │   ├── environment/
+│   │   └── ui/
+│   │
+│   ├── textures/
+│   │   ├── grass/
+│   │   ├── stone/
+│   │   ├── wood/
+│   │   └── buildings/
+│   │
+│   ├── website/
+│   │   ├── logo/
+│   │   ├── illustrations/
+│   │   ├── icons/
+│   │   ├── badges/
+│   │   ├── avatars/
+│   │   └── backgrounds/
+│   │
+│   ├── audio/
+│   │   ├── ambience/
+│   │   ├── cats/
+│   │   └── ui/
+│   │
+│   └── references/
+│       ├── campus/
+│       ├── cats/
+│       └── visual-style/
+│
+├── docs/
+│   ├── ASSET_CATALOG.md
+│   ├── ASSET_LICENSES.md
+│   ├── DESIGN_SYSTEM.md
+│   └── WORLD_LAYOUT.md
+│
+└── public/
+    └── models/
+
+
+
+Use assets/ for source downloads and working files, and copy optimized, production-ready files into public/ or another appropriate serving location.
+
+Do not commit enormous source packs or unused files unnecessarily.
+
+Part 6. Tell Codex how to use the downloaded assets
+Once you've downloaded some packs and placed them in the directories, give Codex this prompt.
+I have added a collection of visual and 3D assets to the Catopia repository.
+
+Your task is to inspect and organize these assets before implementing the environment.
+
+Use the catopia-asset-manager skill.
+
+For every asset:
+1. Identify its file format.
+2. Identify its dimensions and approximate size.
+3. Inspect its visual appearance.
+4. Determine whether it is suitable for the Catopia art direction.
+5. Check whether required textures and animation files are present.
+6. Record its source and licensing information.
+7. Identify duplicate or unnecessary files.
+For 3D models:
+- Prefer optimized GLB files for web delivery.
+- Inspect geometry and texture complexity.
+- Verify orientation and scale.
+- Check animation clips.
+- Identify missing materials.
+- Check whether the model is suitable for React Three Fiber.
+Create:
+- ASSET_CATALOG.md
+- ASSET_LICENSES.md
+- ASSET_COMPATIBILITY_REPORT.md
+Do not blindly import every asset.
+
+Select a coherent collection that works together visually.
+
+Do not use assets with unknown licensing in the public application until their permissions have been verified.
+
+Recommend which assets should be optimized, converted, replaced or retained.
+
+Do not modify the existing application yet.
+
+First produce the complete asset audit.
+
+
+
+
+Part 7. Important additional instructions for Codex
+I would also create a project-level AGENTS.md file in the repository root.
+
+This gives Codex persistent project instructions, while skills provide specialized workflows.
+CATOPIA — AGENTS.md
+Project identity
+Catopia is a cozy, artistic, interactive community world dedicated to real cats living around a campus and its surrounding locality.
+Design principles
+- Never create a generic SaaS-looking interface.
+- Maintain the cozy indie game aesthetic.
+- Prioritize visual quality and functional interactions.
+- Maintain consistent colours, materials, lighting and typography.
+- Keep the 2D map and 3D world visually connected.
+Asset principles
+- Inspect available assets before creating new ones.
+- Reuse properly licensed assets.
+- Prefer GLB for optimized 3D web assets.
+- Maintain an asset license register.
+- Never use unknown-license assets in production.
+- Do not use random unrelated models.
+- Avoid unnecessary large downloads.
+Engineering principles
+- Use TypeScript.
+- Follow modular architecture.
+- Keep business logic out of visual components.
+- Use Supabase as the source of truth.
+- Never hardcode production cat or sighting data.
+- Validate inputs on the server.
+- Enforce authorization and RLS.
+- Use database migrations.
+- Add automated tests.
+3D world principles
+- Optimize models and textures.
+- Use lazy loading.
+- Implement graceful loading states.
+- Avoid blocking the main interface.
+- Support mobile devices.
+- Respect reduced-motion preferences.
+- Never sacrifice core functionality for visual effects.
+Development workflow
+Before implementing a major feature:
+1. Inspect the relevant code.
+2. Read relevant agent skills.
+3. Create an implementation plan.
+4. Identify dependencies.
+5. Implement incrementally.
+6. Run tests.
+7. Inspect the actual browser output.
+8. Fix defects before declaring completion.
+Never claim that a feature works without verifying it.
+
+
+
+
+
+Part 8. Final setup commands
+Once you have your Catopia repository open in the terminal, use these commands.
+
+# 1. Install the frontend design skill
+npx skills add dobromirdikov/codex-frontend-design-skill --agent codex
+
+# 2. Install Three.js skills
+npx skills add cesartevisual/threejs-skills --agent codex
+
+# 3. Install Supabase skills
+npx skills add supabase/agent-skills --agent codex
+
+# 4. Install the curated Playwright skill
+# Run inside Codex:
+$skill-installer playwright
+
+
+
+For the Three.js and Supabase collections, choose only the relevant skills rather than automatically installing every available skill.
+
+The commands above use third-party skill repositories where indicated; review their instructions and licenses before trusting them. Codex's official documentation explains the skill format and installation locations: Codex and agent skills documentation.
+
+After installation, restart Codex if necessary and inspect the available skills using /skills.
+Part 9. My final recommendation: the order in which I'd prepare everything
+Catopia preparation checklist
+Preparation progress
+0/16
+
+
+
+[ ] Create Catopia GitHub repository
+[ ] Create the assets directory structure
+[ ] Download Kenney UI and environment packs
+[ ] Download Quaternius environment assets
+[ ] Collect 4–5 compatible cat models
+[ ] Collect cat animation assets
+[ ] Download environmental textures
+[ ] Collect website icons, illustrations and fonts
+[ ] Collect sound effects and ambience
+[ ] Install frontend-design skill
+[ ] Install Three.js / R3F skills
+[ ] Install Supabase skills
+[ ] Install Playwright skill
+[ ] Create three Catopia-specific skills
+[ ] Create AGENTS.md
+[ ] Run asset audit using Codex
+
+One last thing: Don't make Catopia look like a collection of free assets
+The difference between an average project and a beautiful indie-game experience is often not the number of assets.
+
+It's how they are combined.
+
+For Catopia, I would aim for:
+- One consistent art style.
+- A carefully designed campus environment.
+- Cats with distinct personalities and animations.
+- Beautiful UI that feels like part of the game.
+- Real photographs integrated into stylized cat profiles.
+- Subtle ambient sound and environmental motion.
+And I'd make the actual campus recognizable through your own photographs and landmark references.
+
+My ideal outcome: Someone opens Catopia, sees a tiny animated cat wandering around a beautifully recreated version of their campus, clicks it, and discovers that it's a real cat they have probably walked past hundreds of times. 🐈
+
+That's the experience worth building.

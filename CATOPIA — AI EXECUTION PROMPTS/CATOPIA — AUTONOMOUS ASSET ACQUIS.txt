@@ -1,0 +1,197 @@
+# CATOPIA — AUTONOMOUS ASSET ACQUISITION AND INTEGRATION
+
+Act as the asset acquisition specialist, 3D environment artist and frontend asset engineer for Catopia.
+
+Your task is to independently discover, acquire, organize, optimize and integrate the visual assets needed for the complete Catopia application.
+
+Do not depend on me to manually download individual assets.
+
+## 1. Asset discovery
+
+Search for suitable assets from:
+
+- Kenney
+- Quaternius
+- Poly Haven
+- Sketchfab
+- Poly Pizza
+- itch.io
+- Google Fonts
+- Lucide
+- Other reputable asset repositories where permitted.
+
+Prioritize:
+- Free assets.
+- CC0 assets.
+- Commercial-use-compatible assets.
+- Assets with clear licensing.
+- Assets available for direct download.
+
+Do not bypass paywalls, authentication, access restrictions or download protections.
+
+Do not use assets with unclear licensing in production.
+
+## 2. Required 3D assets
+
+Acquire a coherent collection of:
+
+ENVIRONMENT:
+- University buildings.
+- Small shops and cafeterias.
+- Trees.
+- Bushes.
+- Grass.
+- Flowers.
+- Benches.
+- Streetlights.
+- Fences.
+- Roads.
+- Pathways.
+- Decorative props.
+
+CATS:
+- Orange tabby.
+- White cat.
+- Black cat.
+- Grey cat.
+- Calico cat.
+- Other visually distinct cat models where available.
+
+CAT ANIMATIONS:
+- Idle.
+- Walking.
+- Sitting.
+- Sleeping.
+- Stretching.
+- Grooming.
+- Tail movement.
+
+Use compatible quadrupedal character rigs and animations. Do not apply incompatible humanoid animations.
+
+## 3. Website assets
+
+Acquire or prepare:
+
+- Icons.
+- Illustrations.
+- UI decorations.
+- Cat profile placeholders.
+- User avatar placeholders.
+- Achievement illustrations.
+- Map markers.
+- Fonts.
+- Background textures.
+- Loading illustrations.
+- Small animation assets.
+
+Maintain one coherent artistic direction.
+
+## 4. Audio assets
+
+Acquire suitable:
+- Bird sounds.
+- Wind ambience.
+- Leaves rustling.
+- Cat meows.
+- Cat purring.
+- Interface interaction sounds.
+- Achievement sounds.
+- Optional ambient music.
+
+Make audio optional.
+
+## 5. Asset acquisition rules
+
+Before downloading:
+- Check the source.
+- Check the license.
+- Check whether direct downloading is permitted.
+- Check compatibility.
+- Estimate file size.
+
+Prefer:
+- GLB for 3D web models.
+- WebP or AVIF for web images where appropriate.
+- Optimized texture formats.
+- SVG for suitable icons.
+- Lightweight audio formats.
+
+Use scripts for repeatable downloads where appropriate.
+
+Ask me for approval before purchasing anything or using a service requiring my account credentials.
+
+## 6. Asset organization
+
+Create the Catopia asset folder structure.
+
+Store source files separately from optimized production assets.
+
+Maintain:
+- ASSET_CATALOG.md
+- ASSET_LICENSES.md
+- ASSET_COMPATIBILITY_REPORT.md
+
+## 7. Visual inspection
+
+Create an asset preview page within the development environment.
+
+Display:
+- All acquired cat models.
+- Their available animations.
+- Environment models.
+- Textures.
+- UI assets.
+
+Verify that models load correctly.
+
+Do not assume a successful download means a working asset.
+
+## 8. Integration
+
+Integrate the approved assets into Catopia.
+
+Create reusable components for:
+- AnimatedCat.
+- CampusBuilding.
+- EnvironmentTree.
+- InteractiveLandmark.
+- WorldEnvironment.
+- CatProfilePreview.
+
+Do not hardcode individual cat identities into reusable 3D components.
+
+Connect characters to real application data.
+
+## 9. Quality assurance
+
+After integration:
+- Run the application.
+- Inspect the actual rendered environment.
+- Test animations.
+- Check model orientation.
+- Check texture loading.
+- Check performance.
+- Check mobile rendering.
+- Fix missing assets.
+
+## 10. Final report
+
+Report:
+- Assets discovered.
+- Assets successfully downloaded.
+- Assets rejected and why.
+- Licensing information.
+- File sizes.
+- Optimizations performed.
+- Components integrated.
+- Remaining missing assets.
+
+IMPORTANT:
+
+Work autonomously within permitted access.
+
+Do not stop after producing a list of asset links.
+
+Actually acquire, inspect, organize and integrate assets wherever access permits.
+
+If network access or a download restriction prevents an action, explain exactly what permission is required rather than pretending it succeeded.

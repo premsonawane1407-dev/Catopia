@@ -1,0 +1,49 @@
+Antigravity
+A field of particles that lifts into a glowing ring around the cursor and bursts outward on click.
+
+
+
+npx shadcn@latest add @react-bits/Antigravity-JS-CSS
+
+import Antigravity from './Antigravity';
+
+<div style={{ width: '100%', height: '400px', position: 'relative' }}>
+  <Antigravity
+    colors={["#5227FF","#FF9FFC","#B497CF"]}
+    count={1500}
+    magnetRadius={9}
+    ringRadius={7}
+    particleSize={0.9}
+    autoAnimate
+    colorMode="conic"
+    colorSpeed={0.05}
+    particleShape="capsule"
+    particleVariance={1}
+    fieldStrength={10}
+    waveAmplitude={1}
+    waveCount={3}
+    waveSpeed={0.4}
+    rotationSpeed={0}
+    pulseSpeed={3}
+    depthFactor={1}
+    ambient={0.25}
+    lerpSpeed={0.05}
+    interactive
+    clickBurst
+    intro
+    lightMode={false}
+/>
+</div>
+
+import Antigravity from './Antigravity';
+
+<div style={{ width: '100%', height: '400px', position: 'relative' }}>
+  <Antigravity
+    colors={['#5227FF', '#FF9FFC', '#B497CF']}
+    count={1500}
+    magnetRadius={9}
+    ringRadius={7}
+    particleSize={0.9}
+    autoAnimate={true}
+  />
+</div>

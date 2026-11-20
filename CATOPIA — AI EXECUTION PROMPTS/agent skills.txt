@@ -1,0 +1,138 @@
+For Catopia, I recommend installing a focused collection of Codex Agent Skills covering frontend design, 3D development, game environments, backend, asset management, and testing.
+
+Here is the list, with the installation commands.
+Recommended Agent Skills for Catopia
+I would install these in four groups. The first group is essential; the others improve specific parts of development.
+1. Essential skills
+Install these first
+Skill	Purpose
+Frontend Design	Beautiful, polished website interfaces
+Three.js / React Three Fiber	Interactive 3D campus and exploration
+Supabase	Database, authentication, storage and backend
+Supabase Postgres Best Practices	Database design, security and performance
+Playwright	Browser automation and end-to-end testing
+
+Installation commands
+1. Frontend design
+
+Repository: Frontend Design Skill
+npx skills add dobromirdikov/codex-frontend-design-skill -a codex
+
+
+2. Three.js skills
+
+Repository: Three.js Skills
+npx skills add cesartevisual/threejs-skills -a codex
+
+
+Look for threejs-r3f and threejs-web if offered.
+
+3. Supabase
+
+Repository: Official Supabase Agent Skills
+npx skills add supabase/agent-skills --skill supabase
+
+
+4. PostgreSQL best practices
+npx skills add supabase/agent-skills --skill supabase-postgres-best-practices
+
+
+These two official Supabase skills are particularly useful for authentication, RLS, database migrations and security. 
+GitHub+1
+
+
+5. Playwright testing
+
+Official repository: OpenAI Skills
+
+Use the Codex skill installer to find and install the curated Playwright skill, or search:
+npx skills find playwright
+
+
+
+2. Additional skills worth installing
+Skill area	What it helps with
+Next.js	App Router, server components and routing
+React Best Practices	Component architecture and rendering
+TypeScript	Type-safe code
+Web Accessibility	Keyboard navigation and accessible UI
+Performance Optimization	Loading speed and optimization
+SEO	Search visibility
+Animation / Motion Design	Smooth transitions and interactions
+WebGL Optimization	3D rendering performance
+
+Find relevant skills:
+npx skills find nextjs
+npx skills find react
+npx skills find typescript
+npx skills find accessibility
+npx skills find performance
+npx skills find animation
+npx skills find webgl
+
+
+3. Custom Catopia skills
+These are especially important because generic skills won't understand Catopia's complete vision.
+
+Ask Codex to create these three project-specific skills.
+Custom skill	Responsibility
+catopia-art-direction	Maintain consistent cozy indie visual identity
+catopia-3d-world-builder	Build the campus, cats, environments and exploration
+catopia-asset-manager	Find, download, inspect, license and optimize assets
+
+Save them under:
+.agents/skills/
+├── catopia-art-direction/
+│   └── SKILL.md
+├── catopia-3d-world-builder/
+│   └── SKILL.md
+└── catopia-asset-manager/
+    └── SKILL.md
+
+
+Codex supports project-level skills in .agents/skills. 
+ChatGPT Learn+1
+
+4. One master prompt for Codex
+I want you to set up the complete Agent Skills ecosystem for Catopia.
+Install the essential skills
+1. Frontend Design
+2. Three.js / React Three Fiber
+3. Supabase
+4. Supabase Postgres Best Practices
+5. Playwright
+Discover additional skills
+Search for useful skills covering:
+- Next.js
+- React
+- TypeScript
+- Web Accessibility
+- Performance Optimization
+- Animation and Motion Design
+- WebGL Optimization
+- Browser Testing
+Inspect each skill before installing. Only install skills relevant to Catopia.
+Create three custom skills
+Create:
+1. catopia-art-direction
+2. catopia-3d-world-builder
+3. catopia-asset-manager
+Store them under .agents/skills/.
+
+Each must have a complete SKILL.md file with:
+- Valid YAML frontmatter.
+- A clear description of when the skill should activate.
+- Detailed instructions.
+- Technical standards.
+- Quality requirements.
+- Relevant Catopia-specific rules.
+Verify everything
+1. List all installed skills.
+2. Verify their SKILL.md files.
+3. Check for duplicate or conflicting instructions.
+4. Ensure skills are discoverable by Codex.
+5. Update project documentation with the installed skills.
+6. Tell me which skills are installed and what each one contributes.
+Do not install irrelevant skills just to increase the number.
+
+After completing setup, continue implementing Catopia using the appropriate skills automatically.

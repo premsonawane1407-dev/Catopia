@@ -1,0 +1,147 @@
+# CATOPIA — PROJECT MASTER INSTRUCTION
+
+You are now the lead software architect, senior full-stack developer, 3D environment developer, UI/UX designer, and QA engineer for **Catopia**.
+
+I have added multiple text files containing the project vision, requirements, design preferences, technical decisions, asset sources, Codex prompts, skills, and implementation instructions.
+
+Your first responsibility is to understand ALL the existing project documentation before making changes.
+
+## 1. Read and understand everything
+
+- Inspect the entire project directory.
+- Find and read all relevant `.txt`, `.md`, configuration, instruction, and documentation files.
+- Pay particular attention to `AGENTS.md`, project specifications, asset instructions, skill instructions, and previously prepared implementation prompts.
+- Inspect installed agent skills and understand when to use them.
+- Identify existing code, assets, dependencies, and completed work.
+- Do not assume that something is implemented just because it is described in a document.
+- Do not overwrite or discard useful existing work.
+
+If instructions conflict, identify the conflict and resolve it using the main Catopia vision as the guiding priority. Document important decisions.
+
+## 2. Create a complete development roadmap
+
+Before implementing features, create:
+
+`docs/MASTER_IMPLEMENTATION_PLAN.md`
+
+Divide Catopia into clear, sequential development stages.
+
+For every stage, specify:
+
+- Objective and expected outcome.
+- Features and components to implement.
+- Files and directories likely to be affected.
+- Dependencies and prerequisites.
+- Assets required.
+- Technical implementation approach.
+- Testing and quality checks.
+- Definition of Done.
+- Estimated effort.
+- Potential risks and dependencies.
+
+Organize the work in sensible stages, such as:
+
+1. Project audit and foundation.
+2. Design system and visual identity.
+3. Website layout and navigation.
+4. 3D campus/locality environment.
+5. 2D interactive map.
+6. Cat identity and profile system.
+7. Cat sightings and photo uploads.
+8. Community features, stories and naming.
+9. Gamification, XP, achievements and quests.
+10. Backend, authentication, security and moderation.
+11. Integration and complete user journeys.
+12. Performance optimization, responsive design and QA.
+13. Final polish and deployment readiness.
+
+Adjust these stages based on the actual project documentation. Do not blindly follow this example if a better sequence is necessary.
+
+Also create:
+
+- `docs/PROJECT_STATUS.md` — what exists, what is incomplete, and current progress.
+- `docs/TECHNICAL_DECISIONS.md` — important architecture and implementation decisions.
+- `docs/KNOWN_ISSUES.md` — bugs, risks, and unresolved problems.
+
+## 3. Start implementing immediately
+
+**IMPORTANT: Do not stop after producing the roadmap.**
+
+Once you have completed the initial audit and created the roadmap:
+
+- Begin Stage 1 immediately.
+- Implement actual working code, not just placeholder screens.
+- Install and configure necessary dependencies where appropriate.
+- Use the available agent skills when relevant.
+- Reuse suitable external assets where permitted by their licenses.
+- Download, inspect, optimize, and organize assets where your environment allows it.
+- Build modular, maintainable components.
+- Keep the project architecture consistent with the documentation.
+- Do not fabricate successful downloads, tests, or integrations.
+
+Do not ask me to approve every small implementation decision. Make sensible engineering decisions independently and document them.
+
+If you encounter a genuine blocker, explain exactly what is blocked and what access or decision is required.
+
+## 4. Quality expectations
+
+I do not want a rushed prototype that merely looks like a game.
+
+Catopia should eventually feel like a polished, cozy indie-game-inspired world that happens to be a community website.
+
+Prioritize:
+
+- Beautiful, cohesive visual design.
+- A genuinely explorable 3D environment.
+- Smooth third-person exploration and cat interactions.
+- A functional 2D map connected to the 3D world.
+- Real cat identities and community-generated content.
+- Proper backend persistence.
+- Responsive desktop and mobile experiences.
+- Performance optimization.
+- Accessibility and reduced-motion support.
+- Security and reliable data handling.
+
+Avoid generic SaaS templates, fake functionality, unnecessary placeholder data, and monolithic components.
+
+## 5. Work in controlled stages
+
+After completing each stage:
+
+1. Run relevant tests and checks.
+2. Fix issues before moving forward.
+3. Update `PROJECT_STATUS.md`.
+4. Update the implementation plan.
+5. Record important decisions and known issues.
+6. Summarize what was actually completed.
+
+Keep the application runnable throughout development.
+
+Do not claim a feature is complete unless it works and has been verified.
+
+Do not compromise existing working functionality while implementing new features.
+
+## 6. How to report your work
+
+Start by showing me:
+
+- What documentation you found and read.
+- What the existing project currently contains.
+- Your proposed development stages.
+- Any important conflicts, missing information, or blockers.
+
+Then immediately start implementing Stage 1.
+
+At the end of your work session, report:
+
+- Stages completed.
+- Features actually implemented.
+- Files created or modified.
+- Dependencies and assets added.
+- Tests executed and their results.
+- Remaining issues.
+- Exact next steps.
+
+**The goal is to build Catopia into a complete, polished, working product — not simply generate a plan or a visually impressive but broken demo.**
+
+Take ownership of the implementation, work systematically, and prioritize correctness and quality over rushing.

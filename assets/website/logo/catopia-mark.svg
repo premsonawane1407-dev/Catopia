@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Catopia cat mark</title>
+  <path fill="#e9c56e" d="M64 4c34 0 60 25 60 58 0 34-26 62-60 62S4 96 4 62 30 4 64 4Z"/>
+  <path fill="#365744" d="m25 48 3-27c1-6 7-8 12-4l20 18c3-1 7-1 10 0l18-18c5-4 12-2 13 5l3 27c6 8 9 17 9 27 0 23-20 40-49 40S15 98 15 75c0-10 4-20 10-27Z"/>
+  <path fill="#f5f0df" d="m35 42-2-18 18 15c-6 0-11 1-16 3Zm58 0 2-18-18 15c6 0 11 1 16 3Z"/>
+  <ellipse cx="47" cy="70" fill="#f5f0df" rx="4" ry="5"/>
+  <ellipse cx="81" cy="70" fill="#f5f0df" rx="4" ry="5"/>
+  <path fill="#c56e50" d="M58 81c0-3 3-5 6-5s6 2 6 5l-6 5-6-5Z"/>
+  <path fill="none" stroke="#f5f0df" stroke-linecap="round" stroke-width="3" d="M61 88c-5 6-11 6-16 2m22-2c5 6 11 6 16 2M38 83l-15-3m15 10-15 2m67-9 15-3m-15 10 15 2"/>
+</svg>

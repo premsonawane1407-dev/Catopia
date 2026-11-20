@@ -1,0 +1,524 @@
+# CATOPIA — CODEX EXECUTION PROMPTS
+
+## PROMPT 0 — Establish the project and development discipline
+
+You are the lead software architect and senior full-stack engineer responsible for building CATOPIA.
+
+CATOPIA is a beautiful, interactive, game-inspired community platform dedicated to real cats living around a university campus and its surrounding neighbourhood.
+
+Read the complete Catopia product specification before starting.
+
+Your responsibility is to build a working, maintainable, production-oriented application, not a static visual mockup.
+
+Technology stack:
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Three.js
+- React Three Fiber
+- Drei
+- Supabase
+- PostgreSQL
+- MapLibre
+- GSAP where appropriate
+- Vitest
+- Playwright
+
+Development rules:
+
+1. Inspect the repository before changing anything.
+2. Create a development plan.
+3. Identify dependencies and architectural decisions.
+4. Establish a clean project structure.
+5. Use strict TypeScript.
+6. Create reusable components.
+7. Keep business logic separate from presentation.
+8. Implement secure backend operations.
+9. Use database migrations.
+10. Write tests alongside functionality.
+11. Do not use fake data as a substitute for backend integration.
+12. Never leave buttons that look functional but do nothing.
+13. Do not implement all features simultaneously.
+
+First, inspect the repository and report:
+- Existing project structure.
+- Existing functionality.
+- Missing dependencies.
+- Proposed architecture.
+- Implementation sequence.
+- Potential technical risks.
+
+Then implement only the project foundation.
+
+Create:
+- Application setup.
+- Configuration files.
+- Environment variable template.
+- Supabase client configuration.
+- Shared component structure.
+- Initial database migration structure.
+- Basic application shell.
+- Development documentation.
+
+Run the application, linting and type checking.
+
+Do not proceed to the interactive world until the foundation is verified.
+
+---
+
+## PROMPT 1 — Build the visual identity and homepage
+
+Implement Catopia's visual design system.
+
+Art direction:
+Cozy indie game, stylized illustration, soft natural lighting, warm colours and playful visual details.
+
+The website must NOT look like a standard SaaS dashboard.
+
+Create:
+1. A distinctive Catopia logo treatment.
+2. A beautiful landing page.
+3. Floating game-inspired navigation.
+4. An Explore entry point.
+5. Discover cats section.
+6. Recent sightings preview.
+7. Community activity preview.
+8. User profile interface.
+9. Responsive desktop and mobile layouts.
+10. Loading and error states.
+
+Design principles:
+- Use warm cream, sage green, muted forest green and terracotta.
+- Use rounded organic shapes.
+- Use subtle shadows and layered surfaces.
+- Avoid excessive gradients.
+- Avoid generic rectangular card grids.
+- Use beautiful typography.
+- Introduce tasteful animations.
+- Maintain accessibility.
+
+The homepage should communicate that Catopia is a living world, not simply a cat-photo website.
+
+Use actual reusable components.
+
+If the backend is not yet populated, clearly distinguish demo content from real application data.
+
+Implement responsive layouts and test them at different viewport sizes.
+
+Do not build the 3D environment yet.
+
+---
+
+## PROMPT 2 — Build the interactive Catopia world
+
+Now implement the interactive world.
+
+This is the most visually important feature.
+
+Use Three.js and React Three Fiber.
+
+Create a stylized miniature university campus and surrounding neighbourhood.
+
+Environment:
+- University buildings.
+- Roads and pathways.
+- Gardens.
+- Trees.
+- Benches.
+- Cafeteria.
+- Library.
+- Open spaces.
+- Decorative environmental details.
+
+Use properly licensed reusable 3D assets wherever possible.
+
+Do not create an unnecessarily complex world from scratch.
+
+Camera:
+- Desktop orbit and exploration controls.
+- Smooth zoom.
+- Pan controls.
+- Click-to-focus.
+- Mobile touch controls.
+
+Characters:
+- Add stylized animated cats.
+- Implement idle and walking animations.
+- Add sitting and sleeping behaviours where assets permit.
+- Cats should occupy designated world positions.
+- Use animation state machines or a clean equivalent.
+
+Interaction:
+- Hovering over cats displays their names.
+- Clicking cats opens a profile preview.
+- Clicking landmarks displays location information.
+- Selected objects should have visual feedback.
+- Add transitions between selected locations.
+
+Technical requirements:
+- Do not block the main application while the 3D scene loads.
+- Implement lazy loading.
+- Optimize textures and models.
+- Use instancing where appropriate.
+- Implement a fallback for unsupported devices.
+- Ensure mobile controls are usable.
+
+IMPORTANT:
+
+Do not hardcode cat profiles or location records into the 3D scene.
+
+Build the scene so that cat and landmark data can be retrieved from the application backend.
+
+At the end:
+- Run the application.
+- Test camera controls.
+- Test selection.
+- Test mobile responsiveness.
+- Report performance issues.
+- Fix rendering errors.
+
+Do not implement multiplayer functionality.
+
+---
+
+## PROMPT 3 — Build the illustrated geographical map
+
+Implement Catopia's 2D map experience.
+
+Use MapLibre GL JS.
+
+The map should show:
+- Campus boundaries.
+- Surrounding locality.
+- Important landmarks.
+- Approved cat sighting locations.
+- Cat hotspots.
+- Selected cat locations.
+
+Visual direction:
+Create a map experience that feels consistent with the illustrated indie game environment.
+
+Do not simply display a generic default map and call it complete.
+
+Add:
+- Custom map styling.
+- Custom cat markers.
+- Landmark markers.
+- Location information panels.
+- Map zoom controls.
+- Selected-cat highlighting.
+- Filters for locations and cats.
+
+Integrate the map with the 3D world.
+
+Switching between 2D map and 3D world should preserve the selected landmark or cat whenever possible.
+
+Do not invent real geographical locations.
+
+For initial development, use clearly labelled demonstration locations and replace them with verified campus/locality data before public release.
+
+Use approximate public coordinates for sensitive cat locations.
+
+---
+
+## PROMPT 4 — Implement the database and cat identity system
+
+Implement the Catopia database using Supabase PostgreSQL.
+
+Read the database specification.
+
+Create migrations for:
+- Profiles.
+- Campuses.
+- Locations.
+- Cats.
+- Cat photos.
+- Sightings.
+- Name suggestions.
+- Name votes.
+- Stories.
+- Landmarks.
+- Cat world positions.
+- Achievements.
+- User achievements.
+- XP transactions.
+- Reports.
+
+Requirements:
+
+1. Use UUID primary keys.
+2. Use appropriate foreign keys.
+3. Add necessary indexes.
+4. Add uniqueness constraints.
+5. Enable Row Level Security.
+6. Implement policies for user-owned content.
+7. Implement moderator permissions.
+8. Protect sensitive location information.
+9. Use server-side validation.
+10. Create seed data for development.
+
+Implement the cat identity workflow.
+
+Every cat must have a permanent Cat ID.
+
+Unidentified sightings should not automatically produce duplicate permanent cat records.
+
+Allow users to:
+- Create a proposed cat.
+- Submit identification photographs.
+- Suggest an existing cat match.
+- Flag potential duplicates.
+
+Create a moderator workflow for approving new cat identities.
+
+Test all database operations.
+
+Never place service-role credentials in client-side code.
+
+---
+
+## PROMPT 5 — Build cat profiles and discovery
+
+Implement the cat directory and individual profiles.
+
+Directory:
+- Search by cat name.
+- Filter by location.
+- Filter by personality.
+- Show recently discovered cats.
+- Show popular cats.
+- Show unidentified cats.
+
+Cat profile:
+- Main photograph.
+- Name.
+- Cat ID.
+- Description.
+- Personality tags.
+- Physical identification features.
+- First discovered date.
+- Last sighted date.
+- Sighting count.
+- Associated locations.
+- Photo gallery.
+- Community stories.
+
+Connect all data to Supabase.
+
+Clicking a cat in the 3D world, map or sighting feed must open the same cat identity.
+
+Add loading, empty and error states.
+
+Do not create multiple unrelated profile systems.
+
+---
+
+## PROMPT 6 — Build the sighting submission system
+
+Implement the complete community sighting workflow.
+
+A registered user should be able to:
+
+1. Select an existing cat or propose a new identity.
+2. Upload photographs.
+3. Select a location.
+4. Add a caption.
+5. Enter an approximate observation date and time.
+6. Submit the sighting.
+
+Implement:
+- Image preview.
+- Upload progress.
+- Image validation.
+- Storage integration.
+- Submission confirmation.
+- Pending moderation state.
+- Sighting feed.
+- Cat profile integration.
+
+Add moderation functionality.
+
+Only approved sightings should contribute to verified public statistics.
+
+Protect against:
+- Duplicate submissions.
+- Oversized files.
+- Invalid file types.
+- Spam.
+- Unauthorized edits.
+
+Ensure the submission process works on mobile.
+
+---
+
+## PROMPT 7 — Implement community naming and stories
+
+Build the community identity features.
+
+Naming:
+- Suggest a name for an unidentified cat.
+- View existing suggestions.
+- Vote for suggestions.
+- Prevent multiple votes in the same naming round.
+- Show voting progress.
+- Allow moderators to approve the final name.
+
+Stories:
+- Write a story about a cat.
+- Attach it to a cat profile.
+- Moderate submissions.
+- Display approved stories.
+
+Create a friendly community experience.
+
+Do not implement unrestricted public posting without moderation.
+
+Maintain naming history.
+
+---
+
+## PROMPT 8 — Implement gamification
+
+Implement the XP and achievement system.
+
+Activities:
+- Approved sightings.
+- Useful identification contributions.
+- Approved new cat records.
+- Approved stories.
+- Naming participation.
+
+Create:
+- XP transactions.
+- Explorer levels.
+- Achievement badges.
+- Daily quests.
+- Contribution history.
+- Leaderboard.
+
+Important:
+All XP calculations and awarding must happen through trusted server-side logic.
+
+Prevent duplicate rewards using idempotency protections.
+
+Do not award points for rejected submissions or repeated spam.
+
+Create a clear achievement interface.
+
+Animations should be rewarding but restrained.
+
+---
+
+## PROMPT 9 — Connect everything
+
+Perform a complete integration pass.
+
+Verify that:
+
+- The world displays cats retrieved from the backend.
+- Clicking a world cat opens its real profile.
+- The map displays approved sightings.
+- Clicking a map marker opens the correct cat or sighting.
+- Cat profiles show their actual sightings.
+- New sightings appear after moderation.
+- New cats appear in the directory.
+- Naming decisions update the correct cat.
+- XP updates after eligible contributions.
+- User profiles show real achievements.
+
+Remove obsolete mock data from production paths.
+
+Do not introduce duplicate data-fetching systems.
+
+Ensure loading and error states are handled consistently.
+
+---
+
+## PROMPT 10 — Security, QA and production readiness
+
+Act as an independent QA and security engineer.
+
+Review the entire Catopia application.
+
+Test:
+- Authentication.
+- Authorization.
+- Row Level Security.
+- Image uploads.
+- Cat identity creation.
+- Duplicate detection.
+- Sighting submissions.
+- Voting restrictions.
+- XP awarding.
+- Moderation.
+- Map interactions.
+- 3D scene interactions.
+- Responsive layouts.
+
+Run:
+- Type checking.
+- Linting.
+- Unit tests.
+- Integration tests.
+- Playwright end-to-end tests.
+- Production build.
+- Lighthouse performance checks.
+
+Look for:
+- Broken navigation.
+- Non-functional controls.
+- Console errors.
+- Database errors.
+- Race conditions.
+- Permission bypasses.
+- Secret leakage.
+- Poor loading behaviour.
+- Excessive asset sizes.
+- Mobile rendering problems.
+
+Fix all critical and high-priority defects.
+
+Produce a final QA report with:
+- Tests executed.
+- Tests passed.
+- Tests failed.
+- Known limitations.
+- Remaining defects.
+- Performance observations.
+- Security observations.
+- Deployment readiness.
+
+Do not claim the application is production-ready if critical tests remain failing.
+
+---
+
+## PROMPT 11 — Final artistic polish
+
+Now focus exclusively on the quality of the experience.
+
+Evaluate Catopia as if it were a polished indie game.
+
+Improve:
+- Environmental composition.
+- Lighting.
+- Materials.
+- Cat movement.
+- Camera transitions.
+- UI motion.
+- Sound effects.
+- Visual consistency.
+- World atmosphere.
+- Loading transitions.
+
+Add subtle life to the environment.
+
+Avoid excessive animations and unnecessary effects.
+
+Make the environment feel warm, welcoming and memorable.
+
+Preserve all working application functionality.
+
+Do not rewrite the architecture for visual polish.
+
+At the end, provide before-and-after observations and run regression tests.

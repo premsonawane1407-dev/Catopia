@@ -1,0 +1,401 @@
+Here is the complete copy-paste command and download list for Codex. I've separated commands from assets so Codex can execute them systematically.
+
+The instruction is to acquire and integrate the assets itself wherever possible, not simply give you download links.
+1. Installation commands
+Run these from the Catopia project root.
+
+Check installed tools
+node --version
+npm --version
+git --version
+
+
+Install Codex skills
+npx skills add dobromirdikov/codex-frontend-design-skill -a codex
+npx skills add cesartevisual/threejs-skills -a codex
+npx skills add supabase/agent-skills -a codex
+
+
+Inspect available skills first if necessary:
+npx skills list
+npx skills check
+
+
+Install frontend and 3D dependencies
+npm install three @react-three/fiber @react-three/drei
+npm install gsap zustand
+npm install maplibre-gl
+npm install @supabase/supabase-js
+npm install zod react-hook-form @hookform/resolvers
+npm install lucide-react
+
+
+Install testing dependencies
+npm install -D vitest @testing-library/react @testing-library/jest-dom
+npm install -D playwright @playwright/test
+npx playwright install
+
+
+Codex must inspect the existing package.json and avoid installing duplicates or incompatible versions.
+2. Asset download list
+These are the sources Codex should search and acquire from.
+Asset source	What to acquire	Link
+Kenney	Environment, buildings, trees, props, UI	Download
+Quaternius	3D environment and nature packs	Download
+Poly Haven	Realistic models, HDRIs, materials	Download
+Poly Pizza	Lightweight 3D objects	Download
+Sketchfab	Cat models and campus objects	Browse
+ambientCG	Grass, soil, concrete, wood textures	Download
+itch.io	Indie game UI and illustrations	Browse
+Figma Community	UI design resources	Browse
+Google Fonts	Typography	Browse
+Lucide	Website icons	Browse
+Freesound	Cat and environmental sounds	Browse
+Pixabay	Sound effects	Browse
+
+3. Exact assets to download
+A. Cats — highest priority
+Priority 1
+
+
+
+
+
+
+
+
+
+
+Orange tabby cat
+
+
+
+
+
+
+
+
+
+
+
+White cat
+
+
+
+
+
+
+
+
+
+
+
+Black cat
+
+
+
+
+
+
+
+
+
+
+
+Grey cat
+
+
+
+
+
+
+
+
+
+
+
+Calico cat
+
+
+
+
+
+
+
+
+
+
+
+Brown tabby cat
+
+
+Required cat animations:
+- Walking
+- Running
+- Sitting
+- Standing idle
+- Sleeping
+- Grooming
+- Stretching
+- Looking around
+- Tail movement
+- Jumping
+- Turning
+Technical requirement: Models should have quadrupedal rigs and compatible animations. Download GLB/GLTF where possible. Do not use humanoid Mixamo animations on cats.
+B. Campus environment
+Priority 2
+
+
+
+
+
+
+
+
+
+
+Campus buildings
+
+
+
+
+
+
+
+
+
+
+Library
+
+
+
+
+
+
+
+
+
+
+Cafeteria
+
+
+
+
+
+
+
+
+
+
+Gardens and trees
+
+
+
+
+
+
+
+
+
+
+Benches and lights
+
+
+
+
+
+
+
+
+
+
+Roads and paths
+
+Additional objects:
+- College entrance and gate
+- Classroom blocks
+- Stairs and ramps
+- Walls and fences
+- Bushes and flowers
+- Street signs
+- Benches
+- Fountains
+- Trash bins
+- Bicycle stands
+- Lamp posts
+- Rocks and decorative props
+C. Environment and materials
+- Grass textures
+- Soil textures
+- Concrete and pavement
+- Brick walls
+- Wood materials
+- Roof materials
+- Stone paths
+- Water materials
+- Skybox/HDRI
+- Clouds
+- Daylight and evening lighting
+- Shadow effects
+- Ambient environmental effects
+D. Website assets
+- Catopia logo
+- Favicon
+- Cat profile pictures
+- User avatar placeholders
+- Cat map markers
+- Location icons
+- Achievement badges
+- XP icons
+- Level indicators
+- Quest icons
+- Loading animations
+- Empty-state illustrations
+- Photo-upload illustrations
+- Decorative UI backgrounds
+E. Audio
+- Cat meowing
+- Cat purring
+- Cat footsteps
+- Birds chirping
+- Wind blowing
+- Leaves rustling
+- Campus ambience
+- Button click
+- Achievement notification
+- Soft background music
+Check the individual audio licenses before downloading or using any sound.
+4. Required folder structure
+Catopia/
+├── assets/
+│   ├── 3d/
+│   │   ├── cats/
+│   │   ├── buildings/
+│   │   ├── trees/
+│   │   ├── vegetation/
+│   │   ├── furniture/
+│   │   ├── roads/
+│   │   └── props/
+│   ├── animations/
+│   ├── textures/
+│   ├── website/
+│   │   ├── logo/
+│   │   ├── icons/
+│   │   ├── badges/
+│   │   └── illustrations/
+│   ├── audio/
+│   └── references/
+├── docs/
+│   ├── ASSET_CATALOG.md
+│   ├── ASSET_LICENSES.md
+│   └── ASSET_COMPATIBILITY_REPORT.md
+└── public/
+    ├── models/
+    ├── textures/
+    ├── images/
+    └── audio/
+
+
+5. Master command for Codex
+Copy this entire instruction after the commands and asset list.
+CATOPIA — COMPLETE DEVELOPMENT SETUP AND ASSET ACQUISITION
+Read all existing Catopia documentation and instructions before executing this task.
+
+I want you to take responsibility for setting up the development environment and acquiring the assets needed to build the complete Catopia experience.
+TASK 1 — DEVELOPMENT ENVIRONMENT
+Inspect the existing project.
+
+Check Node.js, npm, Git, existing dependencies, and installed Codex skills.
+
+Install missing dependencies for:
+- Next.js and React
+- TypeScript
+- Three.js
+- React Three Fiber
+- Drei
+- GSAP
+- Zustand
+- MapLibre
+- Supabase
+- Zod
+- React Hook Form
+- Lucide React
+- Vitest
+- Playwright
+Do not unnecessarily replace existing dependencies or introduce incompatible versions.
+TASK 2 — AGENT SKILLS
+Inspect and install suitable skills for:
+- Frontend design
+- Three.js
+- React Three Fiber
+- Supabase
+- PostgreSQL
+- Playwright testing
+Use the skills CLI and verify the installations.
+TASK 3 — DOWNLOAD AND ORGANIZE ASSETS
+Investigate and acquire assets from:
+- Kenney
+- Quaternius
+- Poly Haven
+- Poly Pizza
+- Sketchfab
+- ambientCG
+- itch.io
+- Figma Community
+- Google Fonts
+- Lucide
+- Freesound
+- Pixabay
+Prioritize these assets:
+1. Six cat variations.
+2. Cat-specific quadrupedal animation sets.
+3. Campus buildings.
+4. Library and cafeteria.
+5. Trees, gardens and vegetation.
+6. Benches, roads, pathways and streetlights.
+7. Environment materials and HDRIs.
+8. UI illustrations, logos, badges and icons.
+9. Cat and environmental sound effects.
+TASK 4 — QUALITY CONTROL
+For each downloaded asset:
+- Verify the source.
+- Verify its license.
+- Check the file format.
+- Check the model's compatibility.
+- Check animation compatibility.
+- Check model scale and orientation.
+- Optimize file size and textures.
+- Remove unnecessary duplicate assets.
+- Record the original source and author.
+Prefer GLB/GLTF models and web-optimized textures.
+
+Do not bypass paywalls, authentication, or licensing restrictions.
+TASK 5 — INTEGRATION
+Integrate suitable assets into actual Catopia components.
+
+Build reusable components for cats, buildings, trees, environment props, landmarks and interactive cat previews.
+
+Ensure cat animations are appropriate for quadrupedal models.
+
+Do not merely download assets and leave them unused.
+TASK 6 — DOCUMENTATION
+Create:
+- docs/ASSET_CATALOG.md
+- docs/ASSET_LICENSES.md
+- docs/ASSET_COMPATIBILITY_REPORT.md
+Document downloaded assets, unavailable assets, license information, compatibility and integration status.
+TASK 7 — EXECUTION
+Continue with the existing Catopia implementation roadmap.
+
+Do not stop at asset acquisition.
+
+Implement the actual product in sequential stages, run tests, inspect the browser output and fix errors.
+
+If network access is disabled, explain exactly how to enable the minimum necessary access. Do not claim downloads or integrations succeeded when they did not.
+
+At the end, provide a report of completed work, downloaded assets, installed dependencies, installed skills, test results, and remaining tasks.
+
+
+
+
+6
