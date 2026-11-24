@@ -26,6 +26,27 @@ Source packs and a first small set of web assets are now acquired. Candidate fil
 | Poly Haven | 3 JPG diffuse maps under `assets/textures/` | 2,409,449 bytes | Three 1K, 1024×1024 maps; source files only, not in production `public/` |
 | Google Fonts | Nunito/Fraunces WOFF2 under `assets/website/fonts/`, copied to `public/fonts/` | 106,432 bytes for the two WOFF2 files | Variable Latin subsets; OFL license text accompanies each source font |
 
+## User-provided PAW preview imagery
+
+Selected images from `references/paw/` are copied into `public/images/paw/` for the PAW prototype. They are used as visual references only, with collection images chosen to match each board's theme. They do not identify real Catopia cats or serve as evidence for the linked articles.
+
+| Public file | Source file | Dimensions | Bytes | Intended use |
+|---|---|---:|---:|---|
+| `meet-cats-01.jpg` | `references/paw/meet the cats 1.jpg` | 1000×667 | 96,843 | Meet the Cats board |
+| `meet-cats-03.jpg` | `references/paw/meet the cats 3.jpg` | 2048×1366 | 142,172 | PAW hero and Meet the Cats board |
+| `meet-cats-05.jpg` | `references/paw/meet the cats 5.jpg` | 2048×1365 | 438,764 | Meet the Cats board |
+| `curiosity-01.jpg` | `references/paw/cat curiosity 1.jpg` | 1100×1100 | 102,804 | Whiskers note and Cat Curiosities board |
+| `curiosity-02.jpg` | `references/paw/cat curiosity 2.jpg` | 1200×1744 | 181,446 | PAW hero and Cat Curiosities board |
+| `curiosity-03.jpg` | `references/paw/cat curiosity 3.jpg` | 230×360 | 13,379 | Cat Curiosities board thumbnail |
+| `through-time-01.jpg` | `references/paw/Cat through time.jpg` | 800×533 | 98,492 | History note and Cat Through Time board |
+| `through-time-02.jpg` | `references/paw/Cat through time 2.jpg` | 1222×711 | 173,878 | Cat Through Time board |
+| `through-time-06.jpg` | `references/paw/Cat through time 6.jpg` | 1280×1255 | 342,471 | Cat Through Time board |
+| `toolkit-01.jpg` | `references/paw/cat tool kit 1.jpg` | 1280×650 | 101,106 | The Cat Toolkit board |
+| `toolkit-04.jpg` | `references/paw/cat tool kit 4.jpg` | 1388×995 | 207,524 | Care note and The Cat Toolkit board |
+| `toolkit-06.jpg` | `references/paw/cat tool kit 6.jpg` | 640×640 | 63,402 | Enrichment note and The Cat Toolkit board |
+
+All selected files are JPEGs. No conversion or compression was applied; original files remain in `references/paw/`.
+
 The 18 selected Kenney environment GLBs are copied to `public/models/environment/` for later use. Their source copies remain under `assets/3d/`; no 3D component loads them yet.
 
 ## Candidate packs reviewed

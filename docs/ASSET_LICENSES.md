@@ -16,6 +16,7 @@ Assets are now downloaded. The following records include the source-page license
 | [Nunito](https://fonts.google.com/specimen/Nunito) | SIL Open Font License; local `Nunito-OFL.txt` | OFL notice retained with source font | Latin variable WOFF2 served from `public/fonts/` |
 | [Fraunces](https://fonts.google.com/specimen/Fraunces) | SIL Open Font License; local `Fraunces-OFL.txt` | OFL notice retained with source font | Latin variable WOFF2 served from `public/fonts/` |
 | [Poly Haven grass/stone textures](https://polyhaven.com/license) | CC0; downloaded using the public API with 1K diffuse option | Not required | Source-only; photorealistic appearance is not approved for production styling yet |
+| User-provided PAW reference images | Supplied in `references/paw/`; individual creator and license terms were not included or independently verified | Unknown; obtain any required credit before release | Selected images are used only in the local design prototype; production use is pending rights confirmation |
 
 ## Rules
 

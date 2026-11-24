@@ -1,0 +1,38 @@
+/* Shared Explore-style search bar across Home, PAW and Store. */
+.cp-main.is-home .cp-topbar,
+.cp-main.is-paw .cp-topbar,
+.cp-main.is-store .cp-topbar { gap: 20px; }
+.cp-main.is-home .cp-search-wrap,
+.cp-main.is-paw .cp-search-wrap,
+.cp-main.is-store .cp-search-wrap { width: 100%; max-width: 1380px; flex: 1; margin-left: 0; }
+.cp-main.is-home .cp-search,
+.cp-main.is-paw .cp-search,
+.cp-main.is-store .cp-search { height: 48px; padding: 0 16px; border-color: transparent; border-radius: 24px; background: #efeee6; }
+.cp-main.is-home .cp-search input,
+.cp-main.is-paw .cp-search input,
+.cp-main.is-store .cp-search input { font-size: 13px; }
+.cp-main.is-home .cp-search kbd,
+.cp-main.is-paw .cp-search kbd,
+.cp-main.is-store .cp-search kbd { display: none; }
+
+/* Keep the small profile and sample-set panel alongside the Home feed while it scrolls. */
+@media (min-width: 901px) {
+  .cp-main.is-home .cp-discovery-rail {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    max-height: calc(100svh - 104px);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .cp-main.is-home .cp-discovery-rail::-webkit-scrollbar { display: none; }
+}
+
+@media (max-width: 760px) {
+  .cp-main.is-home .cp-search,
+  .cp-main.is-paw .cp-search,
+  .cp-main.is-store .cp-search { height: 40px; padding: 0 12px; }
+  .cp-main.is-home .cp-search input,
+  .cp-main.is-paw .cp-search input,
+  .cp-main.is-store .cp-search input { font-size: 11px; }
+}

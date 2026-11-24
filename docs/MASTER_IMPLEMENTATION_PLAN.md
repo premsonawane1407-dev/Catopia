@@ -4,6 +4,8 @@
 
 The repository audit found five planning text files and no application, dependencies, source assets, environment configuration, or Git metadata. This roadmap follows the product specification and execution prompts while keeping unverified campus data and external services out of the product. Effort estimates are person-days and include implementation and review; they are planning ranges, not commitments.
 
+The community product information architecture and approval-gated delivery plan are in [`COMMUNITY_PRODUCT_BLUEPRINT.md`](COMMUNITY_PRODUCT_BLUEPRINT.md). Phase 1 decisions are approved; the existing community preview is being extended stage by stage, and production data flows remain gated on review.
+
 ## Stage 1 — Project foundation and repository baseline
 
 - **Objective / outcome:** Establish a runnable, typed web application and repeatable development conventions.
@@ -88,10 +90,10 @@ The repository audit found five planning text files and no application, dependen
 - **Risks / dependencies:** Tile provider, API terms, network availability, and real campus data.
 - **Status:** Planned.
 
-## Stage 7 — Cat identities and discovery
+## Stage 7 — Reviewed cat identities and PAW discovery
 
-- **Objective / outcome:** Establish durable cat records and a discoverable directory/profile experience.
-- **Features / components:** Cat schema, human-readable ID allocation, provisional identification state, directory/search/filters, profiles, photos and sightings relationships, duplicate review queue foundation.
+- **Objective / outcome:** Establish durable, manually reviewed cat records and a source-backed feline knowledge library. PAW is the community preview's replacement for the former top-level Cats directory; it can later host approved cat identity discovery within its Meet the Cats collection.
+- **Features / components:** Cat schema, human-readable ID allocation, provisional identification state, reviewed directory/search/filters, profiles, photo and sighting relationships, duplicate review queue foundation, PAW's typed content records, references, collection/search/library and learning-trail relationships.
 - **Likely files:** `features/cats/`, `app/discover/`, `app/cats/[id]/`, `supabase/migrations/`, `lib/validation/`.
 - **Prerequisites:** Stage 1 backend setup; location records from Stage 4.
 - **Assets:** Approved cat photos with contributor rights and metadata.
@@ -100,7 +102,7 @@ The repository audit found five planning text files and no application, dependen
 - **Definition of done:** Approved cat records can be browsed and resolve consistently across app surfaces.
 - **Effort:** 5–8 days.
 - **Risks / dependencies:** Supabase project, moderation rules, privacy and photo rights.
-- **Status:** Planned.
+- **Status:** PAW editorial UI prototype in progress; production content model and reviewed cat directory remain planned.
 
 ## Stage 8 — Sightings, photo intake, and moderation
 
@@ -115,6 +117,14 @@ The repository audit found five planning text files and no application, dependen
 - **Effort:** 6–10 days.
 - **Risks / dependencies:** Storage configuration, moderation staffing, abuse controls.
 - **Status:** Planned.
+
+### PAW preview refinement (implemented)
+
+The existing PAW overview now uses a compact discovery hero, four image-led category boards, one date-selected source-linked discovery, equally proportioned “Explore more” cards, and a short learning-trail entry. Collection pages use collection-specific context while keeping the current search, source links, quiz, trail, and preview-session library. Reference cat photos remain explicitly identified as sample visuals. This is still editorial preview content, not a connected knowledge CMS or reviewed cat directory; responsive browser review and production content remain outstanding.
+
+### Store product detail preview (implemented; review pending)
+
+Store product selection opens a refreshable, URL-addressable detail view inside the existing community preview shell. The view reuses the session cart and wishlist, supports quantity selection, shows only the catalog fields currently available, and presents same-category recommendations. Since the concept catalog contains no product photography, reviews, variants, stock counts, supplier details, or shipping policy, the page uses original labeled category artwork and honest empty/unconfigured states. A browser visual pass at desktop and mobile widths is still needed; real store data, authentication, payment, fulfilment, and policy integrations remain future work.
 
 ## Stage 9 — Community naming, stories, and profiles
 

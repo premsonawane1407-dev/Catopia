@@ -10,6 +10,7 @@
 | Medium | No production assets or licenses were supplied | 3D environment and visual content cannot use approved downloaded assets yet | Acquire and inspect a coherent licensed set; record catalog, license and compatibility |
 | Medium | Git metadata is absent | Change history and normal version-control workflow are unavailable | Initialize source control when appropriate for the project owner |
 | Medium | No campus references or real cat photographs/data exist | No authentic cat records can be shown | Use an honest empty state until rights-cleared content is available |
+| Medium | Store catalog has no product photos, specifications, variants, review records, stock quantities, or fulfilment policy | Product pages cannot yet show verified photography, ratings, delivery claims, or detailed buying options | Add sourced product records, authorized imagery, and configured policies before presenting the store as live |
 
 ## Verified observations
 

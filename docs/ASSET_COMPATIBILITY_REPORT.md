@@ -13,6 +13,13 @@
 - **Optimizations performed:** Selected source GLBs are small and directly usable in public path; no mesh simplification or texture compression performed. 1K textures were source-downloaded but excluded from production delivery.
 - **Integrated reusable asset components:** None; assets are staged, not yet referenced by app components.
 
+### PAW preview images supplied by the user
+
+- Twelve selected JPEGs from `references/paw/` are copied to `public/images/paw/` and now appear in the PAW hero, collection collages, and relevant note cards.
+- All twelve files decode as JPEGs and loaded through the local Next.js preview. Dimensions and byte sizes are recorded in `docs/ASSET_CATALOG.md`.
+- The files remain unoptimized originals; largest selected file is 438,764 bytes. They are suitable for this local prototype at current display sizes.
+- Creator and license terms were not supplied with these files. Keep them prototype-only until rights and any attribution requirements are confirmed. Image captions explicitly say these visuals do not verify identities or support the linked articles.
+
 ## Acceptance checks for each candidate
 
 ### 3D models

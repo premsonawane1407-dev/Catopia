@@ -1,0 +1,17 @@
+.cp-main.is-map .cp-topbar{display:none}
+.cp-main.is-map .cp-map-top-float{top:18px}
+.cp-main.is-map .cp-map-search-results{display:grid;gap:2px;padding:5px;border:1px solid #ffffffd9;border-radius:10px;background:#fffdf1ed;box-shadow:0 10px 25px #33433318;backdrop-filter:blur(14px)}
+.cp-main.is-map .cp-map-search-results button{display:flex;align-items:center;gap:10px;padding:9px 10px;border:0;border-radius:7px;color:#5e705d;background:transparent;cursor:pointer;text-align:left}
+.cp-main.is-map .cp-map-search-results button:hover{background:#edf0e4}
+.cp-main.is-map .cp-map-search-results span{display:grid;gap:3px}
+.cp-main.is-map .cp-map-search-results b{color:#3f5945;font-size:10px}
+.cp-main.is-map .cp-map-search-results small{color:#868b7b;font-size:8px}
+.cp-main.is-map .cp-map-search-results button svg{flex:0 0 auto;color:#7d8a71}
+.cp-main.is-map .cp-map-results-group{margin:6px 4px 2px;color:#9a9c89;font-size:7px;font-weight:950;letter-spacing:.12em}
+.cp-main.is-map .cp-map-results-group:first-child{margin-top:2px}
+.cp-main.is-map .cp-map-filters button{gap:5px}
+.cp-main.is-map .cp-map-filter-clear{color:#a0653f!important;background:transparent!important;border-color:#e4c3af!important;box-shadow:none!important}
+.cp-main.is-map .cp-map-search-area{position:absolute;z-index:3;top:128px;left:50%;display:flex;align-items:center;gap:7px;padding:0 14px;min-height:36px;border:1px solid #ffffffd9;border-radius:99px;color:#3e5947;background:#fffdf1ed;box-shadow:0 10px 26px #33433322;backdrop-filter:blur(12px);cursor:pointer;font-size:9px;font-weight:850;transform:translateX(-50%)}
+.cp-main.is-map .cp-map-search-area:hover{background:#f2efe1}
+@media(max-width:760px){.cp-main.is-map .cp-map-top-float{top:10px}.cp-main.is-map .cp-map-zoom{bottom:205px}.cp-main.is-map .cp-map-add{bottom:145px}.cp-main.is-map .cp-map-search-area{top:auto;bottom:205px}}
+@media(max-width:760px){.community-preview:has(.cp-main.is-map){padding-bottom:0}.cp-main.is-map{height:calc(100svh - 54px - env(safe-area-inset-bottom))}}
