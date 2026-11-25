@@ -1,4 +1,4 @@
-import { Fish, Feather, Sofa, Droplets, Shirt, Luggage, HeartPulse, Cpu, Cat, Gift, type LucideIcon } from "lucide-react";
+import { Fish, Feather, Sofa, Droplets, Shirt, Luggage, HeartPulse, Cpu, Cat, Gift, type LucideIcon, Wheat, Soup, Cookie, Smile, Pill, CookingPot, Droplet, Timer, Wand, Sprout, Puzzle, Tent, Boxes, BedDouble, TreePine, PanelTop, Rows3, House, Brush, Bath, Scissors, Container, Sparkles, SprayCan, CircleDot, Link2, IdCard, Car, Trees, Backpack, BriefcaseMedical, Bug, Accessibility, Wifi, Camera, MapPin, Shield, Baby, HeartHandshake, Milk, Snowflake, Lamp, Package, Zap, Footprints, LayoutGrid, IndianRupee, Layers, Ruler, Palette, PackageCheck } from "lucide-react";
 
 export type ProductCategory =
   | "food-feeding"
@@ -28,7 +28,11 @@ export type Product = {
   material?: string;
   size?: string;
   color?: string;
+  /** Real product photographs (served as-is). When absent, the gallery falls back to labelled sample imagery. */
+  images?: ProductImage[];
 };
+
+export type ProductImage = { src: string; alt: string };
 
 export type CartItem = { productId: string; quantity: number };
 export type CheckoutStep = "cart" | "details" | "done";
@@ -141,6 +145,58 @@ export const PRODUCTS: Product[] = [
   { id: "gift-festive-collar-set", name: "Festive Bell Collar Set", category: "gifts-collections", subcategory: "Seasonal", price: 349, unit: "1 set", description: "A small seasonal touch for festive photos and visits.", inStock: true },
   { id: "gift-ceramic-mug", name: "Cat-Shaped Ceramic Mug", category: "gifts-collections", subcategory: "Lifestyle & Home", price: 399, unit: "1 mug", description: "A mug for the humans — for the quiet moments between playtime.", inStock: true, material: "Ceramic" },
 ];
+
+type ImageCrop = { src: string; width: number; height: number; cx: number; cy: number; size: number };
+
+const TOOLKIT_WIDE: Omit<ImageCrop, "cx" | "cy" | "size"> = { src: "/images/paw/toolkit-01.jpg", width: 1280, height: 650 };
+const TOOLKIT_ROOM: Omit<ImageCrop, "cx" | "cy" | "size"> = { src: "/images/paw/toolkit-04.jpg", width: 1388, height: 995 };
+
+// Square crops (centre + side length, in source pixels) of the two prototype-only toolkit photos.
+// Only subcategories that the crop genuinely shows are mapped; the rest keep the icon tile.
+export const SUBCATEGORY_IMAGES: Record<string, ImageCrop> = {
+  "Water Fountains": { ...TOOLKIT_WIDE, cx: 100, cy: 430, size: 300 },
+  "Automatic Feeders": { ...TOOLKIT_WIDE, cx: 250, cy: 270, size: 400 },
+  "Feeding Bowls": { ...TOOLKIT_WIDE, cx: 630, cy: 385, size: 320 },
+  "Beds": { ...TOOLKIT_WIDE, cx: 535, cy: 190, size: 340 },
+  "Tunnels": { ...TOOLKIT_WIDE, cx: 780, cy: 175, size: 190 },
+  "Carriers": { ...TOOLKIT_WIDE, cx: 1060, cy: 215, size: 400 },
+  "Car Travel": { ...TOOLKIT_WIDE, cx: 1065, cy: 480, size: 330 },
+  "Litter Boxes": { ...TOOLKIT_ROOM, cx: 285, cy: 480, size: 560 },
+  "Cat Trees & Towers": { ...TOOLKIT_ROOM, cx: 640, cy: 210, size: 400 },
+  "Scratching Posts": { ...TOOLKIT_ROOM, cx: 1010, cy: 690, size: 250 },
+  "Wand Toys": { ...TOOLKIT_ROOM, cx: 760, cy: 585, size: 200 },
+  "Treats": { ...TOOLKIT_ROOM, cx: 812, cy: 698, size: 200 },
+  "Nail Care": { ...TOOLKIT_ROOM, cx: 745, cy: 840, size: 260 },
+  "Brushes & Deshedding": { ...TOOLKIT_ROOM, cx: 900, cy: 880, size: 260 },
+  "Safety Nets & Gates": { ...TOOLKIT_ROOM, cx: 115, cy: 170, size: 280 },
+};
+
+export const SUBCATEGORY_ICONS: Record<string, LucideIcon> = {
+  "Dry Food": Wheat, "Wet Food": Soup, "Treats": Cookie, "Dental Treats": Smile, "Supplements": Pill, "Feeding Bowls": CookingPot, "Water Fountains": Droplet, "Automatic Feeders": Timer,
+  "Wand Toys": Wand, "Catnip Toys": Sprout, "Interactive Toys": Zap, "Puzzle Feeders": Puzzle, "Tunnels": Tent, "Enrichment Kits": Boxes,
+  "Beds": BedDouble, "Cat Trees & Towers": TreePine, "Window Perches": PanelTop, "Scratching Posts": Rows3, "Hideaways": House,
+  "Brushes & Deshedding": Brush, "Bath & Shampoo": Bath, "Nail Care": Scissors, "Litter Boxes": Container, "Litter": Sparkles, "Cleaning Supplies": SprayCan,
+  "Apparel": Shirt, "Collars": CircleDot, "Harnesses & Leashes": Link2, "ID Tags": IdCard,
+  "Carriers": Luggage, "Car Travel": Car, "Outdoor Enclosures": Trees, "Travel Accessories": Backpack,
+  "First Aid": BriefcaseMedical, "Flea & Tick Care": Bug, "Dental Care": Smile, "Mobility Support": Accessibility, "Wellness Supplements": Pill,
+  "Smart Feeders & Fountains": Wifi, "Pet Cameras": Camera, "GPS Trackers": MapPin, "Safety Nets & Gates": Shield,
+  "Kitten Essentials": Baby, "Senior Comfort": HeartHandshake, "Nursing & Weaning": Milk, "Mobility Aids": Footprints,
+  "Gift Boxes": Gift, "Starter Bundles": Package, "Seasonal": Snowflake, "Lifestyle & Home": Lamp,
+};
+
+export const FILTER_SECTION_ICONS = { category: LayoutGrid, price: IndianRupee, lifeStage: Baby, material: Layers, size: Ruler, colour: Palette, availability: PackageCheck };
+
+export function cropBackgroundStyle(crop: ImageCrop) {
+  const clamp = (value: number) => Math.min(100, Math.max(0, value));
+  const x = crop.width > crop.size ? clamp(((crop.cx - crop.size / 2) / (crop.width - crop.size)) * 100) : 50;
+  const y = crop.height > crop.size ? clamp(((crop.cy - crop.size / 2) / (crop.height - crop.size)) * 100) : 50;
+  return {
+    backgroundImage: `url(${crop.src})`,
+    backgroundSize: `${(crop.width / crop.size) * 100}% auto`,
+    backgroundPosition: `${x}% ${y}%`,
+    backgroundRepeat: "no-repeat",
+  };
+}
 
 export function formatPrice(amount: number): string {
   return `₹${amount.toLocaleString("en-IN")}`;

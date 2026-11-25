@@ -1,8 +1,26 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Heart, Minus, Package, PackageCheck, Plus, ShoppingBag, SlidersHorizontal, Sparkles, Trash2, Truck, X } from "lucide-react";
-import { COLOR_SWATCHES, PRODUCT_CATEGORY_META, PRODUCT_CATEGORY_ORDER, PRODUCTS, SORT_OPTIONS, formatPrice, type CartItem, type CheckoutStep, type Product, type ProductCategory, type SortOption } from "./store-data";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
+import { ArrowLeft, LayoutGrid, ArrowRight, Check, ChevronDown, ChevronRight, Heart, Minus, Package, PackageCheck, Plus, ShoppingBag, SlidersHorizontal, Trash2, Truck, X } from "lucide-react";
+import StoreHero, { type HeroAction } from "./store-hero";
+import DotGrid from "./react-bits/DotGrid";
+import ProductPage from "./product-page";
+import ProductStrip from "./product-strip";
+import { COLOR_SWATCHES, FILTER_SECTION_ICONS, SUBCATEGORY_ICONS, PRODUCT_CATEGORY_META, PRODUCT_CATEGORY_ORDER, PRODUCTS, SORT_OPTIONS, formatPrice, type CartItem, type CheckoutStep, type Product, type ProductCategory, type SortOption } from "./store-data";
+
+function FilterSection({ index, icon: Icon, title, children }: { index: number; icon: LucideIcon; title: string; children: ReactNode }) {
+  return <section className="cp-filter-section" style={{ "--i": index } as CSSProperties}>
+    <h3><span className="cp-filter-section-icon"><Icon size={16} /></span>{title}</h3>
+    {children}
+  </section>;
+}
+
+function countBy(products: Product[], pick: (product: Product) => string | undefined) {
+  const counts = new Map<string, number>();
+  for (const product of products) { const value = pick(product); if (value) counts.set(value, (counts.get(value) ?? 0) + 1); }
+  return [...counts.entries()];
+}
 
 function toggleValue(list: string[], value: string, setter: (next: string[]) => void) {
   setter(list.includes(value) ? list.filter((item) => item !== value) : [...list, value]);
@@ -37,8 +55,6 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [detailTab, setDetailTab] = useState<"description" | "specifications" | "shipping" | "reviews">("description");
-  const [galleryOpen, setGalleryOpen] = useState(false);
   const [detailQuantity, setDetailQuantity] = useState(1);
   const [addedNotice, setAddedNotice] = useState(false);
 
@@ -63,8 +79,7 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
     params.set("product", product.id);
     window.history.pushState(null, "", `${window.location.pathname}?${params.toString()}`);
     setSelectedProductId(product.id);
-    setDetailTab("description");
-    setGalleryOpen(false);
+    window.scrollTo({ top: 0 });
     setDetailQuantity(1);
     setAddedNotice(false);
   };
@@ -74,7 +89,6 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
     const nextUrl = `${window.location.pathname}${params.size ? `?${params.toString()}` : ""}${window.location.hash}`;
     window.history.replaceState(null, "", nextUrl);
     setSelectedProductId(null);
-    setGalleryOpen(false);
   };
 
   const categoryCounts = useMemo(() => {
@@ -84,21 +98,28 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
   }, []);
   const inStockCount = useMemo(() => PRODUCTS.filter((product) => product.inStock).length, []);
   const catalogPriceBounds = useMemo(() => ({ min: Math.min(...PRODUCTS.map((product) => product.price)), max: Math.max(...PRODUCTS.map((product) => product.price)) }), []);
+  const priceRanges = useMemo(() => {
+    const ranges: { label: string; min?: number; max?: number; count: number }[] = [
+      { label: "Under ₹500", max: 499, count: PRODUCTS.filter((product) => product.price < 500).length },
+      { label: "₹500 – ₹1,499", min: 500, max: 1499, count: PRODUCTS.filter((product) => product.price >= 500 && product.price < 1500).length },
+      { label: "₹1,500 & up", min: 1500, count: PRODUCTS.filter((product) => product.price >= 1500).length },
+    ];
+    return ranges.filter((range) => range.count > 0);
+  }, []);
+  const priceSpan = Math.max(1, catalogPriceBounds.max - catalogPriceBounds.min);
+  const priceTrackLow = Math.min(100, Math.max(0, (((priceMin === "" ? catalogPriceBounds.min : priceMin) - catalogPriceBounds.min) / priceSpan) * 100));
+  const priceTrackHigh = Math.min(100, Math.max(0, (((priceMax === "" ? catalogPriceBounds.max : priceMax) - catalogPriceBounds.min) / priceSpan) * 100));
+  const priceTrackStyle: CSSProperties = { left: priceTrackLow + "%", right: Math.max(0, 100 - priceTrackHigh) + "%" };
 
   // Scoped to the current category/subcategory selection only, so facets like Life Stage,
   // Material, Size and Colour never show a value or count with zero matching products.
   const categoryScoped = useMemo(() => PRODUCTS.filter((product) =>
     (activeCategory === "all" || product.category === activeCategory)
     && (activeSubcategories.length === 0 || activeSubcategories.includes(product.subcategory))), [activeCategory, activeSubcategories]);
-  const countBy = (pick: (product: Product) => string | undefined) => {
-    const counts = new Map<string, number>();
-    for (const product of categoryScoped) { const value = pick(product); if (value) counts.set(value, (counts.get(value) ?? 0) + 1); }
-    return [...counts.entries()];
-  };
-  const lifeStageOptions = useMemo(() => countBy((product) => product.lifeStage), [categoryScoped]);
-  const materialOptions = useMemo(() => countBy((product) => product.material), [categoryScoped]);
-  const sizeOptions = useMemo(() => countBy((product) => product.size), [categoryScoped]);
-  const colorOptions = useMemo(() => countBy((product) => product.color), [categoryScoped]);
+  const lifeStageOptions = useMemo(() => countBy(categoryScoped, (product) => product.lifeStage), [categoryScoped]);
+  const materialOptions = useMemo(() => countBy(categoryScoped, (product) => product.material), [categoryScoped]);
+  const sizeOptions = useMemo(() => countBy(categoryScoped, (product) => product.size), [categoryScoped]);
+  const colorOptions = useMemo(() => countBy(categoryScoped, (product) => product.color), [categoryScoped]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -128,7 +149,14 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
   const cartTotal = cartLines.reduce((sum, { item, product }) => sum + product.price * item.quantity, 0);
   const quantityOf = (productId: string) => cart.find((item) => item.productId === productId)?.quantity ?? 0;
   const selectedProduct = selectedProductId ? PRODUCTS.find((product) => product.id === selectedProductId) ?? null : null;
-  const recommendations = selectedProduct ? PRODUCTS.filter((product) => product.category === selectedProduct.category && product.id !== selectedProduct.id).slice(0, 4) : [];
+  const recommendations = useMemo(() => {
+    if (!selectedProduct) return [];
+    const others = PRODUCTS.filter((product) => product.id !== selectedProduct.id);
+    const sameCategory = others.filter((product) => product.category === selectedProduct.category);
+    const start = PRODUCTS.findIndex((product) => product.id === selectedProduct.id);
+    const nearby = [...PRODUCTS.slice(start + 1), ...PRODUCTS.slice(0, start)].filter((product) => product.category !== selectedProduct.category);
+    return [...sameCategory, ...nearby].slice(0, 5);
+  }, [selectedProduct]);
 
   const toggleWishlist = (productId: string) => setWishlist((current) => current.includes(productId) ? current.filter((id) => id !== productId) : [...current, productId]);
 
@@ -141,10 +169,26 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
     if (activeCategory !== category) setActiveCategory(category);
     toggleValue(activeSubcategories, subcategory, setActiveSubcategories);
   };
+  const scrollToCatalogue = () => {
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    requestAnimationFrame(() => document.getElementById("store-catalogue")?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" }));
+  };
+  const browseFromProduct = (category: ProductCategory, subcategory?: string) => {
+    closeProduct();
+    setActiveCategory(category);
+    setActiveSubcategories(subcategory ? [subcategory] : []);
+    setExpandedCategory(category);
+    scrollToCatalogue();
+  };
+  const handleHeroAction = (action: HeroAction) => {
+    if (action.kind === "category") selectCategory(action.category);
+    scrollToCatalogue();
+  };
 
   const activeFilterCount = (activeCategory !== "all" ? 1 : 0) + activeSubcategories.length + activeLifeStages.length + activeMaterials.length
     + activeSizes.length + activeColors.length + (inStockOnly ? 1 : 0) + (priceMin !== "" ? 1 : 0) + (priceMax !== "" ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
+  const browseMode = !hasActiveFilters && !query.trim();
   const clearAllFilters = () => {
     setActiveCategory("all"); setActiveSubcategories([]); setActiveLifeStages([]); setActiveMaterials([]);
     setActiveSizes([]); setActiveColors([]); setInStockOnly(false); setPriceMin(""); setPriceMax(""); setExpandedCategory(null);
@@ -167,21 +211,23 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
 
   return (
     <section className="cp-store-page">
-      {!selectedProductId && <div className="cp-store-categories" aria-label="Shop by category">{PRODUCT_CATEGORY_ORDER.map((category) => {
-        const meta = PRODUCT_CATEGORY_META[category];
-        const Icon = meta.icon;
-        const isActive = activeCategory === category;
-        return <button key={category} className={isActive ? "cp-category-tile is-active" : "cp-category-tile"} onClick={() => selectCategory(isActive ? "all" : category)}>
-          <span className="cp-category-tile-icon" style={{ background: `${meta.color}1f`, color: meta.color }}><Icon size={22} /></span>
-          <span className="cp-category-tile-label">{meta.label}</span>
-          <span className="cp-category-tile-blurb">{meta.blurb}</span>
-        </button>;
-      })}</div>}
+      {!selectedProductId && browseMode && <StoreHero onAction={handleHeroAction} />}
 
-      <div className="cp-store-result-row">
-        <span className="cp-store-count">{filtered.length} product{filtered.length === 1 ? "" : "s"}</span>
+      {!selectedProductId && browseMode && <div className="cp-store-quickbar">
+        <button className="cp-quick-filter" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}><SlidersHorizontal size={17} /> Filters{activeFilterCount > 0 && <span className="cp-store-filters-badge">{activeFilterCount}</span>}</button>
+        <p>Narrow {PRODUCTS.length} products by category, price, size and more.</p>
+      </div>}
+
+      {!selectedProductId && browseMode && <div className="cp-store-categories" aria-label="Shop by category">
+        <div className="cp-store-dots" aria-hidden="true"><DotGrid baseColor="#dedbc6" activeColor="#c86f50" dotSize={3} gap={22} proximity={110} shockRadius={200} shockStrength={3} swell={0.6} glow={0.2} opacity={0.9} intro={false} /></div>
+        {PRODUCT_CATEGORY_ORDER.map((category) => <ProductStrip key={category} title={PRODUCT_CATEGORY_META[category].label} products={PRODUCTS.filter((product) => product.category === category)} onViewAll={() => { selectCategory(category); scrollToCatalogue(); }} onOpenProduct={openProduct} />)}<p className="cp-strip-note">Tile images are illustrative samples, not product listings.</p></div>}
+
+      <div className="cp-store-result-row" id="store-catalogue">
         <div className="cp-store-controls">
           <button className="cp-store-filters-toggle" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}><SlidersHorizontal size={13} /> Filters{activeFilterCount > 0 && <span className="cp-store-filters-badge">{activeFilterCount}</span>}</button>
+          <span className="cp-store-count">{filtered.length} product{filtered.length === 1 ? "" : "s"}</span>
+        </div>
+        <div className="cp-store-controls">
           <div className="cp-store-sort">
             <button className="cp-store-sort-toggle" aria-expanded={sortOpen} onClick={() => setSortOpen((open) => !open)}>Sort: {activeSortLabel} <ChevronDown size={14} /></button>
             {sortOpen && <div className="cp-store-sort-menu" role="menu" aria-label="Sort products">{SORT_OPTIONS.map((option) => <button key={option.id} role="menuitemradio" aria-checked={sortOption === option.id} className={sortOption === option.id ? "is-active" : ""} onClick={() => { setSortOption(option.id); setSortOpen(false); }}>{option.label}{sortOption === option.id && <Check size={13} />}</button>)}</div>}
@@ -196,82 +242,92 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
       {filtersOpen && <button className="cp-filter-backdrop" aria-label="Close filters" onClick={() => setFiltersOpen(false)} />}
       <aside className={filtersOpen ? "cp-filter-drawer is-open" : "cp-filter-drawer"} role="dialog" aria-modal="true" aria-label="Filters">
         <div className="cp-filter-drawer-head">
-          <h2>Filters</h2>
-          <div className="cp-filter-drawer-head-actions">
-            {hasActiveFilters && <button className="cp-text-action" onClick={clearAllFilters}>Clear all</button>}
-            <button aria-label="Close filters" onClick={() => setFiltersOpen(false)}><X size={18} /></button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="cp-filter-mark" src="/images/catopia-mark.svg" alt="" width={34} height={34} />
+          <div className="cp-filter-title">
+            <h2>Filters</h2>
+            <p>{filtered.length} product{filtered.length === 1 ? "" : "s"} match</p>
           </div>
+          <button className="cp-filter-close" aria-label="Close filters" onClick={() => setFiltersOpen(false)}><X size={20} /></button>
         </div>
         <div className="cp-filter-drawer-body">
-          <div className="cp-filter-section">
-            <h3>Category</h3>
-            <button className={activeCategory === "all" ? "cp-filter-row is-active" : "cp-filter-row"} aria-pressed={activeCategory === "all"} onClick={() => selectCategory("all")}><span>Everything</span><small>{PRODUCTS.length}</small></button>
+          <FilterSection index={0} icon={FILTER_SECTION_ICONS.category} title="Category">
+            <button className={activeCategory === "all" ? "cp-filter-row is-active" : "cp-filter-row"} aria-pressed={activeCategory === "all"} onClick={() => selectCategory("all")}>
+              <span className="cp-filter-row-icon" style={{ background: "#e8ecdb", color: "#3f5945" }}><LayoutGrid size={18} /></span>
+              <span className="cp-filter-row-label">Everything</span><small>{PRODUCTS.length}</small>
+            </button>
             {PRODUCT_CATEGORY_ORDER.map((category) => {
               const meta = PRODUCT_CATEGORY_META[category];
+              const CategoryIcon = meta.icon;
               const isExpanded = expandedCategory === category;
               const availableSubcategories = meta.subcategories.filter((sub) => PRODUCTS.some((product) => product.category === category && product.subcategory === sub));
               return <div className="cp-filter-category" key={category}>
                 <div className={activeCategory === category ? "cp-filter-row is-active" : "cp-filter-row"}>
-                  <button className="cp-filter-row-main" aria-pressed={activeCategory === category} onClick={() => selectCategory(category)}><span>{meta.label}</span><small>{categoryCounts.get(category) ?? 0}</small></button>
-                  {availableSubcategories.length > 0 && <button className={isExpanded ? "cp-filter-expand is-open" : "cp-filter-expand"} aria-label={isExpanded ? `Hide ${meta.label} subcategories` : `Show ${meta.label} subcategories`} aria-expanded={isExpanded} onClick={() => setExpandedCategory(isExpanded ? null : category)}><ChevronRight size={14} /></button>}
+                  <button className="cp-filter-row-main" aria-pressed={activeCategory === category} onClick={() => selectCategory(category)}>
+                    <span className="cp-filter-row-icon" style={{ background: `${meta.color}24`, color: meta.color }}><CategoryIcon size={18} /></span>
+                    <span className="cp-filter-row-label">{meta.label}</span><small>{categoryCounts.get(category) ?? 0}</small>
+                  </button>
+                  {availableSubcategories.length > 0 && <button className={isExpanded ? "cp-filter-expand is-open" : "cp-filter-expand"} aria-label={isExpanded ? `Hide ${meta.label} subcategories` : `Show ${meta.label} subcategories`} aria-expanded={isExpanded} onClick={() => setExpandedCategory(isExpanded ? null : category)}><ChevronRight size={16} /></button>}
                 </div>
                 {isExpanded && <div className="cp-filter-subrow">{availableSubcategories.map((sub) => {
                   const active = activeSubcategories.includes(sub);
+                  const SubIcon = SUBCATEGORY_ICONS[sub] ?? CategoryIcon;
                   const count = PRODUCTS.filter((product) => product.category === category && product.subcategory === sub).length;
-                  return <button key={sub} className={active ? "is-active" : ""} aria-pressed={active} onClick={() => toggleSubcategory(category, sub)}><span>{sub}</span><small>{count}</small></button>;
+                  return <button key={sub} className={active ? "is-active" : ""} aria-pressed={active} onClick={() => toggleSubcategory(category, sub)}><SubIcon size={16} style={{ color: meta.color }} /><span>{sub}</span><small>{count}</small></button>;
                 })}</div>}
               </div>;
             })}
-          </div>
+          </FilterSection>
 
-          <div className="cp-filter-section">
-            <h3>Price</h3>
+          <FilterSection index={1} icon={FILTER_SECTION_ICONS.price} title="Price">
+            {priceRanges.length > 0 && <div className="cp-opt-row">{priceRanges.map((range) => {
+              const active = priceMin === (range.min ?? "") && priceMax === (range.max ?? "");
+              return <button key={range.label} className={active ? "cp-opt-chip is-active" : "cp-opt-chip"} aria-pressed={active} onClick={() => { setPriceMin(active ? "" : range.min ?? ""); setPriceMax(active ? "" : range.max ?? ""); }}>{range.label}<small>{range.count}</small></button>;
+            })}</div>}
             <div className="cp-filter-price-row">
-              <label>Min<input type="number" inputMode="numeric" min={0} placeholder={String(catalogPriceBounds.min)} value={priceMin} onChange={(event) => setPriceMin(event.target.value === "" ? "" : Number(event.target.value))} /></label>
-              <span aria-hidden="true">–</span>
-              <label>Max<input type="number" inputMode="numeric" min={0} placeholder={String(catalogPriceBounds.max)} value={priceMax} onChange={(event) => setPriceMax(event.target.value === "" ? "" : Number(event.target.value))} /></label>
+              <label><span>Min</span><div><i>₹</i><input type="number" inputMode="numeric" min={0} placeholder={String(catalogPriceBounds.min)} value={priceMin} onChange={(event) => setPriceMin(event.target.value === "" ? "" : Number(event.target.value))} /></div></label>
+              <label><span>Max</span><div><i>₹</i><input type="number" inputMode="numeric" min={0} placeholder={String(catalogPriceBounds.max)} value={priceMax} onChange={(event) => setPriceMax(event.target.value === "" ? "" : Number(event.target.value))} /></div></label>
             </div>
-          </div>
+            <div className="cp-price-track" aria-hidden="true"><span style={priceTrackStyle} /></div>
+            <p className="cp-price-bounds"><span>{formatPrice(catalogPriceBounds.min)}</span><span>{formatPrice(catalogPriceBounds.max)}</span></p>
+          </FilterSection>
 
-          {lifeStageOptions.length > 0 && <div className="cp-filter-section"><h3>Life Stage</h3>{lifeStageOptions.map(([stage, count]) => { const active = activeLifeStages.includes(stage); return <button key={stage} className={active ? "cp-filter-row is-active" : "cp-filter-row"} aria-pressed={active} onClick={() => toggleValue(activeLifeStages, stage, setActiveLifeStages)}><span>{stage}</span><small>{count}</small></button>; })}</div>}
+          {lifeStageOptions.length > 0 && <FilterSection index={2} icon={FILTER_SECTION_ICONS.lifeStage} title="Life stage"><div className="cp-opt-row">{lifeStageOptions.map(([stage, count]) => { const active = activeLifeStages.includes(stage); return <button key={stage} className={active ? "cp-opt-chip is-active" : "cp-opt-chip"} aria-pressed={active} onClick={() => toggleValue(activeLifeStages, stage, setActiveLifeStages)}>{stage}<small>{count}</small></button>; })}</div></FilterSection>}
 
-          {materialOptions.length > 0 && <div className="cp-filter-section"><h3>Material</h3>{materialOptions.map(([material, count]) => { const active = activeMaterials.includes(material); return <button key={material} className={active ? "cp-filter-row is-active" : "cp-filter-row"} aria-pressed={active} onClick={() => toggleValue(activeMaterials, material, setActiveMaterials)}><span>{material}</span><small>{count}</small></button>; })}</div>}
+          {materialOptions.length > 0 && <FilterSection index={3} icon={FILTER_SECTION_ICONS.material} title="Material"><div className="cp-opt-row">{materialOptions.map(([material, count]) => { const active = activeMaterials.includes(material); return <button key={material} className={active ? "cp-opt-chip is-active" : "cp-opt-chip"} aria-pressed={active} onClick={() => toggleValue(activeMaterials, material, setActiveMaterials)}>{material}<small>{count}</small></button>; })}</div></FilterSection>}
 
-          {sizeOptions.length > 0 && <div className="cp-filter-section"><h3>Size</h3><div className="cp-filter-size-row">{sizeOptions.map(([size]) => { const active = activeSizes.includes(size); return <button key={size} className={active ? "cp-size-chip is-active" : "cp-size-chip"} aria-pressed={active} onClick={() => toggleValue(activeSizes, size, setActiveSizes)}>{size}</button>; })}</div></div>}
+          {sizeOptions.length > 0 && <FilterSection index={4} icon={FILTER_SECTION_ICONS.size} title="Size"><div className="cp-opt-row">{sizeOptions.map(([size, count]) => { const active = activeSizes.includes(size); return <button key={size} className={active ? "cp-opt-chip is-active" : "cp-opt-chip"} aria-pressed={active} onClick={() => toggleValue(activeSizes, size, setActiveSizes)}>{size}<small>{count}</small></button>; })}</div></FilterSection>}
 
-          {colorOptions.length > 0 && <div className="cp-filter-section"><h3>Colour</h3><div className="cp-filter-color-row">{colorOptions.map(([color]) => { const active = activeColors.includes(color); return <button key={color} className={active ? "cp-color-swatch is-active" : "cp-color-swatch"} style={{ background: COLOR_SWATCHES[color] ?? "#cfcabb" }} aria-pressed={active} aria-label={color} title={color} onClick={() => toggleValue(activeColors, color, setActiveColors)} />; })}</div></div>}
+          {colorOptions.length > 0 && <FilterSection index={5} icon={FILTER_SECTION_ICONS.colour} title="Colour"><div className="cp-opt-row">{colorOptions.map(([color, count]) => { const active = activeColors.includes(color); return <button key={color} className={active ? "cp-opt-chip cp-colour-chip is-active" : "cp-opt-chip cp-colour-chip"} aria-pressed={active} onClick={() => toggleValue(activeColors, color, setActiveColors)}><i style={{ background: COLOR_SWATCHES[color] ?? "#cfcabb" }} />{color}<small>{count}</small></button>; })}</div></FilterSection>}
 
-          <div className="cp-filter-section">
-            <h3>Availability</h3>
+          <FilterSection index={6} icon={FILTER_SECTION_ICONS.availability} title="Availability">
             <button type="button" className="cp-filter-row cp-store-stock-toggle" aria-pressed={inStockOnly} onClick={() => setInStockOnly((value) => !value)}>
-              <span>In stock only <small>{inStockCount}</small></span>
+              <span className="cp-filter-row-label">In stock only <small>{inStockCount}</small></span>
               <span className={inStockOnly ? "cp-toggle is-on" : "cp-toggle"}><i /></span>
             </button>
-          </div>
+          </FilterSection>
         </div>
         <div className="cp-filter-drawer-foot">
-          <button className="cp-button cp-button-dark" onClick={() => setFiltersOpen(false)}>Show {filtered.length} product{filtered.length === 1 ? "" : "s"}</button>
+          {hasActiveFilters && <button className="cp-filter-clear" onClick={clearAllFilters}>Clear all</button>}
+          <button className="cp-filter-apply" onClick={() => setFiltersOpen(false)}>Show {filtered.length} product{filtered.length === 1 ? "" : "s"} <ArrowRight size={16} /></button>
         </div>
       </aside>
 
-      {selectedProductId ? selectedProduct ? <ProductDetailPage
+      {selectedProductId ? selectedProduct ? <ProductPage
+        key={selectedProduct.id}
         product={selectedProduct}
         recommendations={recommendations}
         quantity={detailQuantity}
         inBag={quantityOf(selectedProduct.id)}
-        isWishlisted={wishlist.includes(selectedProduct.id)}
-        activeTab={detailTab}
-        galleryOpen={galleryOpen}
+        wishlist={wishlist}
         addedNotice={addedNotice}
         onOpenProduct={openProduct}
         onClose={closeProduct}
+        onBrowse={browseFromProduct}
         onChangeQuantity={setDetailQuantity}
-        onToggleWishlist={() => toggleWishlist(selectedProduct.id)}
+        onToggleWishlist={toggleWishlist}
         onAdd={() => { if (!selectedProduct.inStock) return; onAddToCart(selectedProduct.id, detailQuantity); setAddedNotice(true); }}
-        onSetTab={setDetailTab}
-        onOpenGallery={() => setGalleryOpen(true)}
-        onCloseGallery={() => setGalleryOpen(false)}
-      /> : <div className="cp-store-not-found"><span className="cp-store-not-found-mark"><Package size={24} /></span><p className="cp-store-eyebrow">A little detour</p><h2>We couldn’t find that item.</h2><p>This concept product may have moved out of the preview shelf.</p><button className="cp-button cp-button-dark" onClick={closeProduct}><ArrowLeft size={15} /> Back to the Store</button></div>
+       /> : <div className="cp-store-not-found"><span className="cp-store-not-found-mark"><Package size={24} /></span><p className="cp-store-eyebrow">A little detour</p><h2>We couldn’t find that item.</h2><p>This concept product may have moved out of the preview shelf.</p><button className="cp-button cp-button-dark" onClick={closeProduct}><ArrowLeft size={15} /> Back to the Store</button></div>
         : filtered.length === 0
         ? <div className="cp-empty-state"><Package size={20} /><p>{query.trim() ? "We couldn't find anything matching your search." : "No little treasures found here."}</p>{hasActiveFilters && <button className="cp-text-action" onClick={clearAllFilters}>Clear filters <ArrowRight size={15} /></button>}</div>
         : <div className="cp-store-grid">{filtered.map((product) => {
@@ -309,110 +365,6 @@ export default function StoreScreen({ query, cart, cartOpen, checkoutStep, onAdd
       />
     </section>
   );
-}
-
-type StoreDetailTab = "description" | "specifications" | "shipping" | "reviews";
-function ProductDetailPage({ product, recommendations, quantity, inBag, isWishlisted, activeTab, galleryOpen, addedNotice, onOpenProduct, onClose, onChangeQuantity, onToggleWishlist, onAdd, onSetTab, onOpenGallery, onCloseGallery }: {
-  product: Product;
-  recommendations: Product[];
-  quantity: number;
-  inBag: number;
-  isWishlisted: boolean;
-  activeTab: StoreDetailTab;
-  galleryOpen: boolean;
-  addedNotice: boolean;
-  onOpenProduct: (product: Product) => void;
-  onClose: () => void;
-  onChangeQuantity: (quantity: number) => void;
-  onToggleWishlist: () => void;
-  onAdd: () => void;
-  onSetTab: (tab: StoreDetailTab) => void;
-  onOpenGallery: () => void;
-  onCloseGallery: () => void;
-}) {
-  const meta = PRODUCT_CATEGORY_META[product.category];
-  const Icon = meta.icon;
-  const tabs: { id: StoreDetailTab; label: string }[] = [
-    { id: "description", label: "Description" }, { id: "specifications", label: "Details" },
-    { id: "shipping", label: "Delivery" }, { id: "reviews", label: "Reviews" },
-  ];
-  useEffect(() => {
-    if (!galleryOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onCloseGallery(); };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [galleryOpen, onCloseGallery]);
-
-  return <div className="cp-store-detail">
-    <button className="cp-store-back" onClick={onClose}><ArrowLeft size={15} /> Back to the Store</button>
-    <nav className="cp-store-breadcrumb" aria-label="Breadcrumb">
-      <button onClick={onClose}>Store</button><span>/</span><span>{meta.label}</span><span>/</span><b aria-current="page">{product.name}</b>
-    </nav>
-
-    <div className="cp-product-layout">
-      <div className="cp-product-gallery-column">
-        <button className="cp-product-artwork" style={{ "--product-tint": `${meta.color}20`, "--product-accent": meta.color } as CSSProperties} onClick={onOpenGallery} aria-label={`Open larger concept illustration for ${product.name}`}>
-          <span className="cp-product-artwork-top"><span>CATOPIA / OBJECT STUDY</span><span>NO. {product.id.split("-").at(-1)?.slice(0, 2).toUpperCase()}</span></span>
-          <span className="cp-product-artwork-halo" />
-          <span className="cp-product-artwork-icon"><Icon size={94} strokeWidth={1.1} /></span>
-          <span className="cp-product-artwork-caption"><b>{meta.label}</b><span>{product.unit}</span></span>
-          <span className="cp-product-artwork-foot">Illustrative concept artwork · product photography to come</span>
-          {product.tag && <span className="cp-product-tag">{product.tag}</span>}
-        </button>
-        <div className="cp-product-gallery-note"><Sparkles size={13} /><span>Each shelf begins as an idea. This product is a design preview.</span></div>
-      </div>
-
-      <section className="cp-product-information" aria-labelledby="cp-product-title">
-        <p className="cp-product-category">{meta.label}</p>
-        <h1 id="cp-product-title">{product.name}</h1>
-        <button className="cp-product-review-link" onClick={() => { onSetTab("reviews"); document.getElementById("cp-product-details")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>No reviews yet <span>· Be the first</span></button>
-        <p className="cp-product-detail-price">{formatPrice(product.price)} <span>preview price</span></p>
-        <p className="cp-product-short-description">{product.description}</p>
-
-        <div className="cp-product-item-meta"><span>Format</span><b>{product.unit}</b></div>
-        <div className="cp-product-item-meta"><span>Availability</span><b className={product.inStock ? "" : "is-unavailable"}>{product.inStock ? "Available in this concept preview" : "Unavailable in this concept preview"}</b></div>
-
-        <div className="cp-product-buy-row">
-          <div className="cp-qty-stepper" aria-label="Quantity">
-            <button aria-label="Remove one" disabled={quantity <= 1} onClick={() => onChangeQuantity(Math.max(1, quantity - 1))}><Minus size={14} /></button>
-            <span aria-live="polite">{quantity}</span>
-            <button aria-label="Add one" onClick={() => onChangeQuantity(quantity + 1)}><Plus size={14} /></button>
-          </div>
-          <button className="cp-button cp-button-dark cp-product-add" disabled={!product.inStock} onClick={onAdd}><ShoppingBag size={16} /> {product.inStock ? "Add to bag" : "Unavailable"}</button>
-        </div>
-        {addedNotice && <p className="cp-product-added" role="status"><Check size={14} /> Added to your preview bag. {inBag} {inBag === 1 ? "item" : "items"} now saved for this session.</p>}
-        <button className={isWishlisted ? "cp-product-save is-saved" : "cp-product-save"} aria-pressed={isWishlisted} onClick={onToggleWishlist}><Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />{isWishlisted ? "Saved to your session wishlist" : "Save for later"}</button>
-        <div className="cp-product-assurance"><Truck size={16} /><span><b>Thoughtful things, when we’re ready.</b><small>Delivery and returns aren’t configured yet. No order will be placed or shipped from this preview.</small></span></div>
-        <p className="cp-product-preview-note">Sample catalog item · illustrative price · no real stock or supplier attached</p>
-      </section>
-    </div>
-
-    <section id="cp-product-details" className="cp-product-details" aria-label="Product information">
-      <div className="cp-product-tabs" role="tablist" aria-label="Product details">
-        {tabs.map((tab) => <button key={tab.id} id={`product-tab-${tab.id}`} role="tab" aria-selected={activeTab === tab.id} aria-controls="cp-product-tab-panel" className={activeTab === tab.id ? "is-active" : ""} onClick={() => onSetTab(tab.id)}>{tab.label}{tab.id === "reviews" && <small>0</small>}</button>)}
-      </div>
-      <div className="cp-product-tab-panel" id="cp-product-tab-panel" role="tabpanel" aria-labelledby={`product-tab-${activeTab}`}>
-        {activeTab === "description" && <div className="cp-product-editorial"><p className="cp-store-eyebrow">A small note about this one</p><h2>Made for a more considered cat day.</h2><p>{product.description}</p><p>This is an early Catopia store concept. Final materials, sourcing, care guidance, and product photography will be added only when those details are confirmed.</p></div>}
-        {activeTab === "specifications" && <div className="cp-product-specs"><p className="cp-store-eyebrow">The useful details</p><dl><div><dt>Collection</dt><dd>{meta.label}</dd></div><div><dt>Pack / format</dt><dd>{product.unit}</dd></div><div><dt>Item type</dt><dd>Catopia concept product</dd></div></dl><p className="cp-product-preview-note">Dimensions, materials, and care information have not been provided for this concept item.</p></div>}
-        {activeTab === "shipping" && <div className="cp-product-editorial"><p className="cp-store-eyebrow">Delivery & returns</p><h2>Not set up just yet.</h2><p>Shipping areas, delivery estimates, seller details, and return terms will appear here once Catopia’s store has verified fulfilment partners and published policies.</p></div>}
-        {activeTab === "reviews" && <div className="cp-product-editorial cp-product-empty-reviews"><p className="cp-store-eyebrow">Community notes</p><h2>No reviews yet.</h2><p>Reviews will open when accounts and the moderated review system are connected. We won’t invent ratings or customer stories in the meantime.</p></div>}
-      </div>
-    </section>
-
-    {recommendations.length > 0 && <section className="cp-product-related" aria-labelledby="cp-related-title">
-      <div className="cp-product-related-heading"><div><p className="cp-store-eyebrow">A few nearby ideas</p><h2 id="cp-related-title">You might also like</h2></div><span>From the same little corner of the shop.</span></div>
-      <div className="cp-product-related-grid">{recommendations.map((item) => { const itemMeta = PRODUCT_CATEGORY_META[item.category]; const ItemIcon = itemMeta.icon; return <article className="cp-product-related-item" key={item.id}>
-        <button className="cp-product-related-art" style={{ "--product-tint": `${itemMeta.color}20`, "--product-accent": itemMeta.color } as CSSProperties} onClick={() => onOpenProduct(item)} aria-label={`View ${item.name}`}><ItemIcon size={36} strokeWidth={1.2} /></button>
-        <div><button className="cp-product-related-name" onClick={() => onOpenProduct(item)}>{item.name}</button><span>{formatPrice(item.price)}</span></div>
-      </article>; })}</div>
-    </section>}
-
-    {galleryOpen && <div className="cp-product-lightbox" role="dialog" aria-modal="true" aria-label={`${product.name} concept illustration`} onClick={onCloseGallery}>
-      <button className="cp-product-lightbox-close" onClick={onCloseGallery} aria-label="Close illustration"><X size={20} /></button>
-      <div className="cp-product-lightbox-art" style={{ "--product-tint": `${meta.color}20`, "--product-accent": meta.color } as CSSProperties} onClick={(event) => event.stopPropagation()}><Icon size={180} strokeWidth={.9} /><span>{product.name} · concept illustration</span></div>
-    </div>}
-    <div className="cp-product-mobile-buy"><span><small>Preview price</small><b>{formatPrice(product.price)}</b></span><button className="cp-button cp-button-dark" disabled={!product.inStock} onClick={onAdd}>{addedNotice ? "Added" : "Add to bag"}</button></div>
-  </div>;
 }
 
 function CartDrawer({ isOpen, step, lines, total, onClose, onUpdateQuantity, onRemove, onGoToCheckout, onBackToCart, onPlaceOrder, onStartOver }: {

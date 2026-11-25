@@ -29,6 +29,9 @@ export type Review = {
 
 export type Bbox = { south: number; west: number; north: number; east: number };
 
+// Broad, public centre of the DYPIU Akurdi neighbourhood; not a precise animal location.
+export const MAP_CENTER: [number, number] = [73.7602, 18.6460];
+
 export const CATEGORY_ORDER: PlaceCategory[] = ["cat-cafe", "shelter", "adoption", "veterinary", "pet-shop", "grooming", "cat-friendly"];
 
 export const CATEGORY_META: Record<PlaceCategory, { label: string; icon: LucideIcon; color: string }> = {

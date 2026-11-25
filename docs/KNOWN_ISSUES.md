@@ -11,6 +11,8 @@
 | Medium | Git metadata is absent | Change history and normal version-control workflow are unavailable | Initialize source control when appropriate for the project owner |
 | Medium | No campus references or real cat photographs/data exist | No authentic cat records can be shown | Use an honest empty state until rights-cleared content is available |
 | Medium | Store catalog has no product photos, specifications, variants, review records, stock quantities, or fulfilment policy | Product pages cannot yet show verified photography, ratings, delivery claims, or detailed buying options | Add sourced product records, authorized imagery, and configured policies before presenting the store as live |
+| Medium | Map 3D mode uses Esri World Imagery and AWS Terrain Tiles as public, key-less sources | Terms, rate limits and attribution requirements for production use are unverified | Confirm the terms or move to a licensed imagery/terrain provider before a public release |
+| Low | The public Overpass API sometimes answers with 502/504 | The map falls back to sample places with a message until a retry succeeds | Add retry/backoff or a mirror, or cache nearby places server-side once a backend exists |
 
 ## Verified observations
 

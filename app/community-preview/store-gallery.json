@@ -1,0 +1,356 @@
+{
+  "sources": {
+    "tk1": "references/paw/cat tool kit 1.jpg",
+    "tk2": "references/paw/cat tool kit 2.jpg",
+    "tk3": "references/paw/cat tool kit 3.jpg",
+    "tk4": "references/paw/cat tool kit 4.jpg",
+    "tk5": "references/paw/cat tool kit 5.jpg",
+    "tk6": "references/paw/cat tool kit 6.jpg"
+  },
+  "crops": [
+    {
+      "id": "fountain-steel",
+      "source": "tk1",
+      "cx": 105,
+      "cy": 420,
+      "h": 280,
+      "alt": "Stainless steel pet water fountain with a blue indicator light"
+    },
+    {
+      "id": "feeder-black",
+      "source": "tk1",
+      "cx": 252,
+      "cy": 270,
+      "h": 420,
+      "alt": "Black automatic pet feeder with a digital display and bowl"
+    },
+    {
+      "id": "bed-donut",
+      "source": "tk1",
+      "cx": 535,
+      "cy": 190,
+      "h": 420,
+      "alt": "Round plush cat bed in soft oatmeal fleece"
+    },
+    {
+      "id": "tunnel-fabric",
+      "source": "tk1",
+      "cx": 780,
+      "cy": 175,
+      "h": 330,
+      "alt": "Soft fabric cat tunnel in warm sand"
+    },
+    {
+      "id": "bowls-trio",
+      "source": "tk1",
+      "cx": 635,
+      "cy": 390,
+      "h": 320,
+      "alt": "Ivory, blue and charcoal ceramic cat bowls on a wooden floor"
+    },
+    {
+      "id": "clipper-blue-b",
+      "source": "tk1",
+      "cx": 862,
+      "cy": 560,
+      "h": 240,
+      "alt": "Cat nail clipper with a blue and grey handle"
+    },
+    {
+      "id": "wand-orange",
+      "source": "tk1",
+      "cx": 455,
+      "cy": 545,
+      "h": 300,
+      "alt": "Teaser wand with an orange feather and a blue ball tip"
+    },
+    {
+      "id": "scoop-grey",
+      "source": "tk1",
+      "cx": 1150,
+      "cy": 360,
+      "h": 300,
+      "alt": "Grey slotted litter scoop"
+    },
+    {
+      "id": "blanket-paw",
+      "source": "tk2",
+      "cx": 265,
+      "cy": 225,
+      "h": 460,
+      "alt": "Cream fleece blanket printed with grey paw prints"
+    },
+    {
+      "id": "bag-tall",
+      "source": "tk2",
+      "cx": 650,
+      "cy": 195,
+      "h": 400,
+      "alt": "Matte white pouch of cat food with soft beige and sage shapes"
+    },
+    {
+      "id": "bag-cat",
+      "source": "tk2",
+      "cx": 553,
+      "cy": 718,
+      "h": 420,
+      "alt": "Matte pouch of cat food with a grey cat silhouette"
+    },
+    {
+      "id": "kibble-spill",
+      "source": "tk2",
+      "cx": 815,
+      "cy": 720,
+      "h": 380,
+      "alt": "Open food pouch spilling brown kibble onto a wooden table"
+    },
+    {
+      "id": "bowls-sage-ivory",
+      "source": "tk2",
+      "cx": 642,
+      "cy": 470,
+      "h": 440,
+      "alt": "Sage and ivory ceramic cat bowls on a wooden table"
+    },
+    {
+      "id": "litter-tray",
+      "source": "tk2",
+      "cx": 240,
+      "cy": 540,
+      "h": 520,
+      "alt": "Cream litter tray with a grey scoop resting in natural pellet litter"
+    },
+    {
+      "id": "litter-pellets",
+      "source": "tk2",
+      "cx": 175,
+      "cy": 540,
+      "h": 330,
+      "alt": "Grey litter scoop in pale natural pellet litter"
+    },
+    {
+      "id": "mouse-ball",
+      "source": "tk2",
+      "cx": 280,
+      "cy": 772,
+      "h": 340,
+      "alt": "Grey plush mouse beside a felted wool ball"
+    },
+    {
+      "id": "flatlay-floor",
+      "source": "tk2",
+      "cx": 700,
+      "cy": 466,
+      "h": 933,
+      "alt": "Flat lay of a litter tray, food pouches, bowls and a carrier on a wooden floor"
+    },
+    {
+      "id": "litter-hooded",
+      "source": "tk3",
+      "cx": 267,
+      "cy": 422,
+      "h": 450,
+      "alt": "Hooded litter box with a flip-top lid in slate and white"
+    },
+    {
+      "id": "carrier-soft",
+      "source": "tk3",
+      "cx": 603,
+      "cy": 398,
+      "h": 450,
+      "alt": "Grey soft-sided cat carrier with a mesh window and carry handles"
+    },
+    {
+      "id": "tree-cream",
+      "source": "tk3",
+      "cx": 943,
+      "cy": 280,
+      "h": 500,
+      "alt": "Cream carpeted cat tree with sisal posts and a dangling toy"
+    },
+    {
+      "id": "wand-feather",
+      "source": "tk3",
+      "cx": 850,
+      "cy": 660,
+      "h": 330,
+      "alt": "Feather wand teaser with pink and teal feathers"
+    },
+    {
+      "id": "toys-assorted",
+      "source": "tk3",
+      "cx": 930,
+      "cy": 660,
+      "h": 340,
+      "alt": "Feather wand, plush mice, bell balls and a rope toy laid out together"
+    },
+    {
+      "id": "litter-open",
+      "source": "tk4",
+      "cx": 283,
+      "cy": 480,
+      "h": 620,
+      "alt": "Cream litter tray lined with fine grey litter"
+    },
+    {
+      "id": "perch-tower",
+      "source": "tk4",
+      "cx": 640,
+      "cy": 205,
+      "h": 410,
+      "alt": "Rope-wrapped cat perch on a tall sisal post"
+    },
+    {
+      "id": "wand-natural",
+      "source": "tk4",
+      "cx": 630,
+      "cy": 615,
+      "h": 420,
+      "alt": "Long teaser wand with natural feathers"
+    },
+    {
+      "id": "mouse-striped",
+      "source": "tk4",
+      "cx": 540,
+      "cy": 800,
+      "h": 260,
+      "alt": "Striped plush mouse toy"
+    },
+    {
+      "id": "pouch-teal",
+      "source": "tk4",
+      "cx": 812,
+      "cy": 698,
+      "h": 240,
+      "alt": "Teal treat pouch with a window showing freeze-dried treats"
+    },
+    {
+      "id": "clipper-blue",
+      "source": "tk4",
+      "cx": 740,
+      "cy": 862,
+      "h": 280,
+      "alt": "Blue-handled cat nail clipper"
+    },
+    {
+      "id": "slicker-brush",
+      "source": "tk4",
+      "cx": 906,
+      "cy": 880,
+      "h": 300,
+      "alt": "Slicker brush with a teal handle"
+    },
+    {
+      "id": "grooming-row",
+      "source": "tk4",
+      "cx": 870,
+      "cy": 880,
+      "h": 480,
+      "alt": "Nail clipper, slicker brush and small scissors laid out on a rug"
+    },
+    {
+      "id": "post-sisal",
+      "source": "tk4",
+      "cx": 1008,
+      "cy": 680,
+      "h": 340,
+      "alt": "Short sisal scratching post on a round wooden base"
+    },
+    {
+      "id": "window-net",
+      "source": "tk4",
+      "cx": 130,
+      "cy": 175,
+      "h": 350,
+      "alt": "Soft curtain beside a white safety net across a window"
+    },
+    {
+      "id": "flatlay-rug",
+      "source": "tk4",
+      "cx": 694,
+      "cy": 497,
+      "h": 995,
+      "alt": "Flat lay of a litter tray, bowls, toys, carrier and grooming tools on a rug"
+    },
+    {
+      "id": "bowls-blue",
+      "source": "tk5",
+      "cx": 748,
+      "cy": 230,
+      "h": 460,
+      "alt": "Pair of collapsible blue silicone travel bowls"
+    },
+    {
+      "id": "bowl-blue-single",
+      "source": "tk5",
+      "cx": 640,
+      "cy": 120,
+      "h": 240,
+      "alt": "Collapsible blue silicone travel bowl"
+    },
+    {
+      "id": "first-aid",
+      "source": "tk5",
+      "cx": 920,
+      "cy": 480,
+      "h": 330,
+      "alt": "Red first-aid pouch beside a bottle of calming spray"
+    },
+    {
+      "id": "spray-calming",
+      "source": "tk5",
+      "cx": 1045,
+      "cy": 510,
+      "h": 300,
+      "alt": "Purple bottle of calming pheromone spray"
+    },
+    {
+      "id": "harness-green",
+      "source": "tk5",
+      "cx": 620,
+      "cy": 808,
+      "h": 250,
+      "alt": "Dark green cat harness and leash laid flat"
+    },
+    {
+      "id": "food-portion",
+      "source": "tk5",
+      "cx": 808,
+      "cy": 800,
+      "h": 300,
+      "alt": "Clear pouch of pre-portioned cat kibble"
+    },
+    {
+      "id": "food-small-bag",
+      "source": "tk5",
+      "cx": 985,
+      "cy": 810,
+      "h": 250,
+      "alt": "Small clear pouch of dry kibble"
+    },
+    {
+      "id": "case-black",
+      "source": "tk5",
+      "cx": 1330,
+      "cy": 810,
+      "h": 290,
+      "alt": "Black soft-sided travel case with a ginger cat patch"
+    },
+    {
+      "id": "travel-kit",
+      "source": "tk5",
+      "cx": 768,
+      "cy": 512,
+      "h": 1024,
+      "alt": "Flat lay of a cat travel kit with a carrier, bowls, first-aid pouch, harness, food and a blanket"
+    },
+    {
+      "id": "play-feather",
+      "source": "tk6",
+      "cx": 330,
+      "cy": 300,
+      "h": 560,
+      "alt": "A cream cat leaping to catch a feather wand in a sunny living room"
+    }
+  ]
+}

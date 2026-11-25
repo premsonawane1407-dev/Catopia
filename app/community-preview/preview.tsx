@@ -2,34 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import PawScreen from "./paw";
-import PlacePanel, { type SheetState } from "./place-panel";
+import MapScreen from "./map-screen";
 import StoreScreen from "./store";
-import { CATEGORY_META, CATEGORY_ORDER, SAMPLE_PLACES, fetchOsmPlaces, type Place, type PlaceCategory, type Review } from "./map-data";
 import type { CartItem, CheckoutStep } from "./store-data";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight, ArrowUpRight, Bookmark, Check, ChevronDown, Clapperboard, Compass, ShoppingBag, ShoppingCart, PawPrint,
-  Flag, Heart, Home, LocateFixed, Map, MapPin, Menu, MessageCircle, Plus, RefreshCw, Search,
-  Send, ShieldCheck, Upload, Users, X, MoreHorizontal, Layers,
+  Flag, Heart, Home, Map, Menu, MessageCircle, Plus, Search,
+  Send, ShieldCheck, Upload, Users, X, MoreHorizontal,
 } from "lucide-react";
 
-const InteractiveMap = dynamic(() => import("./interactive-map"), { ssr: false, loading: () => <div className="cp-map-loading">Preparing the neighborhood map…</div> });
 
 type Screen = "Home" | "Discover" | "Plays" | "Map" | "PAW" | "Store" | "Share a story" | "Saved" | "Profile" | "Review desk";
 type StoryKind = "Sighting" | "Portrait" | "Memory";
-type MapTheme = "positron" | "bright" | "liberty" | "dark" | "fiord" | "satellite" | "cozy";
-const mapThemes: { id: MapTheme; label: string; note: string; swatch: string }[] = [
-  { id: "cozy", label: "Cozy (Catopia)", note: "Warm branded theme", swatch: "#efe6d2" },
-  { id: "positron", label: "Positron", note: "Light & airy", swatch: "#eceee1" },
-  { id: "bright", label: "Bright", note: "Vivid colour", swatch: "#ffdf8f" },
-  { id: "liberty", label: "Liberty", note: "Balanced detail", swatch: "#cfe0c2" },
-  { id: "dark", label: "Dark", note: "Night mode", swatch: "#2c3a33" },
-  { id: "fiord", label: "Fiord", note: "Moody terrain tones", swatch: "#45516e" },
-  { id: "satellite", label: "Satellite", note: "Aerial imagery", swatch: "#5c6b4f" },
-];
-
 const navigation: { name: Screen; icon: typeof Home }[] = [
   { name: "Home", icon: Home }, { name: "Discover", icon: Compass },
   { name: "Plays", icon: Clapperboard }, { name: "Map", icon: Map }, { name: "PAW", icon: PawPrint }, { name: "Store", icon: ShoppingBag },
@@ -210,159 +196,6 @@ function ExploreScreen({ filtered, filter, setFilter, searchTerm, setSearchTerm 
     ...(showLayoutRepeats ? [1, 2].flatMap((repeat) => filtered.map((item, index) => ({ item, key: `${item.label}-repeat-${repeat}-${index}`, duplicate: true }))) : []),
   ];
   return <div className="cp-discover-page"><div className="cp-discover-toolbar"><FilterBar filter={filter} setFilter={setFilter} /></div>{searchTerm && <div className="cp-search-status"><span>RESULTS FOR <b>{searchTerm}</b></span><button onClick={() => setSearchTerm("")}>Clear search</button></div>}{filtered.length === 0 ? <div className="cp-empty-state"><Search size={20} /><p>No sample stories match “{searchTerm || filter}”.</p><button className="cp-text-action" onClick={() => { setSearchTerm(""); setFilter("All stories"); }}>Clear filters <ArrowRight size={15} /></button></div> : <div className="cp-feed-grid">{gridItems.map(({ item, key, duplicate }) => <PhotoCard key={key} item={item} layoutDuplicate={duplicate} />)}</div>}</div>;
-}
-
-const MAP_CENTER: [number, number] = [73.7602, 18.6460];
-const INITIAL_FETCH_RADIUS_DEG = 0.045;
-const SEARCH_AREA_THRESHOLD_DEG = 0.02;
-
-type GeocodeResult = { name: string; label: string; center: [number, number] };
-
-function haversineDeg(a: [number, number], b: [number, number]) {
-  return Math.hypot(a[0] - b[0], a[1] - b[1]);
-}
-
-function MapScreen() {
-  const [activeCategories, setActiveCategories] = useState<PlaceCategory[]>([]);
-  const [showSavedOnly, setShowSavedOnly] = useState(false);
-  const [search, setSearch] = useState("");
-  const [geocodeResults, setGeocodeResults] = useState<GeocodeResult[]>([]);
-  const [message, setMessage] = useState("");
-  const [style, setStyle] = useState<MapTheme>("positron");
-  const [themeOpen, setThemeOpen] = useState(false);
-  const [command, setCommand] = useState<{ kind: "zoom-in" | "zoom-out" | "center" | "fly"; seq: number; center?: [number, number] }>({ kind: "center", seq: 0 });
-  const [osmPlaces, setOsmPlaces] = useState<Place[]>([]);
-  const [placesLoading, setPlacesLoading] = useState(true);
-  const [lastFetchCenter, setLastFetchCenter] = useState<[number, number]>(MAP_CENTER);
-  const [showSearchArea, setShowSearchArea] = useState(false);
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
-  const [savedPlaceIds, setSavedPlaceIds] = useState<string[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [sheetState, setSheetState] = useState<SheetState>("half");
-
-  const loadPlacesNear = async (center: [number, number]) => {
-    setPlacesLoading(true);
-    setShowSearchArea(false);
-    setMessage("Finding nearby cat-related places…");
-    const bbox = { south: center[1] - INITIAL_FETCH_RADIUS_DEG, west: center[0] - INITIAL_FETCH_RADIUS_DEG, north: center[1] + INITIAL_FETCH_RADIUS_DEG, east: center[0] + INITIAL_FETCH_RADIUS_DEG };
-    const found = await fetchOsmPlaces(bbox);
-    setOsmPlaces(found);
-    setLastFetchCenter(center);
-    setPlacesLoading(false);
-    setMessage(found.length ? "" : "No verified places found here yet from OpenStreetMap. Showing sample concept places only.");
-  };
-
-  useEffect(() => {
-    // Genuine data fetch on mount; "Search this area" re-triggers this intentionally via loadPlacesNear itself.
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
-    loadPlacesNear(MAP_CENTER);
-  }, []);
-
-  const allPlaces = useMemo(() => [...osmPlaces, ...SAMPLE_PLACES], [osmPlaces]);
-  const categoryFiltered = useMemo(() => activeCategories.length === 0 ? allPlaces : allPlaces.filter((place) => activeCategories.includes(place.category)), [allPlaces, activeCategories]);
-  const visiblePlaces = useMemo(() => showSavedOnly ? categoryFiltered.filter((place) => savedPlaceIds.includes(place.id)) : categoryFiltered, [categoryFiltered, showSavedOnly, savedPlaceIds]);
-  const selectedPlace = useMemo(() => allPlaces.find((place) => place.id === selectedPlaceId) ?? null, [allPlaces, selectedPlaceId]);
-  const placeMatches = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (query.length < 2) return [];
-    return allPlaces.filter((place) => `${place.name} ${CATEGORY_META[place.category].label}`.toLowerCase().includes(query)).slice(0, 5);
-  }, [search, allPlaces]);
-
-  const toggleCategory = (category: PlaceCategory) => setActiveCategories((current) => current.includes(category) ? current.filter((item) => item !== category) : [...current, category]);
-  const selectPlace = (id: string | null) => { setSelectedPlaceId(id); if (id) setSheetState("half"); };
-  const toggleSavedPlace = (id: string) => setSavedPlaceIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
-  const submitReview = (placeId: string, rating: number, text: string) => setReviews((current) => [...current, { id: `review-${Date.now()}`, placeId, author: "Preview visitor", rating, text, date: new Date().toISOString() }]);
-
-  const runSearch = async () => {
-    const query = search.trim().toLowerCase();
-    if (!query) return;
-    if (["akurdi", "dypiu", "pune", "dy patil"].some((term) => query.includes(term))) {
-      setCommand((current) => ({ kind: "fly", seq: current.seq + 1, center: MAP_CENTER }));
-      setMessage("Showing the DYPIU Akurdi area.");
-      setGeocodeResults([]);
-      return;
-    }
-    setMessage("Searching OpenStreetMap places…");
-    try {
-      const response = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(search.trim())}&lat=18.6460&lon=73.7602&limit=5&lang=en`);
-      if (!response.ok) throw new Error("Place search is unavailable.");
-      const result = await response.json() as { features?: { geometry?: { coordinates?: [number, number] }; properties?: { name?: string; street?: string; city?: string; district?: string; country?: string } }[] };
-      const matches = (result.features ?? []).flatMap((feature) => {
-        const center = feature.geometry?.coordinates;
-        const name = feature.properties?.name;
-        if (!center || !name) return [];
-        const address = [feature.properties?.street, feature.properties?.district, feature.properties?.city, feature.properties?.country].filter(Boolean).join(", ");
-        return [{ name, label: address || name, center: center as [number, number] }];
-      });
-      setGeocodeResults(matches);
-      setMessage(matches.length || placeMatches.length ? "" : "No matching places found. Try another search.");
-    } catch {
-      setGeocodeResults([]);
-      setMessage("Place search is temporarily unavailable. The map still works for panning and zooming.");
-    }
-  };
-  const chooseGeocodeResult = (result: GeocodeResult) => {
-    setCommand((current) => ({ kind: "fly", seq: current.seq + 1, center: result.center }));
-    selectPlace(null);
-    setGeocodeResults([]);
-    setSearch("");
-  };
-  const choosePlaceResult = (place: Place) => {
-    setCommand((current) => ({ kind: "fly", seq: current.seq + 1, center: [place.lng, place.lat] }));
-    selectPlace(place.id);
-    setGeocodeResults([]);
-    setSearch("");
-  };
-  const locate = () => {
-    if (!navigator.geolocation) { setMessage("Location access is unavailable in this browser."); return; }
-    setMessage("Requesting your location…");
-    navigator.geolocation.getCurrentPosition(({ coords }) => { setCommand((current) => ({ kind: "fly", seq: current.seq + 1, center: [coords.longitude, coords.latitude] })); setMessage("Centered on your location. Your coordinates are not saved."); }, () => setMessage("Location wasn’t shared. The map stays on the DYPIU Akurdi area."), { enableHighAccuracy: false, timeout: 8000 });
-  };
-  const zoom = (kind: "zoom-in" | "zoom-out") => setCommand((current) => ({ kind, seq: current.seq + 1 }));
-  const handleReport = () => setMessage("Thanks for the note — reports stay in this preview and aren’t sent anywhere yet.");
-  const handleMapMoved = (center: [number, number]) => { if (haversineDeg(center, lastFetchCenter) > SEARCH_AREA_THRESHOLD_DEG) setShowSearchArea(true); };
-  const toggleSavedOnly = () => {
-    const next = !showSavedOnly;
-    setShowSavedOnly(next);
-    if (next && savedPlaceIds.length === 0) setMessage("You haven’t saved any places yet. Open a place and tap Save.");
-  };
-
-  const showResults = placeMatches.length > 0 || geocodeResults.length > 0;
-  return <section className="cp-cat-map-page">
-    <InteractiveMap styleName={style} command={command} places={visiblePlaces} selectedId={selectedPlaceId} onSelectPlace={selectPlace} onMapMoved={handleMapMoved} />
-    <div className="cp-map-top-float">
-      <div className="cp-map-search-panel"><Link className="cp-map-brand" href="/" aria-label="Catopia home"><Image src="/images/catopia-mark.svg" alt="" width={30} height={30} /><b>catopia</b></Link><div className="cp-map-search"><Search size={17} /><input id="map-place-search" value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={(event) => event.key === "Enter" && runSearch()} placeholder="Search cat cafes, shelters, vets, streets…" aria-label="Search cat cafes, shelters, vets, streets or places" /><button aria-label="Search map" onClick={runSearch}><ArrowRight size={17} /></button></div><button className={showSavedOnly ? "cp-map-tool is-active" : "cp-map-tool"} aria-pressed={showSavedOnly} aria-label="Show only saved places" onClick={toggleSavedOnly}><Bookmark size={17} fill={showSavedOnly ? "currentColor" : "none"} /></button><button className="cp-map-tool" aria-label="Use my location" onClick={locate}><LocateFixed size={18} /></button><div className="cp-map-theme"><button className="cp-map-tool" aria-label="Choose terrain and map theme" aria-expanded={themeOpen} onClick={() => setThemeOpen((open) => !open)}><Layers size={18} /></button>{themeOpen && <div className="cp-map-theme-tray" role="menu" aria-label="Terrain and map themes"><p>TERRAIN &amp; MAP THEME</p>{mapThemes.map((theme) => <button key={theme.id} role="menuitemradio" aria-checked={style === theme.id} className={style === theme.id ? "is-active" : ""} onClick={() => { setStyle(theme.id); setThemeOpen(false); }}><span className="cp-theme-swatch" style={{ background: theme.swatch }} /><span><b>{theme.label}</b><small>{theme.note}</small></span>{style === theme.id && <Check size={13} />}</button>)}</div>}</div></div>
-      {showResults && <div className="cp-map-search-results">
-        {placeMatches.length > 0 && <p className="cp-map-results-group">PLACES</p>}
-        {placeMatches.map((place) => { const Icon = CATEGORY_META[place.category].icon; return <button key={place.id} onClick={() => choosePlaceResult(place)}><Icon size={15} /><span><b>{place.name}</b><small>{CATEGORY_META[place.category].label}{place.address ? ` · ${place.address}` : ""}</small></span></button>; })}
-        {geocodeResults.length > 0 && <p className="cp-map-results-group">LOCATIONS</p>}
-        {geocodeResults.map((result, index) => <button key={`${result.name}-${index}`} onClick={() => chooseGeocodeResult(result)}><MapPin size={15} /><span><b>{result.name}</b><small>{result.label}</small></span></button>)}
-      </div>}
-      <div className="cp-map-filters" aria-label="Place category filters">
-        <button className={activeCategories.length === 0 ? "is-active" : ""} aria-pressed={activeCategories.length === 0} onClick={() => setActiveCategories([])}>All</button>
-        {CATEGORY_ORDER.map((category) => { const meta = CATEGORY_META[category]; const Icon = meta.icon; return <button key={category} className={activeCategories.includes(category) ? "is-active" : ""} aria-pressed={activeCategories.includes(category)} onClick={() => toggleCategory(category)}><Icon size={13} />{meta.label}</button>; })}
-        {activeCategories.length > 0 && <button className="cp-map-filter-clear" onClick={() => setActiveCategories([])}>Clear all</button>}
-      </div>
-    </div>
-    {showSearchArea && <button className="cp-map-search-area" onClick={() => loadPlacesNear(command.center ?? lastFetchCenter)}><RefreshCw size={14} /> Search this area</button>}
-    <div className="cp-map-zoom"><button aria-label="Zoom in" onClick={() => zoom("zoom-in")}>+</button><button aria-label="Zoom out" onClick={() => zoom("zoom-out")}>−</button></div>
-    <button className="cp-map-add" onClick={() => setMessage("Sighting submissions will open when private uploads and moderator review are connected.")}><Plus size={17} /> Add a sighting</button>
-    <div className="cp-map-privacy-note"><ShieldCheck size={14} /> Public map locations are approximate. Sensitive cat locations stay private.</div>
-    {themeOpen && <button className="cp-map-theme-backdrop" aria-label="Close map theme menu" onClick={() => setThemeOpen(false)} />}
-    {message && <div className="cp-map-message" role="status">{message}<button aria-label="Dismiss message" onClick={() => setMessage("")}><X size={14} /></button></div>}
-    <span className="cp-map-attribution-note">{placesLoading ? "Loading nearby places…" : "Map data © OpenStreetMap · OpenFreeMap"}</span>
-    <PlacePanel
-      place={selectedPlace}
-      isSaved={selectedPlace ? savedPlaceIds.includes(selectedPlace.id) : false}
-      onToggleSave={() => selectedPlace && toggleSavedPlace(selectedPlace.id)}
-      onClose={() => selectPlace(null)}
-      onReport={handleReport}
-      reviews={reviews}
-      onSubmitReview={(rating, text) => selectedPlace && submitReview(selectedPlace.id, rating, text)}
-      sheetState={sheetState}
-      onCycleSheet={() => setSheetState((current) => current === "collapsed" ? "half" : current === "half" ? "full" : "collapsed")}
-    />
-  </section>;
 }
 
 function PlaysScreen({ liked, toggleLiked, likeClip }: { liked: string[]; toggleLiked: (title: string) => void; likeClip: (title: string) => void }) {
