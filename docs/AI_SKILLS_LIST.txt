@@ -1,0 +1,226 @@
+CATOPIA - AI AGENT SKILLS
+=========================
+
+Location : C:\Projects\Catopia\.agents\skills\   (project scoped)
+Total    : 26 skills  (23 third-party + 3 Catopia custom)
+Sources  : skills-lock.json (source repo, pinned commit, content hash)
+           docs/INSTALLED_SKILLS.md (selection notes)
+           each skill's SKILL.md frontmatter (descriptions below)
+
+HOW THE INSTALL COMMANDS WERE DERIVED
+-------------------------------------
+Each command uses the "skills" CLI format:
+
+    npx skills add <github-owner/repo> --skill <skill-name>
+
+The repo for each skill comes from skills-lock.json. The commands were NOT
+re-run when this file was written, so they are not verified to work today. The
+lock file pins an exact commit for every skill. A plain command installs the
+repo's latest version, which may differ from the pinned one. The pinned commit
+is listed under each group.
+
+The 3 Catopia custom skills are not installed from anywhere. They are written
+in this repository and ship with the project.
+
+
+=====================================================================
+A. CATOPIA CUSTOM SKILLS (3) - already in the repo, nothing to install
+=====================================================================
+
+1. catopia-art-direction
+   Description : Apply Catopia's cozy illustrated visual identity to application
+                 screens, interactions, and original UI art.
+   Install     : none - maintained in this repo at
+                 .agents/skills/catopia-art-direction/SKILL.md
+
+2. catopia-3d-world-builder
+   Description : Build Catopia's data-driven React Three Fiber world, landmark
+                 interactions, camera behavior, and quadruped cat presentation.
+   Install     : none - maintained in this repo at
+                 .agents/skills/catopia-3d-world-builder/SKILL.md
+
+3. catopia-asset-manager
+   Description : Acquire, inspect, license, optimize, and register Catopia's
+                 visual and audio assets.
+   Install     : none - maintained in this repo at
+                 .agents/skills/catopia-asset-manager/SKILL.md
+
+
+=====================================================================
+B. CORE DEVELOPMENT SKILLS (5)
+=====================================================================
+
+4. frontend-design
+   Source      : dobromirdikov/codex-frontend-design-skill
+   Pinned at   : 983119775a936d123df9fbfbc3821bdee5bb58fd
+   Description : Design, build, polish, or substantially redesign frontend UI:
+                 landing pages, websites, dashboards, web apps, components,
+                 prototypes, games, or visual QA for local interfaces where
+                 distinctive production-grade design matters.
+   Install     : npx skills add dobromirdikov/codex-frontend-design-skill --skill frontend-design
+
+5. playwright
+   Source      : openai/skills  (curated: skills/.curated/playwright)
+   Pinned at   : 49f948faa9258a0c61caceaf225e179651397431
+   Description : Automate a real browser from the terminal (navigation, form
+                 filling, snapshots, screenshots, data extraction, UI-flow
+                 debugging) via `playwright-cli` or the bundled wrapper script.
+   Install     : npx skills add openai/skills --skill playwright
+
+6. vercel-react-best-practices
+   Source      : vercel-labs/agent-skills  (skills/react-best-practices)
+   Pinned at   : 1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62
+   License     : MIT (author: Vercel, v1.0.0)
+   Description : React and Next.js performance guidelines from Vercel
+                 Engineering. Used when writing, reviewing, or refactoring
+                 React/Next.js code: components, pages, data fetching, bundle
+                 optimization, and performance work.
+   Install     : npx skills add vercel-labs/agent-skills --skill vercel-react-best-practices
+                 (the skill's folder in the source repo is "react-best-practices";
+                 if the name is not found, run:
+                 npx skills add vercel-labs/agent-skills --list )
+
+7. supabase
+   Source      : supabase/agent-skills
+   Pinned at   : c9be0e931b7930f7d02126d04774d904c381e7d7
+   Description : Covers any task involving Supabase: Database, Auth, Edge
+                 Functions, Realtime, Storage, Vectors, Cron, Queues; supabase-js
+                 and @supabase/ssr in Next.js and other frameworks; auth issues
+                 (sessions, JWT, cookies, RLS); the Supabase CLI and MCP server;
+                 schema changes, migrations, security audits, extensions; and
+                 debugging errors and reading logs.
+   Install     : npx skills add supabase/agent-skills --skill supabase
+
+8. supabase-postgres-best-practices
+   Source      : supabase/agent-skills
+   Pinned at   : c9be0e931b7930f7d02126d04774d904c381e7d7
+   License     : MIT (author: Supabase, v1.1.1)
+   Description : Postgres best practices for anything that lives in a Postgres
+                 database: tables and column types, schema design, migrations,
+                 RLS policies and tests, indexes, triggers, functions, queues and
+                 scheduled jobs, pgvector, and data imports. Also covers slow
+                 queries, EXPLAIN plans, connection exhaustion, locking and rows
+                 visible to the wrong user.
+   Install     : npx skills add supabase/agent-skills --skill supabase-postgres-best-practices
+
+   Install both Supabase skills at once:
+                 npx skills add supabase/agent-skills --skill supabase --skill supabase-postgres-best-practices
+
+
+=====================================================================
+C. THREE.JS / 3D SKILLS (18)
+=====================================================================
+Source for all 18 : cesartevisual/threejs-skills
+Pinned at         : 84f9bcb4bea1f7a28d57fe7f0af78f7f9c3dc467
+
+9. threejs-web
+   Description : Plan and implement complete Three.js web experiences, or select
+                 focused skills for an existing 3D feature.
+   Install     : npx skills add cesartevisual/threejs-skills --skill threejs-web
+
+10. threejs-r3f
+    Description : Build or fix React Three Fiber scenes, Drei helpers, Suspense
+                  loading, events, and React lifecycle integration.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-r3f
+
+11. threejs-scene
+    Description : Build or correct Three.js scene hierarchies, camera framing,
+                  coordinate transforms, and responsive renderer lifecycles.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-scene
+
+12. threejs-geometry
+    Description : Create or optimize Three.js BufferGeometry, procedural meshes,
+                  instanced objects, and geometry attributes.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-geometry
+
+13. threejs-materials
+    Description : Implement Three.js PBR materials, texture mapping,
+                  transparency, and color-management fixes.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-materials
+
+14. threejs-lighting
+    Description : Light Three.js scenes using environment maps, direct lights,
+                  baked light, and tuned shadow maps.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-lighting
+
+15. threejs-animation
+    Description : Implement Three.js animation clips, skeletal animation,
+                  transitions, scroll timelines, and frame-independent motion.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-animation
+
+16. threejs-interaction
+    Description : Implement Three.js pointer picking, orbit controls, object
+                  dragging, selection, and synchronized HTML controls.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-interaction
+
+17. threejs-accessibility
+    Description : Make Three.js interactions usable with keyboards, assistive
+                  technology, reduced motion, and non-3D fallbacks.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-accessibility
+
+18. threejs-performance
+    Description : Profile and optimize Three.js frame time, GPU workload, asset
+                  memory, and resource leaks.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-performance
+
+19. threejs-assets
+    Description : Load, validate, compress, cache, and release glTF models,
+                  textures, decoder assets, and user-supplied 3D files.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-assets
+
+20. threejs-spatial-data
+    Description : Integrate Three.js BIM/IFC, GIS, CAD, measurements, clipping,
+                  and large-coordinate datasets.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-spatial-data
+
+21. threejs-particles
+    Description : Build Three.js particle systems, point clouds, large repeated
+                  datasets, and CPU or GPU simulations.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-particles
+
+22. threejs-audio
+    Description : Add Three.js spatial audio, user-controlled playback, listener
+                  movement, and audio lifecycle handling.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-audio
+
+23. threejs-html
+    Description : Integrate Three.js with responsive HTML, Next.js or other
+                  frameworks, scroll sections, overlays, and multiple views.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-html
+
+24. threejs-debugging
+    Description : Diagnose Three.js black canvases, missing meshes, wrong colors,
+                  flicker, picking bugs, and context loss.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-debugging
+
+25. threejs-testing
+    Description : Test Three.js features with browser checks, deterministic
+                  visual fixtures, lifecycle tests, and device-specific evidence.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-testing
+
+26. threejs-deployment
+    Description : Prepare and verify Three.js web builds, asset hosting, decoder
+                  paths, caching, and deployment compatibility.
+    Install     : npx skills add cesartevisual/threejs-skills --skill threejs-deployment
+
+   Install all 18 Three.js skills at once:
+                 npx skills add cesartevisual/threejs-skills --skill threejs-web --skill threejs-r3f --skill threejs-scene --skill threejs-geometry --skill threejs-materials --skill threejs-lighting --skill threejs-animation --skill threejs-interaction --skill threejs-accessibility --skill threejs-performance --skill threejs-assets --skill threejs-spatial-data --skill threejs-particles --skill threejs-audio --skill threejs-html --skill threejs-debugging --skill threejs-testing --skill threejs-deployment
+
+   Note: the source repo ships 24 Three.js skills. Six were deliberately left out
+   of Catopia because they are outside the current browser scope: physics,
+   post-processing, product viewers, custom shaders, WebGPU and XR. Do not
+   install the whole repo without --skill flags unless you want them.
+
+
+=====================================================================
+D. INSTALL EVERYTHING THIRD-PARTY (23 skills), COPY-PASTE
+=====================================================================
+
+npx skills add dobromirdikov/codex-frontend-design-skill --skill frontend-design
+npx skills add openai/skills --skill playwright
+npx skills add vercel-labs/agent-skills --skill vercel-react-best-practices
+npx skills add supabase/agent-skills --skill supabase --skill supabase-postgres-best-practices
+npx skills add cesartevisual/threejs-skills --skill threejs-web --skill threejs-r3f --skill threejs-scene --skill threejs-geometry --skill threejs-materials --skill threejs-lighting --skill threejs-animation --skill threejs-interaction --skill threejs-accessibility --skill threejs-performance --skill threejs-assets --skill threejs-spatial-data --skill threejs-particles --skill threejs-audio --skill threejs-html --skill threejs-debugging --skill threejs-testing --skill threejs-deployment
+
+Run these from C:\Projects\Catopia. If the CLI asks which agent or scope to use,
+choose project scope so the files land in .agents/skills/.
