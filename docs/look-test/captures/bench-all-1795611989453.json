@@ -1,0 +1,158 @@
+[
+  {
+    "variant": "pixel",
+    "tier": "full",
+    "fpsAvg": 161.3,
+    "intervalMs": {
+      "p50": 6,
+      "p95": 7.8,
+      "p99": 9.3,
+      "max": 27.8
+    },
+    "costMs": {
+      "p50": 6.7,
+      "p95": 8.2,
+      "p99": 9.1,
+      "max": 10
+    },
+    "drawCalls": 788,
+    "triangles": 60291,
+    "bufferSize": "477x243",
+    "cssSize": "1528x779",
+    "devicePixelRatio": 1.25,
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "visibility": "visible",
+    "hasFocus": true,
+    "frames": 900
+  },
+  {
+    "variant": "pixel",
+    "tier": "light",
+    "fpsAvg": 163,
+    "intervalMs": {
+      "p50": 6,
+      "p95": 7.3,
+      "p99": 8.2,
+      "max": 21.4
+    },
+    "costMs": {
+      "p50": 5.8,
+      "p95": 6.8,
+      "p99": 8,
+      "max": 17.4
+    },
+    "drawCalls": 513,
+    "triangles": 38759,
+    "bufferSize": "477x243",
+    "cssSize": "1528x779",
+    "devicePixelRatio": 1.25,
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "visibility": "visible",
+    "hasFocus": true,
+    "frames": 900
+  },
+  {
+    "variant": "pixel",
+    "tier": "minimal",
+    "fpsAvg": 163.8,
+    "intervalMs": {
+      "p50": 6,
+      "p95": 7.2,
+      "p99": 7.7,
+      "max": 24.2
+    },
+    "costMs": {
+      "p50": 5.7,
+      "p95": 6,
+      "p99": 6.9,
+      "max": 7.8
+    },
+    "drawCalls": 316,
+    "triangles": 20185,
+    "bufferSize": "477x243",
+    "cssSize": "1528x779",
+    "devicePixelRatio": 1.25,
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "visibility": "visible",
+    "hasFocus": true,
+    "frames": 900
+  },
+  {
+    "variant": "hd",
+    "tier": "full",
+    "fpsAvg": 119,
+    "intervalMs": {
+      "p50": 8,
+      "p95": 11.3,
+      "p99": 14.8,
+      "max": 28.8
+    },
+    "costMs": {
+      "p50": 10.2,
+      "p95": 11.5,
+      "p99": 14.4,
+      "max": 22
+    },
+    "drawCalls": 524,
+    "triangles": 39673,
+    "bufferSize": "1910x974",
+    "cssSize": "1528x779",
+    "devicePixelRatio": 1.25,
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "visibility": "visible",
+    "hasFocus": true,
+    "frames": 713
+  },
+  {
+    "variant": "hd",
+    "tier": "light",
+    "fpsAvg": 163.2,
+    "intervalMs": {
+      "p50": 6,
+      "p95": 7.7,
+      "p99": 9.4,
+      "max": 20.3
+    },
+    "costMs": {
+      "p50": 8.1,
+      "p95": 9.3,
+      "p99": 10.5,
+      "max": 11.1
+    },
+    "drawCalls": 510,
+    "triangles": 37982,
+    "bufferSize": "1432x730",
+    "cssSize": "1528x779",
+    "devicePixelRatio": 1.25,
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "visibility": "visible",
+    "hasFocus": true,
+    "frames": 900
+  },
+  {
+    "variant": "hd",
+    "tier": "minimal",
+    "fpsAvg": 163.7,
+    "intervalMs": {
+      "p50": 6,
+      "p95": 7.2,
+      "p99": 8.6,
+      "max": 23.1
+    },
+    "costMs": {
+      "p50": 5.7,
+      "p95": 6.1,
+      "p99": 7,
+      "max": 10.6
+    },
+    "drawCalls": 318,
+    "triangles": 20957,
+    "bufferSize": "1146x584",
+    "cssSize": "1528x779",
+    "devicePixelRatio": 1.25,
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "visibility": "visible",
+    "hasFocus": true,
+    "frames": 900
+  }
+]

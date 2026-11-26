@@ -1,0 +1,44 @@
+{
+  "what": "Phase 0 look test: per-frame cost (CPU + GPU, GPU forced to finish with a 1x1 readPixels each frame), 200-240 frames per row, scene = market street at dusk with camera sway on.",
+  "notFps": "These are frame costs in milliseconds, NOT frames per second. The in-app browser pane reported document.visibilityState = 'hidden', which throttles requestAnimationFrame to about one frame per 2 seconds, so real (vsync-capped) FPS could not be observed. Costs were measured with a synchronous render loop that does not depend on requestAnimationFrame. Run 'Bench all' in a visible browser tab to record real FPS.",
+  "machine": {
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "mode": "Next.js dev server (not an optimised production build), hidden in-app browser pane, Windows 11",
+    "devicePixelRatio": 1.25
+  },
+  "runs": [
+    {
+      "viewportCss": "748x668",
+      "rows": [
+        { "look": "A pixelated 3D", "tier": "full", "internalBuffer": "311x278", "costMs": { "p50": 4.1, "p95": 5.3, "p99": 6.2, "max": 8.0 }, "drawCalls": 291, "triangles": 27442 },
+        { "look": "A pixelated 3D", "tier": "light", "internalBuffer": "311x278", "costMs": { "p50": 3.4, "p95": 5.0, "p99": 5.8, "max": 8.4 }, "drawCalls": 213, "triangles": 19365 },
+        { "look": "A pixelated 3D", "tier": "minimal", "internalBuffer": "311x278", "costMs": { "p50": 1.7, "p95": 2.3, "p99": 2.8, "max": 3.5 }, "drawCalls": 82, "triangles": 7455 },
+        { "look": "B HD world + pixel cat", "tier": "full", "internalBuffer": "935x835", "costMs": { "p50": 6.0, "p95": 7.2, "p99": 10.0, "max": 52.5 }, "drawCalls": 210, "triangles": 18887 },
+        { "look": "B HD world + pixel cat", "tier": "light", "internalBuffer": "935x835", "costMs": { "p50": 6.0, "p95": 7.6, "p99": 24.0, "max": 77.6 }, "drawCalls": 217, "triangles": 19417 },
+        { "look": "B HD world + pixel cat", "tier": "minimal", "internalBuffer": "935x835", "costMs": { "p50": 2.4, "p95": 3.4, "p99": 6.2, "max": 15.9 }, "drawCalls": 96, "triangles": 8557 }
+      ]
+    },
+    {
+      "viewportCss": "748x668",
+      "note": "Pixel density sweep, look A, tier full. Rows 360 and 540 round to the same whole-pixel scale in this small window, so their difference is run-to-run variance.",
+      "rows": [
+        { "targetRows": 180, "scale": 5, "internalBuffer": "187x167", "costMs": { "p50": 3.7, "p95": 4.6, "p99": 4.9 } },
+        { "targetRows": 270, "scale": 3, "internalBuffer": "311x278", "costMs": { "p50": 3.7, "p95": 5.1, "p99": 5.9 } },
+        { "targetRows": 360, "scale": 2, "internalBuffer": "467x417", "costMs": { "p50": 3.8, "p95": 4.8, "p99": 5.5 } },
+        { "targetRows": 540, "scale": 2, "internalBuffer": "467x417", "costMs": { "p50": 5.3, "p95": 7.0, "p99": 10.2 } }
+      ]
+    },
+    {
+      "viewportCss": "1920x1080 (emulated, devicePixelRatio 1.25, so a 2400x1350 device buffer)",
+      "rows": [
+        { "look": "A", "tier": "full", "targetRows": 270, "internalBuffer": "480x270", "costMs": { "p50": 4.4, "p95": 5.5, "p99": 8.8 }, "drawCalls": 314 },
+        { "look": "A", "tier": "full", "targetRows": 360, "internalBuffer": "600x337", "costMs": { "p50": 4.9, "p95": 5.9, "p99": 6.9 }, "drawCalls": 335 },
+        { "look": "A", "tier": "full", "targetRows": 540, "internalBuffer": "800x450", "costMs": { "p50": 4.8, "p95": 6.1, "p99": 9.3 }, "drawCalls": 330 },
+        { "look": "B", "tier": "full", "internalBuffer": "2400x1350", "costMs": { "p50": 11.6, "p95": 13.7, "p99": 32.6 }, "drawCalls": 236 },
+        { "look": "B", "tier": "light", "internalBuffer": "2400x1350", "costMs": { "p50": 11.9, "p95": 13.8, "p99": 14.6 }, "drawCalls": 236 },
+        { "look": "B", "tier": "minimal", "internalBuffer": "2400x1350", "costMs": { "p50": 4.2, "p95": 5.2, "p99": 7.7 }, "drawCalls": 110 }
+      ]
+    }
+  ],
+  "notMeasured": ["real FPS", "any phone or tablet", "low-end laptop", "production build", "battery or thermals", "memory over time"]
+}
