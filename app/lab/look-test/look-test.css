@@ -1,0 +1,117 @@
+/* PHASE 0 LOOK TEST - throwaway styles for the lab page only. */
+.lab-root {
+  position: fixed;
+  inset: 0;
+  background: #101018;
+  color: #eee;
+  font: 12px/1.35 system-ui, sans-serif;
+}
+
+.lab-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.lab-panel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 262px;
+  max-height: calc(100vh - 20px);
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(16, 16, 24, 0.82);
+  backdrop-filter: blur(6px);
+  z-index: 5;
+}
+
+.lab-panel h1 {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.lab-panel small {
+  color: #aab;
+}
+
+.lab-row {
+  margin: 6px 0;
+}
+
+.lab-row > label {
+  display: block;
+  color: #aab;
+  margin-bottom: 2px;
+}
+
+.lab-seg {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.lab-seg button,
+.lab-btn {
+  padding: 3px 7px;
+  border: 1px solid #556;
+  border-radius: 5px;
+  background: #1c1c2a;
+  color: #dde;
+  cursor: pointer;
+  font: inherit;
+}
+
+.lab-seg button.on,
+.lab-btn.on {
+  background: #c88a3a;
+  border-color: #e8aa5a;
+  color: #111;
+}
+
+.lab-checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 8px;
+}
+
+.lab-checks label {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.lab-slider {
+  display: grid;
+  grid-template-columns: 70px 1fr 34px;
+  gap: 6px;
+  align-items: center;
+}
+
+.lab-stats {
+  margin-top: 8px;
+  padding: 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  font: 11px/1.4 ui-monospace, monospace;
+  white-space: pre-wrap;
+}
+
+.lab-catalog-label {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font: 11px system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.lab-toast {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 6;
+}

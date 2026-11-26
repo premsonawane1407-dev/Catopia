@@ -1,0 +1,567 @@
+/* The game shell: full-window stage plus the cozy cards (loading, begin, pause, problems, rotate hint).
+   Colours and fonts come from the site's tokens in styles/catopia.css, with fallbacks so the game still
+   looks right if they are missing. Everything is prefixed "cg-" so it cannot touch the rest of the app. */
+
+html.cg-locked,
+html.cg-locked body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: #1b2138;
+}
+
+.cg-root {
+  --cg-paper: var(--paper, #fffdf5);
+  --cg-ink: var(--ink, #313b2e);
+  --cg-forest: var(--forest, #365744);
+  --cg-leaf: var(--leaf, #657e59);
+  --cg-terracotta: var(--terracotta, #c56e50);
+  --cg-butter: var(--butter, #e9c56e);
+  --cg-muted: var(--muted, #727b67);
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  /* Clip rather than just hide: a clipped box can never be scrolled, not even by a focus or a script, so nothing can slide the whole game sideways. */
+  overflow: clip;
+  background: #1b2138;
+  color: var(--cg-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  user-select: none;
+}
+
+.cg-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.cg-stage canvas {
+  display: block;
+}
+
+/* ----- Screens ----- */
+
+.cg-screen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  /* One track exactly as big as the screen, so a long line of text can never stretch it past a narrow phone. */
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+
+.cg-screen--loading {
+  background: radial-gradient(ellipse at center, #2b3350 0%, #1b2138 70%);
+}
+
+/* The street stays visible behind "press to begin", with the card resting low on the screen. */
+.cg-screen--begin {
+  place-items: end center;
+  padding-bottom: max(7vh, 24px);
+  background: linear-gradient(to top, rgba(18, 22, 40, 0.6), rgba(18, 22, 40, 0) 60%);
+}
+
+.cg-screen--problem,
+.cg-screen--rotate {
+  background: rgba(18, 22, 40, 0.62);
+  backdrop-filter: blur(3px);
+}
+
+.cg-card {
+  width: min(430px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  touch-action: pan-y;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px 26px 22px;
+  background: var(--cg-paper);
+  border-radius: 20px;
+  box-shadow:
+    0 18px 50px rgba(10, 14, 30, 0.5),
+    inset 0 0 0 2px rgba(54, 87, 68, 0.14);
+  user-select: text;
+}
+
+.cg-eyebrow {
+  margin: 0;
+  color: var(--cg-terracotta);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cg-title {
+  margin: 0;
+  color: var(--cg-forest);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.45rem, 4.4vw, 1.85rem);
+  line-height: 1.15;
+}
+
+.cg-body {
+  margin: 0;
+  color: var(--cg-ink);
+  line-height: 1.5;
+}
+
+.cg-fine {
+  margin: 0;
+  color: var(--cg-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.cg-detail {
+  overflow-wrap: anywhere;
+}
+
+/* ----- Buttons ----- */
+
+.cg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  font: 800 1rem var(--font-body), system-ui, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background-color 0.12s ease;
+}
+
+.cg-btn:active {
+  transform: translateY(1px);
+}
+
+.cg-btn--primary {
+  background: var(--cg-terracotta);
+  color: #fffdf5;
+}
+
+.cg-btn--primary:hover {
+  background: #b5603f;
+}
+
+.cg-btn--ghost {
+  background: transparent;
+  color: var(--cg-forest);
+  box-shadow: inset 0 0 0 2px rgba(54, 87, 68, 0.45);
+}
+
+.cg-btn--ghost:hover {
+  background: rgba(54, 87, 68, 0.08);
+}
+
+.cg-root :focus-visible {
+  outline: 3px solid var(--cg-butter);
+  outline-offset: 2px;
+}
+
+/* ----- The II button: small, in the far corner, out of the way ----- */
+
+.cg-pause-btn {
+  position: absolute;
+  top: max(4px, env(safe-area-inset-top));
+  right: max(4px, env(safe-area-inset-right));
+  display: grid;
+  place-items: center;
+  /* The touch target is bigger than the little symbol you see. */
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 253, 245, 0.62);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.cg-pause-btn:hover {
+  color: #fffdf5;
+  transform: scale(1.1);
+}
+
+.cg-pause-btn:active {
+  transform: scale(0.96);
+}
+
+.cg-pause-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(14, 18, 34, 0.32);
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+
+.cg-pause-glyph > i {
+  width: 2.5px;
+  height: 10px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+/* ----- The pause menu: the frozen picture goes dark and blurry, and the choices float on top ----- */
+
+.cg-pause {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  background: radial-gradient(ellipse at 50% 46%, rgba(14, 18, 34, 0.5) 0%, rgba(8, 10, 22, 0.82) 80%);
+  -webkit-backdrop-filter: blur(14px) saturate(0.7) brightness(0.72);
+  backdrop-filter: blur(14px) saturate(0.7) brightness(0.72);
+  color: #f2efdf;
+  touch-action: none;
+  animation: cg-pause-in 0.32s ease both;
+}
+
+.cg-pause-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: min(440px, 100%);
+}
+
+.cg-pause-title {
+  margin: 0;
+  color: #fffdf5;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2rem, 7vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-align: center;
+  text-indent: 0.18em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  text-transform: uppercase;
+  animation: cg-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both;
+}
+
+.cg-pause-rule {
+  display: block;
+  width: 72px;
+  height: 2px;
+  margin: -8px auto 0;
+  background: linear-gradient(90deg, transparent, var(--cg-butter), transparent);
+  animation: cg-rule 0.6s ease 0.15s both;
+}
+
+.cg-menu-wrap {
+  --row: 3.15rem;
+  position: relative;
+  padding-left: 28px;
+}
+
+.cg-menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cg-menu-row {
+  height: var(--row);
+  animation: cg-rise 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(0.12s + var(--i) * 0.045s);
+}
+
+.cg-menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding: 0 14px 0 16px;
+  border: 0;
+  background: none;
+  color: rgba(242, 239, 223, 0.74);
+  font: 800 1rem/1 var(--font-body), system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 0.16s ease,
+    transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+    text-shadow 0.2s ease;
+}
+
+/* The highlight is the focus indicator here: colour, a sweeping underline and the moving paw. */
+.cg-root .cg-menu-item:focus-visible {
+  outline: none;
+}
+
+.cg-menu-item::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  bottom: 5px;
+  left: 16px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cg-butter), rgba(233, 197, 110, 0));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cg-menu-item[data-selected="true"] {
+  color: var(--cg-butter);
+  text-shadow: 0 0 20px rgba(233, 197, 110, 0.5);
+  transform: translateX(6px);
+}
+
+.cg-menu-item[data-selected="true"]::after {
+  transform: scaleX(1);
+}
+
+.cg-menu-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(242, 239, 223, 0.9);
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.cg-menu-item[data-selected="true"] .cg-menu-value {
+  color: #fffdf5;
+}
+
+.cg-menu-value b {
+  font-weight: 800;
+}
+
+.cg-chev {
+  color: var(--cg-butter);
+  font-size: 1.2rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.cg-menu-item[data-selected="true"] .cg-chev {
+  opacity: 0.9;
+}
+
+.cg-menu-value[data-bump="1"] {
+  animation: cg-value-next 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cg-menu-value[data-bump="-1"] {
+  animation: cg-value-prev 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* A small paw glides from row to row, one row height per step. */
+.cg-menu-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: var(--row);
+  color: var(--cg-butter);
+  filter: drop-shadow(0 0 8px rgba(233, 197, 110, 0.55));
+  pointer-events: none;
+  transform: translateY(calc(var(--sel) * var(--row)));
+  transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.2, 1);
+  animation: cg-marker-in 0.4s ease 0.25s both;
+}
+
+/* On a narrow phone the longest row (Performance numbers) must still fit on one line. */
+@media (max-width: 440px) {
+  .cg-menu-item {
+    font-size: 0.92rem;
+    letter-spacing: 0.1em;
+  }
+
+  .cg-menu-wrap {
+    padding-left: 24px;
+  }
+
+  /* The little arrows beside a value hint at the arrow keys; a phone has none, and the room is needed. */
+  .cg-chev {
+    display: none;
+  }
+}
+
+.cg-menu-hint {
+  margin: 0;
+  color: rgba(242, 239, 223, 0.5);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  animation: cg-rise 0.5s ease 0.5s both;
+}
+
+@media (pointer: coarse) {
+  .cg-menu-hint {
+    display: none;
+  }
+}
+
+.cg-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes cg-pause-in {
+  from {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0) saturate(1) brightness(1);
+    backdrop-filter: blur(0) saturate(1) brightness(1);
+  }
+}
+
+@keyframes cg-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes cg-rule {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+}
+
+@keyframes cg-value-next {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+}
+
+@keyframes cg-value-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+}
+
+@keyframes cg-marker-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ----- Loading ----- */
+
+.cg-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(280px, 80vw);
+  color: #f2efdf;
+  text-align: center;
+}
+
+.cg-loading-paw {
+  color: var(--cg-butter);
+  animation: cg-bob 1.6s ease-in-out infinite;
+}
+
+.cg-loading-title {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.25rem;
+}
+
+.cg-progress {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(242, 239, 223, 0.2);
+}
+
+.cg-progress > i {
+  display: block;
+  height: 100%;
+  background: var(--cg-butter);
+  transition: width 0.2s ease;
+}
+
+.cg-rotate-icon {
+  color: var(--cg-terracotta);
+  transform: rotate(-90deg);
+}
+
+@keyframes cg-bob {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* ----- Stats readout ----- */
+
+.cg-stats {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.62);
+  color: #d6f5df;
+  font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace;
+  /* Lines wrap instead of running off a narrow screen, and the box stays clear of the II in the far corner. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: calc(100% - 72px);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-loading-paw {
+    animation: none;
+  }
+
+  .cg-progress > i,
+  .cg-btn,
+  .cg-pause-btn {
+    transition: none;
+  }
+
+  .cg-pause,
+  .cg-pause * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* The same, when the player chose Reduced motion in the menu rather than on their device. */
+.cg-root[data-motion="reduced"] .cg-pause,
+.cg-root[data-motion="reduced"] .cg-pause *,
+.cg-root[data-motion="reduced"] .cg-pause-btn {
+  animation: none !important;
+  transition: none !important;
+}

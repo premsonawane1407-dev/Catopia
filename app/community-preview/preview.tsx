@@ -8,7 +8,7 @@ import StoreScreen from "./store";
 import type { CartItem, CheckoutStep } from "./store-data";
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowRight, ArrowUpRight, Bookmark, Check, ChevronDown, Clapperboard, Compass, ShoppingBag, ShoppingCart, PawPrint,
+  ArrowRight, ArrowUpRight, Bookmark, Check, ChevronDown, Clapperboard, Compass, Gamepad2, ShoppingBag, ShoppingCart, PawPrint,
   Flag, Heart, Home, Map, Menu, MessageCircle, Plus, Search,
   Send, ShieldCheck, Upload, Users, X, MoreHorizontal,
 } from "lucide-react";
@@ -122,7 +122,8 @@ export default function CommunityPreview({ utcDay }: { utcDay: number }) {
             {["Home", "Discover", "Plays", "PAW"].includes(screen) && searchOpen && <div className="cp-search-suggestions"><p>{recentSearches.length ? "RECENT SEARCHES" : "SUGGESTED SEARCHES"}</p>{(recentSearches.length ? recentSearches : ["Portrait", "Sighting", "Memory", "quiet afternoon", "curious visitor"]).map((term) => <button key={term} onMouseDown={(event) => event.preventDefault()} onClick={() => chooseSearch(term)}><Search size={15} /><span>{term}</span>{recentSearches.length > 0 && <small>Recent</small>}</button>)}</div>}
           </div>
           {screen === "Store" && <button className="cp-top-cart" aria-label="Open cart" onClick={openCart}><ShoppingCart size={18} />{cartCount > 0 && <span className="cp-top-cart-count">{cartCount}</span>}</button>}
-          <button className="cp-top-avatar" aria-label="Open profile" onClick={() => go("Profile")}>P</button>
+          {/* The way into the stand-alone game world. Prefetch is off so the game's code never loads until it is asked for. */}
+          <Link href="/play" prefetch={false} className="cp-top-game" aria-label="Play the Catopia game world" title="Play Catopia"><Gamepad2 size={18} strokeWidth={1.8} /></Link>
         </header>
 
         <div className="cp-content">

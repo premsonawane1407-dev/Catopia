@@ -1,0 +1,51 @@
+{
+  "what": "Phase 1 (shell and render foundation) frame cost, measured the same way as Phase 0 round 2: milliseconds of CPU + GPU per frame, drawing frames back to back and forcing the GPU to finish each one with a 1x1 readPixels (window.__catopia.bench, 150 frames, two passes per row, after 20 warm-up frames). The scene is the same market street at dusk, look B, camera still, motion on.",
+  "notFps": "These are frame costs, NOT frames per second. The in-app browser pane throttles requestAnimationFrame when it is hidden or unfocused, so frame cost is the number to trust. See realFps for what was observed when the pane was visible.",
+  "machine": {
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "viewportCss": "1280x720",
+    "devicePixelRatio": 1.25,
+    "note": "The same PC, viewport and pixel density as docs/look-test/captures/bench-frame-cost-round2-2026-11-25.json, so the rows compare directly."
+  },
+  "phase0": {
+    "source": "docs/look-test/captures/bench-frame-cost-round2-2026-11-25.json (Next.js dev server)",
+    "full": { "p50": [19.7, 20.6], "p95": [23.3, 23.9], "drawCalls": 510, "triangles": 38500, "buffer": "1600x900" },
+    "light": { "p50": [13.5, 13.2], "p95": [16.4, 16.6], "drawCalls": 520, "triangles": 38500, "buffer": "1200x675" },
+    "minimal": { "p50": [8.4, 8.3], "p95": [9.3, 9.3], "drawCalls": 315, "triangles": 20300, "buffer": "960x540" }
+  },
+  "phase1": {
+    "devServer": {
+      "build": "Next.js dev server (next dev)",
+      "full": { "p50": [7.2, 6.8], "p95": [8.0, 7.3], "p99": [8.9, 9.1], "drawCalls": 56, "triangles": 42995, "buffer": "1600x900", "settings": "MSAA 4x, half-float buffer, 56-tap blur, bloom, 2048 shadow map, 4 point lights" },
+      "light": { "p50": [4.7, 4.7], "p95": [5.4, 5.2], "p99": [6.1, 8.1], "drawCalls": 59, "triangles": 42958, "buffer": "1200x675", "settings": "render scale 0.75, SMAA, 8-bit buffer, 24-tap blur, 1024 shadow map, 2 point lights" },
+      "minimal": { "p50": [1.6, 1.5], "p95": [1.9, 1.8], "p99": [2.2, 2.2], "drawCalls": 26, "triangles": 21547, "buffer": "960x540", "settings": "render scale 0.6, no post-processing, no shadows, no point lights" }
+    },
+    "productionServer": {
+      "build": "npm run build (webpack) then next start, /play?perf=1",
+      "full": { "p50": [6.9, 6.8], "p95": [7.7, 8.1], "p99": [10.1, 11.8], "drawCalls": 56, "triangles": 42995, "buffer": "1600x900" },
+      "light": { "p50": [4.5, 4.5], "p95": [5.2, 5.2], "p99": [6.6, 6.9], "drawCalls": 59, "triangles": 42958, "buffer": "1200x675" },
+      "minimal": { "p50": [1.6, 1.5], "p95": [1.9, 1.8], "p99": [3.1, 3.0], "drawCalls": 26, "triangles": 21547, "buffer": "960x540" }
+    },
+    "drawCallsCounted": "Summed over every pass of a frame (shadow map, scene, post-processing), not just the last one."
+  },
+  "reading": "Merging the static scenery into 7 meshes (one per surface), merging code-built props into 2, batching the window panes and light spill into 5 meshes and the lamp halos into 1 instanced mesh cut draw calls from about 510 to 56 and the Full-tier frame cost from about 20 ms to about 7 ms (Light about 13 to 4.5 ms, Minimal about 8 to 1.5 ms). The Phase 0 hypothesis, that per-draw overhead from many separate meshes explained most of the previously unexplained cost, is confirmed. Development and production builds cost the same, so the GPU work dominates. Triangles rose slightly (38,500 to 42,995) because the merged scene also carries the code-built props that were drawn separately before.",
+  "realFps": {
+    "observed": "165 fps (6.1 ms average frame interval, 6.5 ms p95) at the Full tier in the Next.js dev server, with the in-app pane visible and being used, at 1280x720 CSS pixels and also at an emulated 375x812 phone viewport (750x1624 buffer). The display appears to refresh at 165 Hz, so the game was keeping up at Full on this integrated GPU.",
+    "caveat": "At other times the same pane delivered only a few frames per second, because it throttles pages it considers hidden or unfocused. This is a limit of the test environment, not of the game. These numbers come from one desktop PC and an emulated phone viewport, not from a phone."
+  },
+  "enterLeaveCycles": {
+    "what": "Ten enter/leave cycles through the controller button and the Leave button in the Next.js dev server (Begin pressed each time), reading window.__catopia.perf() and performance.memory after each leave.",
+    "contexts": { "created": 10, "releasedOnLeave": 10, "lostUnexpectedly": 0, "liveWhilePlaying": 1, "liveAfterEveryLeave": 0, "canvasesLeftOnCommunityPage": 0 },
+    "jsHeapMBAfterEachLeave": [61.7, 50.3, 59.4, 58.3, 78.5, 66.3, 62.7, 68.8, 58.1, 64.6],
+    "gpuObjectsPerVisit": { "geometries": 27, "textures": 39, "programs": 23, "note": "identical on every visit, so nothing accumulates" },
+    "reading": "No growth trend: the heap saw-tooths with garbage collection between about 50 and 79 MB (first cycle 61.7, last 64.6). Heap was not forced to collect, so single readings are noisy."
+  },
+  "bundle": {
+    "method": "node scripts/measure-initial-js.mjs against npm run build + next start (port 3100): sums raw and gzip bytes of the script tags in each page's HTML.",
+    "communityPreview": { "before": "9 scripts, 300.9 KB gzipped", "after": "10 scripts, 301.5 KB gzipped (308,753 bytes)", "change": "+0.6 KB gzipped (the controller icon and link)" },
+    "home": { "before": "7 scripts, 180.7 KB gzipped", "after": "7 scripts, 180.8 KB gzipped (185,101 bytes)", "change": "+0.1 KB gzipped" },
+    "play": { "initialScripts": "6 scripts, 171.3 KB gzipped (175,455 bytes); the route's own chunk is 4.4 KB because the game loads on demand", "firstVisitTransfer": { "scripts": "14 files, 580,477 bytes transferred (1,780,449 decoded)", "gameAssets": "5 files, 705,369 bytes", "css": "2 files, 7,867 bytes", "fonts": "2 files, 106,432 bytes" } },
+    "gameCodeInCommunityPage": "none: no react-three-fiber, postprocessing or game strings were found in the Community page's scripts"
+  },
+  "notMeasured": ["any real phone or tablet", "low-end laptop", "Safari or Firefox", "battery or thermals", "GPU timer queries", "auto quality governor on a weak device (unit tested, not observed)"]
+}

@@ -1,0 +1,23 @@
+{
+  "what": "The pause menu's eight sounds, rendered offline with the same recipes and reverb the game uses (features/game/audio/ui-sounds.ts), at the game's default master volume (0.6), and measured (features/game/debug/audio-analysis.ts). Read in the browser with window.__catopia.reportUiSounds().",
+  "brief": "Short, soft, tactile electronic UI sounds for a premium pause menu: muted digital clicks, delicate synth blips, subtle airy textures, tiny mechanical ticks and smooth tonal transitions; crisp but not sharp, futuristic but not overly sci-fi, satisfying depth with a very short reverb; no harsh beeps, loud impacts or conventional mouse clicks.",
+  "how": "Each sound is a small recipe of layers: a tiny band-passed-noise tick, a soft low pulse, rounded sine or triangle notes with a faint octave, and an airy filtered-noise sweep, plus a generated 0.28 s reverb. 44.1 kHz, both channels averaged for the measurement.",
+  "columns": {
+    "peakDb": "loudest moment, in decibels below full scale (0 would be the loudest a speaker can play)",
+    "rmsDb": "average loudness over the audible part",
+    "audibleMs": "time from the first to the last moment louder than -50 dB",
+    "centroidHz": "centre of the spectrum: low is soft and dark, high is sharp and bright"
+  },
+  "sounds": [
+    { "name": "open", "when": "the pause menu opens", "peakDb": -14.5, "rmsDb": -28.6, "audibleMs": 168, "centroidHz": 1559, "clipped": false },
+    { "name": "close", "when": "the game resumes", "peakDb": -18.4, "rmsDb": -33.5, "audibleMs": 156, "centroidHz": 1262, "clipped": false },
+    { "name": "move", "when": "the highlight moves to another row (pitch climbs a gentle scale down the menu)", "peakDb": -15.5, "rmsDb": -29.1, "audibleMs": 47, "centroidHz": 623, "clipped": false },
+    { "name": "adjust", "when": "a choice steps forward or back (two notes, rising or falling)", "peakDb": -17.0, "rmsDb": -31.7, "audibleMs": 107, "centroidHz": 783, "clipped": false },
+    { "name": "select", "when": "pressing Begin (a rising pair with a breath of air)", "peakDb": -15.0, "rmsDb": -29.7, "audibleMs": 183, "centroidHz": 1049, "clipped": false },
+    { "name": "back", "when": "leaving the street (a falling pair)", "peakDb": -16.5, "rmsDb": -32.5, "audibleMs": 137, "centroidHz": 554, "clipped": false },
+    { "name": "toggleOn", "when": "a switch goes on (Sound, Performance numbers)", "peakDb": -18.7, "rmsDb": -32.9, "audibleMs": 132, "centroidHz": 985, "clipped": false },
+    { "name": "toggleOff", "when": "a switch goes off", "peakDb": -19.4, "rmsDb": -33.8, "audibleMs": 133, "centroidHz": 657, "clipped": false }
+  ],
+  "reading": "Every sound is under a fifth of a second audible, peaks between 14.5 and 19.4 dB below full scale (soft, with no loud impacts), and none clips. The spectrum centres sit between 554 and 1559 Hz: warm and rounded, nowhere near the 3 kHz and above of a harsh beep. Before the menu level was raised by 6 dB the same sounds peaked 20.5 to 25.5 dB below full scale, which was too quiet to hear comfortably on small speakers.",
+  "notDone": "These are measurements, not a listening test. Whether the sounds feel right (soft enough, bright enough, the right amount of reverb, the right notes) is for the owner's ears."
+}

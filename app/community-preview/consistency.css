@@ -36,3 +36,27 @@
   .cp-main.is-paw .cp-search input,
   .cp-main.is-store .cp-search input { font-size: 11px; }
 }
+
+/* The controller button: the way into the stand-alone game world. It replaces the old "P" avatar and, unlike
+   that avatar, stays visible on every screen and at every width, because it is an entry point. */
+.cp-top-game {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e7d59b;
+  color: #35513f;
+  text-decoration: none;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+.cp-top-game:hover { background: #efdfa9; transform: translateY(-1px); }
+.cp-top-game:focus-visible { outline: 3px solid #365744; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .cp-top-game { transition: none; }
+  .cp-top-game:hover { transform: none; }
+}
+@media (max-width: 760px) {
+  .cp-top-game { width: 32px; height: 32px; }
+}
