@@ -1,6 +1,6 @@
 # Catopia installed agent skills
 
-Skills live in `.agents/skills/` and are project scoped. The third-party skill source pins and hashes are recorded in `skills-lock.json`; Catopia's three custom skills are maintained in this repository. The current project inventory contains 26 skills: 23 third-party skills and 3 Catopia-specific skills.
+Skills live in `.agents/skills/` and are project scoped. The third-party skill source pins and hashes are recorded in `skills-lock.json`; Catopia's three custom skills are maintained in this repository. The current project inventory contains 31 skills: 28 third-party skills and 3 Catopia-specific skills. Five game and pixel-art skills were added on 2026-11-25 for the planned standalone HD-2D game (see below).
 
 ## Core development
 
@@ -37,6 +37,27 @@ Skills live in `.agents/skills/` and are project scoped. The third-party skill s
 | `catopia-art-direction` | Applies Catopia's cozy illustrated visual identity and honest UI states. |
 | `catopia-3d-world-builder` | Enforces shared world data, safe locations, compatible cat rigs and accessible 3D behavior. |
 | `catopia-asset-manager` | Guides sourcing, license review, technical inspection and asset registration. |
+
+## Game and pixel-art skills (added 2026-11-25)
+
+Installed with `npx skills add <repo> --skill <name>` at project scope; recorded in `skills-lock.json`.
+
+| Skill | Source and pinned commit | Repository licence | Contribution |
+|---|---|---|---|
+| `threejs-game-director` | majidmanzarpour/threejs-game-skills @ 8286774 | MIT | Entry point that routes whole-game work (loop, art, UI, QA) across sibling skills. |
+| `threejs-gameplay-systems` | majidmanzarpour/threejs-game-skills @ 8286774 | MIT | Core loop, input, camera, collision, quests/state patterns; includes a Vite game template. |
+| `threejs-game-ui-designer` | majidmanzarpour/threejs-game-skills @ 8286774 | MIT | HUD, menus, overlays and touch UI for 3D games. |
+| `pixel-art-sprites` | omer-metin/skills-for-antigravity @ e8dcf4e | Apache-2.0 | Sprite, sprite-sheet, tileset and limited-palette guidance. |
+| `pixel-art-studio` | AnastasiyaW/claude-code-config @ 1d8f832 | MIT | Programmatic pixel art: palettes, dithering, animation, sprite sheets, automated quality checks. |
+
+Review notes (read before installing, 2026-11-25):
+
+- The `SKILL.md` files and bundled scripts of all five were read; a search of the inspected files found no download-and-run, `eval` or `rm -rf` patterns. `pixel-art-studio/scripts/bake_animation.py` uses base64 only to decode PNG data from a local page. This is a read-through, not a security audit, and none of the skills has been exercised yet.
+- `threejs-game-director` references sibling skills that are **not** installed (`threejs-aaa-graphics-builder`, `threejs-debug-profiler`, `threejs-qa-release` and three asset generators). Its asset-sourcing step runs `scripts/probe_asset_credentials.sh`, which sources the shell profile and reports only `SET`/`MISSING` for `TRIPO_API_KEY`, `GEMINI_API_KEY` and `ELEVENLABS_API_KEY`. **Project decision:** Catopia uses procedural and CC0/open assets only; do not use external generation services or send project content to them. Its "do not end the turn with an offer" style does not override `AGENTS.md`.
+- `threejs-gameplay-systems` ships `scripts/create_threejs_game.py` (a standalone Vite scaffold). Do not run it in the Next.js app root; use it only as a pattern reference.
+- `pixel-art-studio` bundles 30+ colour palettes (many from public community palettes). Their individual terms were not checked; verify a palette's terms before shipping art that uses it.
+- The CLI also created `.claude/skills/` symlinks with absolute machine paths. They are local convenience links and should not be committed.
+- First use (Phase 0, 2026-11-25): `pixel-art-studio`'s rules guided the placeholder cat sprite; its Python scripts did not run because Python is not installed. The other four new skills have not been exercised yet.
 
 ## Discovery and selection
 

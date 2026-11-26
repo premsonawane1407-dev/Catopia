@@ -8,6 +8,20 @@
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "4e207caaf7272d8de8c7ca2a9169070314c847a11bcb10c5ae1479b92ea4ac42"
     },
+    "pixel-art-sprites": {
+      "source": "omer-metin/skills-for-antigravity",
+      "commit": "e8dcf4e8737921a10088bd5c9eb65e81f74c051f",
+      "sourceType": "github",
+      "skillPath": "skills/pixel-art-sprites/SKILL.md",
+      "computedHash": "cabda30ca48ffd72abd378d93474b767476f10b7b479dac0b0603754dbe39ba5"
+    },
+    "pixel-art-studio": {
+      "source": "AnastasiyaW/codex-claude-code-config",
+      "commit": "1d8f832c0788a05e170b60c564a2c976e6b32605",
+      "sourceType": "github",
+      "skillPath": "skills/creative/pixel-art-studio/SKILL.md",
+      "computedHash": "f910156e20378768694cd6399c2a1f2e5b79e81b59fa727195a03cc79e631b80"
+    },
     "playwright": {
       "source": "openai/skills",
       "commit": "49f948faa9258a0c61caceaf225e179651397431",
@@ -70,6 +84,27 @@
       "sourceType": "github",
       "skillPath": "skills/threejs-deployment/SKILL.md",
       "computedHash": "5c5b6766da3766715023ff53cb8748ece18c291096aec4d3412090eebc8f741e"
+    },
+    "threejs-game-director": {
+      "source": "majidmanzarpour/threejs-game-skills",
+      "commit": "8286774b22a2566bf894dbc825825c16921866af",
+      "sourceType": "github",
+      "skillPath": "skills/threejs-game-director/SKILL.md",
+      "computedHash": "064ab6c08992e4d6246aa16c04d9b78bb2b3d4b7fe748854a58027c22ba2b5c2"
+    },
+    "threejs-game-ui-designer": {
+      "source": "majidmanzarpour/threejs-game-skills",
+      "commit": "8286774b22a2566bf894dbc825825c16921866af",
+      "sourceType": "github",
+      "skillPath": "skills/threejs-game-ui-designer/SKILL.md",
+      "computedHash": "226a1e6fc2c9d5b6f149b980f9d79653fb745b751ca254a4cf01a31a1e88634a"
+    },
+    "threejs-gameplay-systems": {
+      "source": "majidmanzarpour/threejs-game-skills",
+      "commit": "8286774b22a2566bf894dbc825825c16921866af",
+      "sourceType": "github",
+      "skillPath": "skills/threejs-gameplay-systems/SKILL.md",
+      "computedHash": "62c0a8a9f1488aac549d97748b2a4e49cf15a556e7ebd3154de8425701fa27ae"
     },
     "threejs-geometry": {
       "source": "cesartevisual/threejs-skills",
