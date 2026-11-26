@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PawScreen from "./paw";
 import MapScreen from "./map-screen";
+import MapErrorBoundary from "./map-error-boundary";
 import StoreScreen from "./store";
 import type { CartItem, CheckoutStep } from "./store-data";
 import { useEffect, useRef, useState } from "react";
@@ -130,7 +131,7 @@ export default function CommunityPreview({ utcDay }: { utcDay: number }) {
           {(screen === "Home") && <HomeFeedScreen items={searchResults} go={go} saved={saved} toggleSaved={toggleSaved} liked={liked} toggleLiked={toggleLiked} likePost={likePost} />}
           {screen === "Discover" && <ExploreScreen filtered={filteredPortraits} filter={filter} setFilter={setFilter} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />}
           {screen === "Plays" && <PlaysScreen liked={likedClips} toggleLiked={toggleClipLiked} likeClip={likeClip} />}
-          {screen === "Map" && <MapScreen />}
+          {screen === "Map" && <MapErrorBoundary><MapScreen /></MapErrorBoundary>}
           {screen === "PAW" && <PawScreen utcDay={utcDay} query={searchTerm} setQuery={setSearchTerm} />}
           {screen === "Store" && <StoreScreen query={searchTerm} cart={cart} cartOpen={cartOpen} checkoutStep={checkoutStep} onAddToCart={addToCart} onUpdateQuantity={updateCartQuantity} onRemoveFromCart={removeFromCart} onCloseCart={() => setCartOpen(false)} onGoToCheckout={() => setCheckoutStep("details")} onBackToCart={() => setCheckoutStep("cart")} onPlaceOrder={placeOrder} onStartOver={startOverCart} />}
           {screen === "Share a story" && <SubmitScreen storyKind={storyKind} setStoryKind={setStoryKind} publicName={publicName} setPublicName={setPublicName} submitted={submitted} setSubmitted={setSubmitted} />}

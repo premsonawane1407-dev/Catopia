@@ -40,6 +40,14 @@ const MAP_STYLES = {
   satellite: SATELLITE_STYLE,
 } satisfies Record<string, string | StyleSpecification>;
 
+// Keep the map instance renderable without network services. A failed remote
+// style then degrades to a quiet canvas instead of leaving MapLibre half-initialized.
+const FALLBACK_MAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {},
+  layers: [{ id: "catopia-fallback-background", type: "background", paint: { "background-color": "#e9e7da" } }],
+};
+
 export type ThemeName = keyof typeof MAP_STYLES | "cozy";
 
 const PLACES_SOURCE_ID = "cp-places";
@@ -198,6 +206,18 @@ function setupPlacesLayer(map: MapLibre, refs: MapRefs) {
   refreshMarkers(map, refs);
 }
 
+// MapLibre throws "Style is not done loading" for style edits made while a style is loading or after it
+// failed, and events such as moveend are delivered synchronously from inside other calls, so one of these
+// edits can surface in an unrelated effect and take the whole page down. Style edits that are not
+// essential go through here; whatever is skipped is rebuilt by applyOverlays when the style loads.
+function tryStyleWork(label: string, work: () => void) {
+  try {
+    work();
+  } catch (error) {
+    console.warn(`Catopia map: could not ${label} yet; it will be applied when the map style has loaded.`, error);
+  }
+}
+
 function applyOverlays(map: MapLibre, refs: MapRefs) {
   if (refs.mode3dRef.current) {
     add3dLayers(map, toneForTheme(refs.styleNameRef.current));
@@ -232,6 +252,20 @@ function attachListeners(map: MapLibre, refs: MapRefs) {
   map.on("sourcedata", (event) => { if (event.sourceId === PLACES_SOURCE_ID && event.isSourceLoaded) refreshMarkers(map, refs); });
 }
 
+function runCommand(map: MapLibre, command: MapCommand) {
+  switch (command.kind) {
+    case "zoom-in": map.zoomIn({ duration: ms(350) }); break;
+    case "zoom-out": map.zoomOut({ duration: ms(350) }); break;
+    case "north": map.easeTo({ bearing: 0, duration: ms(700) }); break;
+    case "tilt-up": map.easeTo({ pitch: Math.min(80, map.getPitch() + 12), duration: ms(500) }); break;
+    case "tilt-down": map.easeTo({ pitch: Math.max(0, map.getPitch() - 12), duration: ms(500) }); break;
+    case "earth-out": map.flyTo({ center: map.getCenter(), zoom: 2.3, pitch: 0, bearing: 0, duration: ms(3800), essential: true }); break;
+    case "earth-home": map.flyTo({ center: command.center ?? MAP_CENTER, zoom: POSE_3D.zoom, pitch: POSE_3D.pitch, bearing: POSE_3D.bearing, duration: ms(5200), essential: true }); break;
+    default:
+      if (command.center) map.flyTo({ center: command.center, zoom: command.kind === "center" ? 15 : 16, duration: ms(900) });
+  }
+}
+
 function setFreeCamera(map: MapLibre, enabled: boolean) {
   if (enabled) {
     map.setMaxPitch(80);
@@ -259,7 +293,8 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibre | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "fallback" | "error">("loading");
+  const [styleRetry, setStyleRetry] = useState(0);
 
   const placesRef = useRef(places);
   const selectedIdRef = useRef(selectedId);
@@ -272,7 +307,11 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
   const onViewChangeRef = useRef(onViewChange);
   const onOrbitStopRef = useRef(onOrbitStop);
   const exitTokenRef = useRef(0);
-  const firstModeRun = useRef(true);
+  const appliedMode3dRef = useRef(false);
+  const styleAttemptRef = useRef(0);
+  const styleLoadingRef = useRef(false);
+  const fallbackActiveRef = useRef(false);
+  const applyFallbackRef = useRef<(() => void) | null>(null);
   const refs: MapRefs = { placesRef, selectedIdRef, onSelectRef, markersRef, hoverPopupRef, onMapMovedRef, styleNameRef, mode3dRef };
 
   useEffect(() => { placesRef.current = places; }, [places]);
@@ -288,9 +327,8 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
     setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).toString());
     const map = new MapLibre({
       container: containerRef.current,
-      // "cozy" is loaded asynchronously (see the style-change effect below); the map always
-      // starts on a static style and is immediately re-styled if "cozy" was already selected.
-      style: MAP_STYLES[styleName === "cozy" ? "positron" : styleName],
+      // Start locally so the map remains alive when a network style is unavailable.
+      style: FALLBACK_MAP_STYLE,
       center: MAP_CENTER,
       zoom: 15,
       minZoom: LOCAL_MIN_ZOOM,
@@ -302,15 +340,32 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
       touchPitch: false,
     });
     mapRef.current = map;
+    appliedMode3dRef.current = false; // a new map always starts flat
     attachListeners(map, refs);
+    applyFallbackRef.current = () => {
+      if (fallbackActiveRef.current || !mapRef.current) return;
+      fallbackActiveRef.current = true;
+      styleLoadingRef.current = false;
+      try {
+        map.once("style.load", () => {
+          try { applyOverlays(map, refs); } catch { /* Keep the fallback canvas usable. */ }
+          setStatus("fallback");
+        });
+        map.setStyle(FALLBACK_MAP_STYLE, { diff: false });
+      } catch {
+        setStatus("error");
+      }
+    };
     map.on("load", () => {
-      setStatus("ready");
-      applyOverlays(map, refs);
+      try { applyOverlays(map, refs); } catch { /* Optional overlays may not fit every style. */ }
+      if (!styleLoadingRef.current) setStatus(fallbackActiveRef.current ? "fallback" : "ready");
       const attribution = map.getContainer().querySelector(".maplibregl-ctrl-attrib");
       attribution?.removeAttribute("open");
       attribution?.classList.remove("maplibregl-compact-show");
     });
-    map.on("error", () => setStatus((current) => current === "loading" ? "error" : current));
+    map.on("error", () => {
+      if (styleLoadingRef.current) applyFallbackRef.current?.();
+    });
 
     let frame = 0;
     const reportView = () => {
@@ -328,6 +383,7 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
       hover.current?.remove();
       map.remove();
       mapRef.current = null;
+      applyFallbackRef.current = null;
     };
   // The map is constructed once; style, mode and place changes are applied in the effects below.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -338,6 +394,10 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
     if (!map) return;
     let cancelled = false;
     const controller = new AbortController();
+    const attempt = ++styleAttemptRef.current;
+    styleLoadingRef.current = true;
+    fallbackActiveRef.current = false;
+    setStatus("loading");
     const applyStyle = async () => {
       let nextStyle: string | StyleSpecification;
       if (styleName === "cozy") {
@@ -346,7 +406,7 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
           nextStyle = await loadCozyMapStyle(controller.signal);
         } catch {
           if (cancelled) return;
-          setStatus("error");
+          applyFallbackRef.current?.();
           return;
         }
       } else {
@@ -354,28 +414,40 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
       }
       if (cancelled) return;
       // setStyle discards custom sources and layers, so the overlays are rebuilt once the new style has loaded.
-      map.once("style.load", () => { if (!cancelled) { setStatus("ready"); applyOverlays(map, refs); } });
-      map.setStyle(nextStyle, { diff: false });
+      map.once("style.load", () => {
+        if (cancelled || attempt !== styleAttemptRef.current || fallbackActiveRef.current) return;
+        styleLoadingRef.current = false;
+        try {
+          applyOverlays(map, refs);
+          setStatus("ready");
+        } catch {
+          applyFallbackRef.current?.();
+        }
+      });
+      try { map.setStyle(nextStyle, { diff: false }); }
+      catch { applyFallbackRef.current?.(); }
     };
     void applyStyle();
     return () => { cancelled = true; controller.abort(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [styleName]);
+  }, [styleName, styleRetry]);
 
   useEffect(() => {
     mode3dRef.current = mode3d;
     const map = mapRef.current;
-    if (!map) return;
-    if (firstModeRun.current) {
-      firstModeRun.current = false;
-      if (!mode3d) return;
-    }
+    // Only react to a real change. React Strict Mode re-runs effects on mount in development, and a
+    // "first run" flag let that second run start a pointless 2D ease whose moveend fired mid-load.
+    if (!map || appliedMode3dRef.current === mode3d) return;
+    appliedMode3dRef.current = mode3d;
     exitTokenRef.current += 1;
     const token = exitTokenRef.current;
     if (mode3d) {
       if (map.isStyleLoaded()) {
-        add3dLayers(map, toneForTheme(styleNameRef.current));
-        map.setProjection({ type: "globe" });
+        // Style edits throw while a style is loading; the style.load handler rebuilds the 3D layers then.
+        tryStyleWork("enter 3D", () => {
+          add3dLayers(map, toneForTheme(styleNameRef.current));
+          map.setProjection({ type: "globe" });
+        });
       }
       setFreeCamera(map, true);
       map.setMinZoom(EARTH_MIN_ZOOM);
@@ -383,12 +455,17 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
     } else {
       setFreeCamera(map, false);
       map.easeTo({ pitch: 0, bearing: 0, zoom: Math.max(map.getZoom(), 14), duration: ms(1000) });
+      // MapLibre delivers this synchronously when another camera move interrupts the ease, even while the
+      // next style is still loading, so it must never throw. A style that has not loaded yet has no 3D layers
+      // to remove: its style.load handler (applyOverlays) builds the flat map from mode3dRef.
       map.once("moveend", () => {
         if (token !== exitTokenRef.current) return;
         map.setMaxPitch(0);
-        remove3dLayers(map);
-        map.setProjection({ type: "mercator" });
         map.setMinZoom(LOCAL_MIN_ZOOM);
+        tryStyleWork("leave 3D", () => {
+          remove3dLayers(map);
+          map.setProjection({ type: "mercator" });
+        });
       });
     }
   }, [mode3d]);
@@ -421,17 +498,9 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
   useEffect(() => {
     const map = mapRef.current;
     if (!map || command.seq === 0) return;
-    switch (command.kind) {
-      case "zoom-in": map.zoomIn({ duration: ms(350) }); break;
-      case "zoom-out": map.zoomOut({ duration: ms(350) }); break;
-      case "north": map.easeTo({ bearing: 0, duration: ms(700) }); break;
-      case "tilt-up": map.easeTo({ pitch: Math.min(80, map.getPitch() + 12), duration: ms(500) }); break;
-      case "tilt-down": map.easeTo({ pitch: Math.max(0, map.getPitch() - 12), duration: ms(500) }); break;
-      case "earth-out": map.flyTo({ center: map.getCenter(), zoom: 2.3, pitch: 0, bearing: 0, duration: ms(3800), essential: true }); break;
-      case "earth-home": map.flyTo({ center: command.center ?? MAP_CENTER, zoom: POSE_3D.zoom, pitch: POSE_3D.pitch, bearing: POSE_3D.bearing, duration: ms(5200), essential: true }); break;
-      default:
-        if (command.center) map.flyTo({ center: command.center, zoom: command.kind === "center" ? 15 : 16, duration: ms(900) });
-    }
+    // A camera move can synchronously deliver the previous move's events (see the 3D effect), so keep any
+    // failure inside the map rather than letting it escape into React.
+    try { runCommand(map, command); } catch (error) { console.warn("Catopia map: the camera command could not run.", error); }
   }, [command]);
 
   useEffect(() => {
@@ -450,6 +519,7 @@ export default function InteractiveMap({ styleName, command, places, selectedId,
   return <div className="cp-maplibre-wrap">
     <div className="cp-maplibre-canvas" ref={containerRef} aria-label="Interactive OpenStreetMap of Akurdi, Pune" role="application" />
     {status === "loading" && <div className="cp-map-status">Loading the neighborhood map…</div>}
-    {status === "error" && <div className="cp-map-status is-error">The map tiles couldn’t load. Check your connection and try again.</div>}
+    {status === "fallback" && <div className="cp-map-status is-error"><span>The map style couldn’t load. Showing a simple fallback view.</span><button className="cp-map-retry" onClick={() => { fallbackActiveRef.current = false; setStyleRetry((value) => value + 1); }}>Try again</button></div>}
+    {status === "error" && <div className="cp-map-status is-error"><span>The map couldn’t start this time.</span><button className="cp-map-retry" onClick={() => { fallbackActiveRef.current = false; setStyleRetry((value) => value + 1); }}>Try again</button></div>}
   </div>;
 }

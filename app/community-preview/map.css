@@ -7,6 +7,7 @@
 .cp-maplibre-canvas .maplibregl-ctrl-attrib{border-radius:12px 0 0 0;background:rgba(255,253,245,.74);font-size:11px}
 .cp-map-status,.cp-map-loading{position:absolute;inset:0;display:grid;place-content:center;background:#ece9dc;color:#7b8070;font-size:14px;font-weight:700}
 .cp-map-status.is-error{color:#9a5a45}
+.cp-map-retry{margin-top:12px;padding:9px 15px;border:1px solid #d5cbb1;border-radius:999px;color:#45634d;background:#fffdf4;cursor:pointer;font:inherit;font-size:12px;font-weight:800}.cp-map-retry:hover{background:#e8ecdb}.cp-map-retry:focus-visible{outline:2px solid #c86f50;outline-offset:3px}
 
 /* Space behind the globe: only visible once the map is zoomed far enough out to show the planet. */
 .cp-cat-map-page.is-3d .cp-maplibre-canvas{background:transparent}

@@ -1,0 +1,427 @@
+{
+  "generated": "2026-11-26",
+  "frameSize": [
+    64,
+    48
+  ],
+  "coats": {
+    "marmalade": {
+      "label": "Marmalade tabby",
+      "paletteColors": 28,
+      "rampHueTurnDegrees": {
+        "base": 43,
+        "mark": 42,
+        "white": 31,
+        "patch": 43
+      },
+      "meanScore": 94.2,
+      "worstScore": 86.5,
+      "maxOrphanRatio": 0.0272,
+      "maxColoursInOneFrame": 27,
+      "offPalettePixels": 0,
+      "clips": {
+        "idle": {
+          "meanScore": 93,
+          "worstScore": 89.9,
+          "worstFrame": "SE frame 1",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        },
+        "walk": {
+          "meanScore": 94,
+          "worstScore": 86.5,
+          "worstFrame": "S frame 3",
+          "maxMassDeviation": 0.046,
+          "maxSilhouetteComponents": 1
+        },
+        "run": {
+          "meanScore": 94.2,
+          "worstScore": 87,
+          "worstFrame": "S frame 1",
+          "maxMassDeviation": 0.154,
+          "maxSilhouetteComponents": 1
+        },
+        "sitDown": {
+          "meanScore": 94.8,
+          "worstScore": 90.3,
+          "worstFrame": "SW frame 0",
+          "maxMassDeviation": 0.177,
+          "maxSilhouetteComponents": 1
+        },
+        "sit": {
+          "meanScore": 94.5,
+          "worstScore": 88.9,
+          "worstFrame": "W frame 4",
+          "maxMassDeviation": 0.017,
+          "maxSilhouetteComponents": 1
+        },
+        "lieDown": {
+          "meanScore": 94.1,
+          "worstScore": 88.4,
+          "worstFrame": "SW frame 0",
+          "maxMassDeviation": 0.275,
+          "maxSilhouetteComponents": 1
+        },
+        "sleep": {
+          "meanScore": 95.2,
+          "worstScore": 90.6,
+          "worstFrame": "E frame 1",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        }
+      }
+    },
+    "storm": {
+      "label": "Storm-grey tabby",
+      "paletteColors": 28,
+      "rampHueTurnDegrees": {
+        "base": 48,
+        "mark": 44,
+        "white": 35,
+        "patch": 48
+      },
+      "meanScore": 94.6,
+      "worstScore": 88.2,
+      "maxOrphanRatio": 0.0272,
+      "maxColoursInOneFrame": 27,
+      "offPalettePixels": 0,
+      "clips": {
+        "idle": {
+          "meanScore": 93.3,
+          "worstScore": 90.7,
+          "worstFrame": "NE frame 0",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        },
+        "walk": {
+          "meanScore": 94.4,
+          "worstScore": 89.2,
+          "worstFrame": "S frame 5",
+          "maxMassDeviation": 0.046,
+          "maxSilhouetteComponents": 1
+        },
+        "run": {
+          "meanScore": 94.6,
+          "worstScore": 88.2,
+          "worstFrame": "S frame 1",
+          "maxMassDeviation": 0.154,
+          "maxSilhouetteComponents": 1
+        },
+        "sitDown": {
+          "meanScore": 94.8,
+          "worstScore": 90.2,
+          "worstFrame": "W frame 0",
+          "maxMassDeviation": 0.177,
+          "maxSilhouetteComponents": 1
+        },
+        "sit": {
+          "meanScore": 95,
+          "worstScore": 89,
+          "worstFrame": "E frame 0",
+          "maxMassDeviation": 0.017,
+          "maxSilhouetteComponents": 1
+        },
+        "lieDown": {
+          "meanScore": 95.1,
+          "worstScore": 89.3,
+          "worstFrame": "SW frame 0",
+          "maxMassDeviation": 0.275,
+          "maxSilhouetteComponents": 1
+        },
+        "sleep": {
+          "meanScore": 95.6,
+          "worstScore": 93.3,
+          "worstFrame": "W frame 3",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        }
+      }
+    },
+    "midnight": {
+      "label": "Midnight",
+      "paletteColors": 26,
+      "rampHueTurnDegrees": {
+        "base": 31,
+        "mark": 46,
+        "white": 53,
+        "patch": 31
+      },
+      "meanScore": 95,
+      "worstScore": 87.5,
+      "maxOrphanRatio": 0.0054,
+      "maxColoursInOneFrame": 15,
+      "offPalettePixels": 0,
+      "clips": {
+        "idle": {
+          "meanScore": 93.4,
+          "worstScore": 88.1,
+          "worstFrame": "S frame 3",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        },
+        "walk": {
+          "meanScore": 94.7,
+          "worstScore": 89.4,
+          "worstFrame": "S frame 5",
+          "maxMassDeviation": 0.046,
+          "maxSilhouetteComponents": 1
+        },
+        "run": {
+          "meanScore": 95,
+          "worstScore": 87.5,
+          "worstFrame": "N frame 2",
+          "maxMassDeviation": 0.154,
+          "maxSilhouetteComponents": 1
+        },
+        "sitDown": {
+          "meanScore": 95.1,
+          "worstScore": 90.9,
+          "worstFrame": "E frame 1",
+          "maxMassDeviation": 0.177,
+          "maxSilhouetteComponents": 1
+        },
+        "sit": {
+          "meanScore": 94.8,
+          "worstScore": 90.9,
+          "worstFrame": "E frame 0",
+          "maxMassDeviation": 0.017,
+          "maxSilhouetteComponents": 1
+        },
+        "lieDown": {
+          "meanScore": 96.3,
+          "worstScore": 91.4,
+          "worstFrame": "S frame 2",
+          "maxMassDeviation": 0.275,
+          "maxSilhouetteComponents": 1
+        },
+        "sleep": {
+          "meanScore": 96.6,
+          "worstScore": 92.2,
+          "worstFrame": "S frame 1",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        }
+      }
+    },
+    "tuxedo": {
+      "label": "Tuxedo",
+      "paletteColors": 24,
+      "rampHueTurnDegrees": {
+        "base": 25,
+        "mark": 17,
+        "white": 25,
+        "patch": 25
+      },
+      "meanScore": 90.4,
+      "worstScore": 85.8,
+      "maxOrphanRatio": 0.0091,
+      "maxColoursInOneFrame": 20,
+      "offPalettePixels": 0,
+      "clips": {
+        "idle": {
+          "meanScore": 89.8,
+          "worstScore": 85.9,
+          "worstFrame": "S frame 3",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        },
+        "walk": {
+          "meanScore": 89.9,
+          "worstScore": 85.8,
+          "worstFrame": "S frame 3",
+          "maxMassDeviation": 0.046,
+          "maxSilhouetteComponents": 1
+        },
+        "run": {
+          "meanScore": 90.3,
+          "worstScore": 86.6,
+          "worstFrame": "S frame 0",
+          "maxMassDeviation": 0.154,
+          "maxSilhouetteComponents": 1
+        },
+        "sitDown": {
+          "meanScore": 90.7,
+          "worstScore": 88,
+          "worstFrame": "W frame 0",
+          "maxMassDeviation": 0.177,
+          "maxSilhouetteComponents": 1
+        },
+        "sit": {
+          "meanScore": 90.7,
+          "worstScore": 87.1,
+          "worstFrame": "W frame 0",
+          "maxMassDeviation": 0.017,
+          "maxSilhouetteComponents": 1
+        },
+        "lieDown": {
+          "meanScore": 91.1,
+          "worstScore": 88.5,
+          "worstFrame": "E frame 0",
+          "maxMassDeviation": 0.275,
+          "maxSilhouetteComponents": 1
+        },
+        "sleep": {
+          "meanScore": 91.3,
+          "worstScore": 89.1,
+          "worstFrame": "S frame 1",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        }
+      }
+    },
+    "patches": {
+      "label": "Patchwork calico",
+      "paletteColors": 31,
+      "rampHueTurnDegrees": {
+        "base": 37,
+        "mark": 27,
+        "white": 24,
+        "patch": 43
+      },
+      "meanScore": 89.8,
+      "worstScore": 82.5,
+      "maxOrphanRatio": 0.0194,
+      "maxColoursInOneFrame": 27,
+      "offPalettePixels": 0,
+      "clips": {
+        "idle": {
+          "meanScore": 89.3,
+          "worstScore": 84.9,
+          "worstFrame": "S frame 3",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        },
+        "walk": {
+          "meanScore": 89.4,
+          "worstScore": 84.9,
+          "worstFrame": "N frame 7",
+          "maxMassDeviation": 0.046,
+          "maxSilhouetteComponents": 1
+        },
+        "run": {
+          "meanScore": 89.7,
+          "worstScore": 85.3,
+          "worstFrame": "S frame 1",
+          "maxMassDeviation": 0.154,
+          "maxSilhouetteComponents": 1
+        },
+        "sitDown": {
+          "meanScore": 89.7,
+          "worstScore": 86.6,
+          "worstFrame": "N frame 0",
+          "maxMassDeviation": 0.177,
+          "maxSilhouetteComponents": 1
+        },
+        "sit": {
+          "meanScore": 90.5,
+          "worstScore": 88.2,
+          "worstFrame": "SW frame 3",
+          "maxMassDeviation": 0.017,
+          "maxSilhouetteComponents": 1
+        },
+        "lieDown": {
+          "meanScore": 90.1,
+          "worstScore": 82.5,
+          "worstFrame": "S frame 1",
+          "maxMassDeviation": 0.275,
+          "maxSilhouetteComponents": 1
+        },
+        "sleep": {
+          "meanScore": 90.6,
+          "worstScore": 85.7,
+          "worstFrame": "SE frame 3",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        }
+      }
+    },
+    "biscuit": {
+      "label": "Biscuit point",
+      "paletteColors": 28,
+      "rampHueTurnDegrees": {
+        "base": 49,
+        "mark": 37,
+        "white": 27,
+        "patch": 49
+      },
+      "meanScore": 88.4,
+      "worstScore": 82.6,
+      "maxOrphanRatio": 0.0078,
+      "maxColoursInOneFrame": 21,
+      "offPalettePixels": 0,
+      "clips": {
+        "idle": {
+          "meanScore": 87,
+          "worstScore": 84.4,
+          "worstFrame": "E frame 4",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        },
+        "walk": {
+          "meanScore": 88,
+          "worstScore": 82.6,
+          "worstFrame": "S frame 6",
+          "maxMassDeviation": 0.046,
+          "maxSilhouetteComponents": 1
+        },
+        "run": {
+          "meanScore": 88.6,
+          "worstScore": 84,
+          "worstFrame": "N frame 6",
+          "maxMassDeviation": 0.154,
+          "maxSilhouetteComponents": 1
+        },
+        "sitDown": {
+          "meanScore": 88.9,
+          "worstScore": 82.8,
+          "worstFrame": "N frame 0",
+          "maxMassDeviation": 0.177,
+          "maxSilhouetteComponents": 1
+        },
+        "sit": {
+          "meanScore": 89.9,
+          "worstScore": 85,
+          "worstFrame": "W frame 4",
+          "maxMassDeviation": 0.017,
+          "maxSilhouetteComponents": 1
+        },
+        "lieDown": {
+          "meanScore": 88.9,
+          "worstScore": 83.8,
+          "worstFrame": "S frame 2",
+          "maxMassDeviation": 0.275,
+          "maxSilhouetteComponents": 1
+        },
+        "sleep": {
+          "meanScore": 88.1,
+          "worstScore": 83.8,
+          "worstFrame": "SE frame 3",
+          "maxMassDeviation": 0.014,
+          "maxSilhouetteComponents": 1
+        }
+      }
+    }
+  },
+  "gait": {
+    "walk": {
+      "plantedPairs": 16,
+      "maxSlide": 8.881784197001252e-16,
+      "maxShortfall": 0,
+      "maxPlantedHeight": 0,
+      "flightFrames": 0
+    },
+    "run": {
+      "plantedPairs": 8,
+      "maxSlide": 1.7763568394002505e-15,
+      "maxShortfall": 0,
+      "maxPlantedHeight": 0,
+      "flightFrames": 1
+    }
+  },
+  "buildSecondsAllCoats": 9.6,
+  "notes": [
+    "Scores follow the pixel-art-studio rubric formulas for the checks that are well defined. Banding (10 points) is not scored because the rubric's definition needs a ramp axis it does not give, and the blurry-edge and dithering signals do not apply (the cat has no anti-aliasing or dithering by construction). Those points are awarded in full, so compare scores between frames, not against the skill's own Python scorer, which could not run here (no Python on this machine).",
+    "Pillow shading is measured as the correlation of brightness with distance from the centre of mass; below -0.4 would flag it. (The rubric's text gives the opposite sign for the same idea.)",
+    "Gait checks are geometric facts about the animation data (planted paws move back exactly one body step per frame, every leg can reach its paw), not measurements of drawn pixels."
+  ]
+}

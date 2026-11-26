@@ -128,6 +128,8 @@ Store product selection opens a refreshable, URL-addressable detail view inside 
 
 ## Stage 9 — Community naming, stories, and profiles
 
+> Map style resilience: remote style failures must keep the MapLibre screen alive on the local fallback style and offer an explicit retry; verify this state before calling the map production-ready.
+
 - **Objective / outcome:** Support moderated community identity and stories around cats.
 - **Features / components:** Name suggestions and rounds, one-vote constraints, moderator decision/history, moderated stories, user profiles.
 - **Likely files:** `features/community/`, `features/naming/`, `features/profiles/`, related routes and migrations.
