@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_VOLUME, MUTE_DELAY_SECONDS, PAUSED_WORLD_CUTOFF_HZ, PAUSED_WORLD_LEVEL, createAudioBus } from "./audio-bus";
+import type { MusicPlayer, MusicStats } from "./music";
 import type { UiPlayer } from "./ui-sounds";
 
 /** An audio parameter that records the targets it is given, and takes the latest one as its value straight away. */
@@ -39,16 +40,22 @@ function fakeContext(initial: "suspended" | "running" = "suspended") {
 
 function setup(initial: "suspended" | "running" = "suspended") {
   const fake = fakeContext(initial);
-  const stop = vi.fn();
-  const startAmbience = vi.fn<(context: AudioContext, output: AudioNode) => () => void>(() => stop);
+  const music: MusicPlayer = {
+    play: vi.fn(),
+    pause: vi.fn(),
+    seek: vi.fn(),
+    stop: vi.fn(),
+    stats: vi.fn((): MusicStats => ({ state: "playing", position: 12, duration: 363 })),
+  };
+  const startMusic = vi.fn<(context: AudioContext, output: AudioNode) => MusicPlayer>(() => music);
   const uiPlayer = vi.fn<UiPlayer>();
   const createUiPlayer = vi.fn<(context: AudioContext, destination: AudioNode) => UiPlayer>(() => uiPlayer);
   const createContext = vi.fn(() => fake.context);
-  const bus = createAudioBus({ createContext, startAmbience, createUiPlayer });
+  const bus = createAudioBus({ createContext, startMusic, createUiPlayer });
   /** The master is the first gain the bus makes, then the game's own sound. */
   const master = () => fake.gains[0];
   const world = () => fake.gains[1];
-  return { ...fake, stop, startAmbience, uiPlayer, createUiPlayer, createContext, bus, master, world };
+  return { ...fake, music, startMusic, uiPlayer, createUiPlayer, createContext, bus, master, world };
 }
 
 describe("createAudioBus", () => {
@@ -59,15 +66,15 @@ describe("createAudioBus", () => {
     expect(createContext).not.toHaveBeenCalled();
   });
 
-  it("starts the context, the ambience and the master volume when unlocked", async () => {
-    const { bus, ctx, master, startAmbience, filters } = setup();
+  it("starts the context, the music and the master volume when unlocked", async () => {
+    const { bus, ctx, master, startMusic, filters } = setup();
     expect(await bus.unlock()).toBe("running");
     expect(ctx.resume).toHaveBeenCalledTimes(1);
     expect(master().gain.value).toBeCloseTo(DEFAULT_VOLUME, 6);
     expect(bus.output()).not.toBeNull();
-    // The ambience plays into the game's own sound path, not straight into the master.
-    expect(startAmbience).toHaveBeenCalledTimes(1);
-    expect(startAmbience.mock.calls[0][1]).toBe(filters[0]);
+    // The music plays into the game's own sound path, not straight into the master.
+    expect(startMusic).toHaveBeenCalledTimes(1);
+    expect(startMusic.mock.calls[0][1]).toBe(filters[0]);
   });
 
   it("builds the menu's sound player on the master, so mute silences it too", async () => {
@@ -78,11 +85,11 @@ describe("createAudioBus", () => {
   });
 
   it("creates only one context however often it is unlocked", async () => {
-    const { bus, createContext, startAmbience } = setup();
+    const { bus, createContext, startMusic } = setup();
     await bus.unlock();
     await bus.unlock();
     expect(createContext).toHaveBeenCalledTimes(1);
-    expect(startAmbience).toHaveBeenCalledTimes(1);
+    expect(startMusic).toHaveBeenCalledTimes(1);
   });
 
   it("reports unsupported, and stays quiet, when the browser has no audio", async () => {
@@ -94,7 +101,9 @@ describe("createAudioBus", () => {
       bus.setVolume(0.2);
       bus.setPaused(true);
       bus.playUi("select");
+      bus.seekMusic(3);
     }).not.toThrow();
+    expect(bus.musicStats()).toBeNull();
     await expect(bus.suspend()).resolves.toBeUndefined();
   });
 });
@@ -182,6 +191,13 @@ describe("pausing the game", () => {
     expect(ctx.suspend).not.toHaveBeenCalled();
     expect(bus.state()).toBe("running");
   });
+
+  it("leaves the music playing under the menu: it is only quieter and muffled", async () => {
+    const { bus, music } = setup();
+    await bus.unlock();
+    bus.setPaused(true);
+    expect(music.pause).not.toHaveBeenCalled();
+  });
 });
 
 describe("menu sounds", () => {
@@ -214,6 +230,38 @@ describe("menu sounds", () => {
   });
 });
 
+describe("music", () => {
+  it("is not there before the audio is unlocked", () => {
+    const { bus } = setup();
+    expect(bus.musicStats()).toBeNull();
+    expect(() => bus.seekMusic(10)).not.toThrow();
+  });
+
+  it("reports where it is once the audio is unlocked, and can be moved for verification", async () => {
+    const { bus, music } = setup();
+    await bus.unlock();
+    expect(bus.musicStats()).toEqual({ state: "playing", position: 12, duration: 363 });
+    bus.seekMusic(361);
+    expect(music.seek).toHaveBeenCalledWith(361);
+  });
+
+  it("pauses with a hidden tab and carries on when the tab is back", async () => {
+    const { bus, music } = setup();
+    await bus.unlock();
+    await bus.suspend();
+    expect(music.pause).toHaveBeenCalledTimes(1);
+    await bus.resume();
+    expect(music.play).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps playing when the Sound switch is off: the master is silenced, not the file", async () => {
+    const { bus, music } = setup();
+    await bus.unlock();
+    bus.setMuted(true);
+    expect(music.pause).not.toHaveBeenCalled();
+  });
+});
+
 describe("suspending and ending", () => {
   it("stops all processing for a hidden tab and starts it again", async () => {
     const { bus } = setup();
@@ -224,14 +272,15 @@ describe("suspending and ending", () => {
     expect(bus.state()).toBe("running");
   });
 
-  it("stops the ambience and closes the context when disposed, and can start fresh afterwards", async () => {
-    const { bus, ctx, stop, createContext } = setup();
+  it("stops the music and closes the context when disposed, and can start fresh afterwards", async () => {
+    const { bus, ctx, music, createContext } = setup();
     await bus.unlock();
     await bus.dispose();
-    expect(stop).toHaveBeenCalledTimes(1);
+    expect(music.stop).toHaveBeenCalledTimes(1);
     expect(ctx.close).toHaveBeenCalledTimes(1);
     expect(bus.state()).toBe("idle");
     expect(bus.output()).toBeNull();
+    expect(bus.musicStats()).toBeNull();
     ctx.state = "suspended";
     await bus.unlock();
     expect(createContext).toHaveBeenCalledTimes(2);

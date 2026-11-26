@@ -15,6 +15,7 @@ Taken on 2026-11-25 in the in-app browser against the local Next.js server (and,
 | `captures/phase1-pause-menu-selection-desktop.jpg` | The highlight moved to Picture quality (gold text, underline, the paw beside it, arrows around the value) |
 | `captures/phase1-pause-menu-375.jpg` | The pause menu at 375px wide, every row on one line |
 | `ui-sounds-report-2026-11-25.json` | The pause menu's sounds measured offline: peak, loudness, length and brightness of each |
+| `music-report-2026-11-26.json` | The background music (taken 2026-11-26): where the file came from and that its licence is unverified, how the 6:03 excerpt was chosen and cut, and what was measured in the browser (loop, level, pause duck, Sound off, hidden tab) and in a production build |
 | `captures/phase1-rotate-hint-375.jpg` | The "turn your phone sideways" hint on an emulated 375x812 phone |
 | `captures/phase1-fallback-webgl-off.jpg` | The friendly screen shown when WebGL 2 is missing (`/play?webgl=off`) |
 | `captures/phase1-cat-size-before-after.png` | The same view and magnification before and after the cat was made smaller (16% to 10.7% of the window height at 1600x900); the pixels stay even |
@@ -24,6 +25,6 @@ Taken on 2026-11-25 in the in-app browser against the local Next.js server (and,
 | `captures/phase1-community-entry-desktop.jpg` | The controller button in the Community top bar on desktop |
 | `captures/phase1-community-entry-375.jpg` | The same button at 375px, where the old "P" avatar was hidden |
 
-How the numbers were read: `window.__catopia` (`perf`, `bench`, `fingerprint`, `audio`, `feedFrame`) exists in development and, in production, with `/play?perf=1`. `bench(150)` draws frames back to back and forces the GPU to finish each one, so it reports frame cost in milliseconds and does not depend on the browser's throttled animation loop.
+How the numbers were read: `window.__catopia` (`perf`, `bench`, `fingerprint`, `audio` (which also reports the music's state and position), `master`, `musicSeek`, `reportUiSounds`, `feedFrame`) exists in development and, in production, with `/play?perf=1`. `bench(150)` draws frames back to back and forces the GPU to finish each one, so it reports frame cost in milliseconds and does not depend on the browser's throttled animation loop.
 
 Limits: one desktop PC with an integrated AMD GPU, an emulated phone viewport (not a phone), Chrome-based browser only.

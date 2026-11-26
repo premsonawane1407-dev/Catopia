@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight, Compass, Menu, X } from "lucide-react";
 
@@ -74,7 +75,8 @@ export default function HomeExperience() {
         <nav className={menuOpen ? "primary-nav is-open" : "primary-nav"} aria-label="Main navigation">
           <a href="#why" onClick={closeMenu}>Why Catopia</a>
           <a href="#features" onClick={closeMenu}>The little world</a>
-          <a className="nav-cta" href="#join" onClick={closeMenu}>Come be part of it <ArrowUpRight size={15} /></a>
+          {/* The way into the community preview: sample content only, nothing is saved. */}
+          <Link className="nav-cta" href="/community-preview" onClick={closeMenu}>Community preview <ArrowUpRight size={15} /></Link>
         </nav>
       </header>
 
@@ -88,9 +90,10 @@ export default function HomeExperience() {
           </h1>
           <p className="hero-description">Catopia is a home for the cats who make a campus feel like home — and for the people who notice them.</p>
           <div className="hero-actions">
-            <a className="button button-dark" href="#features">Take a look around <ArrowRight size={17} /></a>
+            <Link className="button button-dark" href="/community-preview" aria-describedby="hero-preview-note">Visit the community preview <ArrowRight size={17} /></Link>
             <a className="text-link" href="#why"><span className="link-icon"><ArrowDown size={15} /></span> Why we made this</a>
           </div>
+          <p className="hero-preview-note" id="hero-preview-note">A design preview with sample stories — nothing is saved yet.</p>
           <div className="hero-footnote"><span className="tiny-rule" /> A softer kind of campus directory</div>
         </div>
 

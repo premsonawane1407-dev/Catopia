@@ -204,7 +204,12 @@ export default function GameShell() {
           volume: bus.volume(),
           gain: (bus.output() as GainNode | null)?.gain.value ?? null,
           ui: bus.uiStats(),
+          music: bus.musicStats(),
         }),
+        /** The master output, so a check can listen to what the speakers would get (an analyser can be joined to it). */
+        master: () => bus.output(),
+        /** Jumps the music to a time, to hear the join of the loop without waiting six minutes. */
+        musicSeek: (seconds: number) => bus.seekMusic(seconds),
         /** Measures the menu sounds offline (peak, loudness, length, brightness). Loaded only when asked for. */
         reportUiSounds: () => import("../debug/ui-sound-report").then((m) => m.reportUiSounds()),
         /** Feeds a frame duration to the quality governor, the same way the render loop does. */

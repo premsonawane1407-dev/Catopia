@@ -1,0 +1,71 @@
+{
+  "what": "The game's background music: where the file came from, how the 6:03 excerpt was chosen and cut, and what was measured. The excerpt is public/audio/background-score-1-beyond-the-vale.mp3 and features/game/audio/music.ts plays it.",
+  "date": "2026-11-26",
+  "provenance": {
+    "ownerSuppliedFile": "background score 1 - Beyond the Vale  Fantasy Celtic Ambience.mp3, placed by the owner in public/audio/ and now kept in the git-ignored assets/source-audio/. Byte for byte the same as the owner's Downloads file named Home Beyond the Vale  Fantasy Celtic Ambience  Relaxing Music [No Ads].mp3",
+    "bytes": 184853537,
+    "sha256": "23B08268767C5CAA9FB6641EF750D8D7203FF308A5DAD5F5FF39499C241D7C33",
+    "format": "MP3, MPEG-1 Layer III, 48 kHz, stereo, 128 kbps constant bitrate, 480,934 frames, 3 h 12 min 22 s (11,542 s)",
+    "tagsInTheFile": {
+      "title": "Home Beyond the Vale | Fantasy Celtic Ambience | Relaxing Music [No Ads]",
+      "artist": "Strings of Eternity",
+      "date": "20260124",
+      "videoAddress": "https://www.youtube.com/watch?v=mm0QSsRwzUo",
+      "encoder": "Lavf60.16.100"
+    },
+    "licenceCheck": "On 2026-11-26 the video page was fetched. It returned only its title line (851 characters): the channel, upload date, licence and description were not seen, so the licence is UNVERIFIED. The artist name above comes from the file's tags, not from the page. Treat the music as all rights reserved until the owner confirms permission."
+  },
+  "scan": {
+    "method": "576 windows of 2.6 s, one every 20 s across the whole file, decoded in the browser; loudness, peak, brightness (the share of high-frequency energy) and stereo width measured on the last 2 s of each",
+    "decodeErrors": 0,
+    "rmsDbfs": { "median": -19.1, "p10": -23.5, "p90": -16.2, "min": -53.4, "max": -13.8 },
+    "peakDbfs": { "median": -5.0, "max": -0.2 },
+    "brightness": 0.069,
+    "sideToMid": 0.62,
+    "quietWindowsMoreThan8dBBelowMedian": 24,
+    "gapExamples": ["0:06:00 at -53.4 dB", "0:32:00 at -35.1 dB", "0:58:00 at -41.9 dB", "1:26:40 at -48.5 dB"],
+    "reading": "The recording is a chain of pieces with near-silent gaps between them. It is soft and low, with very little high-frequency energy, and a wide stereo image."
+  },
+  "excerpt": {
+    "file": "public/audio/background-score-1-beyond-the-vale.mp3",
+    "choice": "The opening piece, the one the video's title names, cut whole: 0:00 to 6:03 (the next piece's first note comes at about 6:03.6). Chosen by measurement, not by ear.",
+    "method": "scripts/cut-game-music.mjs copies 15,125 whole MP3 frames without re-encoding, so the sound is exactly the source's. The Info header frame and the tags are left out.",
+    "bytes": 5808000,
+    "frames": 15125,
+    "seconds": 363,
+    "format": "MP3, MPEG-1 Layer III, 48 kHz, 128 kbps constant bitrate, no tags",
+    "sha256": "8942ddd17036b5d7744c8638637f60187de8357aaa1ffc3b7f72e97855727865",
+    "pieceLoudness": { "powerAverageRmsDbfs": -18.4, "p95OfHalfSecondRms": -14.6, "p05OfHalfSecondRms": -29.0, "maxPeakDbfs": -0.1 },
+    "edges": {
+      "startRmsDbPer250ms": [-85, -69, -21, -19, -22, -21, -20, -22, -22, -24, -26, -27, -28, -31, -33, -36, -36, -37, -39, -38],
+      "endRmsDbPer250msLastTwoSeconds": [-51, -53, -54, -56, -60, -62, -62, -65],
+      "reading": "The cut opens with half a second of silence, then the first note; it ends in a long fade to -65 dBFS. Looping it joins from inaudible, through silence, to a fresh note: no click and no fade code."
+    }
+  },
+  "checkedInTheBrowser": {
+    "browser": "Chromium in the app's built-in pane, development server",
+    "duration": "Chrome reports 363 s",
+    "loop": "A muted element started 2 s before the end wrapped to position 0 after 2.14 s and kept playing; the whole file was buffered (0 to 363 s) on localhost",
+    "playing": "In the owner's running session the music state was playing, the position advanced 7.02 s in 7.0 s, and a 158.5 s log showed unbroken playback (position 141.1 to 299.4 s, no stall).",
+    "levelAtTheMaster": "At the default volume 0.6: -30.0 dBFS RMS, peak -15.6 dBFS over 7 s at 1:10 to 1:17 of the piece (block RMS -35.6 to -27.4); the longer log held -30.0 dBFS RMS with peaks up to -13.1 dBFS. The menu sounds peak between -14.5 and -19.4 dBFS.",
+    "sameSecondComparison": {
+      "what": "The music was jumped to the same second (100 s) in each state and one second of it measured at the master output, so the music itself is identical",
+      "playing": { "rmsDbfs": -25.9, "peakDbfs": -14.8, "spectralCentreHz": 689 },
+      "pausedMenuOpen": { "rmsDbfs": -36.1, "peakDbfs": -24.5, "spectralCentreHz": 637, "musicState": "playing" },
+      "soundOff": { "rmsDbfs": -120, "masterGain": 0, "musicState": "playing" },
+      "duckedByDb": 10.2,
+      "reading": "Pausing the game makes the music 10.2 dB quieter and keeps it playing; the muffle is subtle (the spectral centre moves only 52 Hz) because this music is already soft and low. The Sound switch silences the output completely while the music keeps running."
+    },
+    "hiddenTab": "With the tab simulated hidden the game paused, the audio context was suspended and the music paused with its position held (118.6 s); on return the context and the music resumed by themselves with the menu still open."
+  },
+  "production": {
+    "build": "npm run build succeeded (compiled in 6.7 s)",
+    "server": "next start serves the file with 200, Accept-Ranges: bytes, Content-Type audio/mpeg, Content-Length 5,808,000, an ETag and Cache-Control public, max-age=0; byte ranges return 206 with an exact Content-Range, including the suffix form; the 176 MB original's old address returns 404"
+  },
+  "notDone": [
+    "How it sounds. The choice of piece, the level (one constant, level 0.45 in features/game/audio/music.ts) and the pause muffle are measurements, not judgments by ear; they are for the owner's ears.",
+    "The music was not played in a production build in a browser; only the file serving was checked there. Firefox, Safari and iOS were not tried.",
+    "That leaving the game stops the download is covered by a unit test of the player's stop, not observed in a browser.",
+    "The licence. It is unverified (see provenance.licenceCheck)."
+  ]
+}

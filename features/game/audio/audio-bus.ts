@@ -1,13 +1,14 @@
 // The game's one audio output. Browsers refuse to play sound until the player has interacted with the
 // page, so the context is created and resumed from the "press to begin" click.
 //
-//   ambience -> world filter -> world gain -+
-//                                           +-> master (mute and volume) -> speakers
-//   menu sounds -> menu reverb -------------+
+//   music -> world filter -> world gain -+
+//                                        +-> master (mute and volume) -> speakers
+//   menu sounds -> menu reverb ----------+
 //
 // Mute is real: it silences the master. Pausing the game does not stop the audio context, because the
-// pause menu makes its own sounds; it quiets and muffles the game's own sound (the world) instead.
-import { startEveningAmbience } from "./ambience";
+// pause menu makes its own sounds; it quiets and muffles the game's own sound (the world: the music)
+// instead. A hidden tab pauses the music and suspends the context.
+import { startMusic, type MusicPlayer, type MusicStats } from "./music";
 import { createUiPlayer, type UiPlayer, type UiSoundName, type UiSoundOptions } from "./ui-sounds";
 
 export type AudioState = "idle" | "running" | "suspended" | "unsupported";
@@ -25,8 +26,8 @@ export const MUTE_DELAY_SECONDS = 0.22;
 export interface AudioBusOptions {
   /** Creates the audio context, or returns null when the browser has none. Injectable for tests. */
   createContext?: () => AudioContext | null;
-  /** Starts looping background sound on the given output and returns a function that stops it. */
-  startAmbience?: (context: AudioContext, output: AudioNode) => () => void;
+  /** Starts the background music on the given output and returns the controls for it. Injectable for tests. */
+  startMusic?: (context: AudioContext, output: AudioNode) => MusicPlayer;
   /** Builds the player for the menu's sounds. Injectable for tests. */
   createUiPlayer?: (context: AudioContext, destination: AudioNode) => UiPlayer;
 }
@@ -47,9 +48,13 @@ export interface AudioBus {
   playUi(name: UiSoundName, options?: UiSoundOptions): void;
   /** How many menu sounds have been asked for, and the latest one (for checking the menu is wired up). */
   uiStats(): { requested: number; last: UiSoundName | null };
-  /** Stop all audio processing (a hidden tab) and start it again. */
+  /** Stop all audio (a hidden tab), the music included, and start it again. */
   suspend(): Promise<void>;
   resume(): Promise<void>;
+  /** Where the music is (for checking that it plays and loops), or null before the audio is unlocked. */
+  musicStats(): MusicStats | null;
+  /** Jumps the music to a time. For verification only. */
+  seekMusic(seconds: number): void;
   /** The master output other sounds connect to, once unlocked. */
   output(): AudioNode | null;
   dispose(): Promise<void>;
@@ -64,13 +69,13 @@ function defaultCreateContext(): AudioContext | null {
   }
 }
 
-export function createAudioBus({ createContext = defaultCreateContext, startAmbience = startEveningAmbience, createUiPlayer: makeUiPlayer = createUiPlayer }: AudioBusOptions = {}): AudioBus {
+export function createAudioBus({ createContext = defaultCreateContext, startMusic: makeMusic = startMusic, createUiPlayer: makeUiPlayer = createUiPlayer }: AudioBusOptions = {}): AudioBus {
   let context: AudioContext | null = null;
   let master: GainNode | null = null;
   let worldGain: GainNode | null = null;
   let worldFilter: BiquadFilterNode | null = null;
   let uiPlayer: UiPlayer | null = null;
-  let stopAmbience: (() => void) | null = null;
+  let music: MusicPlayer | null = null;
   let unsupported = false;
   let muted = false;
   let paused = false;
@@ -121,7 +126,7 @@ export function createAudioBus({ createContext = defaultCreateContext, startAmbi
         worldFilter.frequency.value = OPEN_CUTOFF_HZ;
         worldFilter.Q.value = 0.5;
         worldFilter.connect(worldGain);
-        stopAmbience = startAmbience(created, worldFilter);
+        music = makeMusic(created, worldFilter);
         uiPlayer = makeUiPlayer(created, master);
         applyGain();
         applyPaused();
@@ -153,15 +158,21 @@ export function createAudioBus({ createContext = defaultCreateContext, startAmbi
     },
     uiStats: () => ({ requested: uiRequested, last: uiLast }),
     async suspend() {
+      music?.pause();
       if (context && context.state === "running") await context.suspend();
     },
     async resume() {
       if (context && context.state === "suspended") await context.resume();
+      music?.play();
+    },
+    musicStats: () => music?.stats() ?? null,
+    seekMusic(seconds) {
+      music?.seek(seconds);
     },
     output: () => master,
     async dispose() {
-      stopAmbience?.();
-      stopAmbience = null;
+      music?.stop();
+      music = null;
       uiPlayer = null;
       worldFilter?.disconnect();
       worldGain?.disconnect();
