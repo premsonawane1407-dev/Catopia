@@ -20,6 +20,9 @@ const ALL_PROPS = {
   bridges: MARKET_STREET.worldProps.bridges,
   boats: MARKET_STREET.worldProps.boats,
   trees: MARKET_STREET.worldProps.trees,
+  noticeBoards: MARKET_STREET.worldProps.noticeBoards,
+  signposts: MARKET_STREET.worldProps.signposts,
+  bicycles: MARKET_STREET.worldProps.bicycles,
   dormers: MARKET_STREET.worldProps.dormers,
   balconies: MARKET_STREET.worldProps.balconies,
   ivy: MARKET_STREET.worldProps.ivy,
@@ -84,7 +87,7 @@ describe("buildPropGeometries", () => {
   });
 
   it("builds nothing, without failing, when there is nothing to build", () => {
-    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], dormers: [], balconies: [], ivy: [] });
+    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], noticeBoards: [], signposts: [], bicycles: [], dormers: [], balconies: [], ivy: [] });
     expect(empty.wood.getAttribute("position")).toBeUndefined();
     expect(empty.plain.getAttribute("position")).toBeUndefined();
   });
@@ -117,7 +120,7 @@ describe("buildSignChains", () => {
 });
 
 describe("the café furniture and the statue", () => {
-  const only = (extra: Partial<typeof ALL_PROPS>): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], dormers: [], balconies: [], ivy: [], ...extra });
+  const only = (extra: Partial<typeof ALL_PROPS>): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], noticeBoards: [], signposts: [], bicycles: [], dormers: [], balconies: [], ivy: [], ...extra });
   const verts = (g: ReturnType<typeof buildPropGeometries>) => (g.wood.getAttribute("position")?.count ?? 0) + (g.plain.getAttribute("position")?.count ?? 0);
 
   it("are in the street: tables, chairs, a parasol, chalkboards and a statue", () => {
@@ -154,7 +157,7 @@ describe("the café furniture and the statue", () => {
 });
 
 describe("leafy trees and bushes", () => {
-  const only = (trees: PropSpecsTrees): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], dormers: [], balconies: [], ivy: [], trees });
+  const only = (trees: PropSpecsTrees): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], noticeBoards: [], signposts: [], bicycles: [], dormers: [], balconies: [], ivy: [], trees });
   type PropSpecsTrees = typeof ALL_PROPS.trees;
   const verts = (g: ReturnType<typeof buildPropGeometries>) => g.plain.getAttribute("position")?.count ?? 0;
 
@@ -197,5 +200,28 @@ describe("leafy trees and bushes", () => {
     expect(trunk.kind).toBe("circle");
     if (trunk.kind === "circle") expect(trunk.r).toBeLessThan(0.45);
     expect(MARKET_STREET.colliders.some((c) => c.id.startsWith("bush-"))).toBe(true);
+  });
+});
+
+describe("the street furniture: notice board, signpost, bicycle", () => {
+  const none = { ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], dormers: [], balconies: [], ivy: [], noticeBoards: [], signposts: [], bicycles: [] };
+  const at = [0, 0, 0] as [number, number, number];
+  const verts = (g: ReturnType<typeof buildPropGeometries>) => (g.wood.getAttribute("position")?.count ?? 0) + (g.plain.getAttribute("position")?.count ?? 0);
+
+  it("each build their parts and stand on the ground", () => {
+    const board = buildPropGeometries({ ...none, noticeBoards: [{ position: at, seed: 1 }] });
+    const post = buildPropGeometries({ ...none, signposts: [{ position: at, seed: 1 }] });
+    const bike = buildPropGeometries({ ...none, bicycles: [{ position: at, seed: 1 }] });
+    // A board has many pinned papers; a bicycle has spoked wheels, so its mesh is detailed too.
+    expect(verts(board)).toBeGreaterThan(400);
+    expect(verts(post)).toBeGreaterThan(100);
+    expect(verts(bike)).toBeGreaterThan(400);
+    for (const g of [board, post, bike]) for (const part of [g.wood, g.plain]) if (part.getAttribute("position")) {
+      part.computeBoundingBox();
+      expect(part.boundingBox!.min.y).toBeGreaterThanOrEqual(-0.05);
+    }
+    board.wood.computeBoundingBox();
+    expect(board.wood.boundingBox!.max.y).toBeGreaterThan(1.5);
+    expect(board.wood.boundingBox!.max.x).toBeGreaterThan(0.7);
   });
 });

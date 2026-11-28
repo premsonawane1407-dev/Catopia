@@ -149,3 +149,13 @@ Each house now has its own set of details, set in the map data per house (`dorme
 - **Per house:** the bakery has two dormers and ivy at both ends; the produce house one dormer and ivy; the tall house a dormer, a balcony and tall ivy; the café two dormers, a balcony and ivy; the red house a dormer and ivy at two columns; the slate cottage a dormer and a little ivy. A test checks the houses differ.
 - **Checks:** tsc, eslint, 467 tests (new: details exist, dormers sit on their roofs in their roof's colour, the houses differ, the schema refuses a bad balcony), build pass. Seen in the running game at day (`details-north.jpg`, `details-cafe.jpg`).
 - **Not matched yet:** shutters and door handles are only what the stock wall pieces have; no wall-mounted lanterns or small wall decorations; the notice board, signpost and bicycle; lily pads; a leaf texture for the trees; dusk and night not checked on the new details.
+
+## Notice board, signpost and bicycle (2026-11-28)
+
+Three more code-built props (map data `props.noticeBoards`, `signposts`, `bicycles`), placed from the reference (notice board at the left of the square beside the park, signpost on the lower middle path, bicycle by the cottages on the lower left):
+- **Notice board:** two sturdy wooden posts, a wooden frame with a dark cork backing, a small cap board on top, and nine pinned papers of different sizes and colours, a little crooked, each with a red pin and lines of writing; flower clusters along its top (as in the reference) and a potted plant beside it. Its "Read the notice" prompt stands in front of it.
+- **Signpost:** a dark wooden post with a cap and three arrow-shaped planks pointing different ways (cream marks for writing).
+- **Bicycle:** a vintage bicycle with two spoked wheels (tyre, rim, hub, eight spokes), a thin green frame (seat tube, top tube, down tube, fork, stays), handlebars with grips, a saddle, a chainring, pedals and a stand, leaning a little.
+- **Collision:** the board (posts and frame), the signpost and the bicycle are solid.
+- **Checks:** tsc, eslint, 470 tests (new: the props exist and are solid, the notice prompt is in front of the board with flowers on top and a pot beside it, each prop builds detailed geometry that stands on the ground), build pass. Seen in the running game at day (`props-notice.jpg`, `props-bike-sign.jpg`).
+- **Not matched yet:** the bicycle is small at game size and had no basket; the signpost's writing is only marks; lily pads on the canal; a leaf texture for the trees; wall lanterns and other wall decorations; dusk and night not checked on these props.

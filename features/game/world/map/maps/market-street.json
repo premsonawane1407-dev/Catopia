@@ -970,6 +970,15 @@
         ],
         "seed": 8,
         "scale": 1
+      },
+      {
+        "position": [
+          -4.7,
+          0,
+          0.95
+        ],
+        "seed": 9,
+        "scale": 1.3
       }
     ],
     "awnings": [
@@ -1587,6 +1596,24 @@
         ],
         "radius": 0.4,
         "seed": 93
+      },
+      {
+        "position": [
+          -5.6,
+          1.58,
+          0.9
+        ],
+        "radius": 0.5,
+        "seed": 120
+      },
+      {
+        "position": [
+          -5,
+          1.58,
+          0.9
+        ],
+        "radius": 0.3,
+        "seed": 121
       }
     ],
     "bridges": [
@@ -1614,6 +1641,39 @@
         ],
         "rotationY": 0.55,
         "scale": 1.4
+      }
+    ],
+    "noticeBoards": [
+      {
+        "position": [
+          -5.6,
+          0,
+          0.9
+        ],
+        "rotationY": 0,
+        "seed": 1
+      }
+    ],
+    "signposts": [
+      {
+        "position": [
+          -2.9,
+          0,
+          5.4
+        ],
+        "rotationY": 0.35,
+        "seed": 1
+      }
+    ],
+    "bicycles": [
+      {
+        "position": [
+          -8.3,
+          0,
+          5.95
+        ],
+        "rotationY": 0.12,
+        "seed": 1
       }
     ],
     "trees": [
@@ -2404,7 +2464,7 @@
     {
       "id": "notice",
       "x": -5.6,
-      "z": 1,
+      "z": 0.9,
       "radius": 0.9,
       "label": "Read the notice",
       "verb": "look",

@@ -32,6 +32,10 @@ export const POT = { radius: 0.13, height: 0.2 } as const;
 /** Café furniture: a table, a chair (low enough to jump onto), a parasol's pole, a chalkboard. */
 export const TABLE = { height: 0.43 } as const;
 /** Leafy trees: only the trunk is solid (the canopy is above the cat); a bush is a low solid mound the cat can jump onto. */
+/** A notice board (its posts and frame), a signpost, a leaning bicycle: all solid, none low enough to hop onto. */
+export const NOTICE_BOARD = { hx: 0.74, hz: 0.1, height: 1.7 } as const;
+export const SIGNPOST = { radius: 0.1, height: 2 } as const;
+export const BICYCLE = { hx: 0.52, hz: 0.12, height: 0.7 } as const;
 export const TREE_TRUNK = { radius: 0.2, height: 3 } as const;
 export const BUSH = { radius: 0.34, height: 0.5 } as const;
 export const CHAIR = { radius: 0.15, height: 0.3 } as const;

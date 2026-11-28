@@ -176,10 +176,107 @@ export function buildPropGeometries(specs: PropSpecs): PropGeometries {
   buildFlowerClusters(specs, plain);
   buildTrees(specs, plain);
   buildHouseDetails(specs, wood, plain);
+  buildStreetFurniture(specs, wood, plain);
   buildBridges(specs, stone);
   buildBoats(specs, wood);
   return { wood: wood.merge(), plain: plain.merge(), stone: stone.merge() };
 }
+
+const POST_WOOD = "#5a3a22";
+const BOARD_WOOD = "#7a5330";
+const CORK = "#3b2a1f";
+const PAPERS = ["#efe6c8", "#f4e2a0", "#d9e6ef", "#f2d4d4", "#e6efd2"];
+const IRON_DARK = "#3a3a42";
+const FRAME_GREEN = "#2f5d4a";
+const SIGN_PLANK = "#8a5a33";
+
+/**
+ * Public furniture: a notice board with pinned papers on two posts, a signpost with arrow planks, and a vintage bicycle with two spoked
+ * wheels, a thin frame, handlebars, a saddle and pedals, leaning a little on its stand.
+ */
+function buildStreetFurniture(specs: PropSpecs, wood: PartList, plain: PartList): void {
+  const box = new BoxGeometry(1, 1, 1);
+  for (const b of specs.noticeBoards) {
+    const g = placementMatrix({ position: b.position, rotationY: b.rotationY });
+    const rand = lcg(b.seed * 3331 + 7);
+    for (const x of [-0.62, 0.62]) wood.add(box, POST_WOOD, at(g, T(x, 0.8, 0), S(0.09, 1.6, 0.09)));
+    wood.add(box, BOARD_WOOD, at(g, T(0, 1.08, 0.015), S(1.5, 0.86, 0.05)));
+    plain.add(box, CORK, at(g, T(0, 1.08, 0.045), S(1.38, 0.74, 0.02)));
+    wood.add(box, POST_WOOD, at(g, T(0, 1.55, 0.02), S(1.62, 0.05, 0.14)));
+    // Pinned papers: different sizes, a little crooked, each with a red pin and a couple of lines of writing.
+    const cells: [number, number][] = [[-0.5, 1.28], [-0.12, 1.3], [0.28, 1.26], [0.55, 1.3], [-0.55, 0.95], [-0.2, 0.92], [0.18, 0.96], [0.52, 0.9], [-0.02, 1.1]];
+    for (const [cx, cy] of cells) {
+      const w = 0.17 + rand() * 0.1;
+      const h = 0.2 + rand() * 0.1;
+      const tilt = (rand() - 0.5) * 0.25;
+      const px = cx + (rand() - 0.5) * 0.04;
+      const py = cy + (rand() - 0.5) * 0.03;
+      const paper = (m: Matrix4) => at(g, T(px, py, 0.056), RZ(tilt), m);
+      plain.add(box, pick(rand, PAPERS), paper(S(w, h, 0.006)));
+      plain.add(box, "#c0392b", paper(T(0, h / 2 - 0.02, 0.006).multiply(S(0.02, 0.02, 0.012))));
+      for (let line = 0; line < 3; line++) plain.add(box, "#6b5b4a", paper(T(0, h / 2 - 0.06 - line * 0.05, 0.005).multiply(S(w * (0.55 + rand() * 0.25), 0.008, 0.004))));
+    }
+  }
+  for (const s of specs.signposts) {
+    const g = placementMatrix({ position: s.position, rotationY: s.rotationY });
+    const rand = lcg(s.seed * 2287 + 3);
+    wood.add(box, POST_WOOD, at(g, T(0, 0.95, 0), S(0.1, 1.9, 0.1)));
+    wood.add(box, POST_WOOD, at(g, T(0, 1.93, 0), S(0.16, 0.06, 0.16)));
+    const planks: [number, number, number, number][] = [[1.66, 0.4, 0.9, 1], [1.38, -0.35, 0.78, -1], [1.12, 0.12, 0.62, 1]];
+    for (const [y, turn, len, dir] of planks) {
+      const m = (extra: Matrix4) => at(g, T(0, y, 0), RY(turn + (rand() - 0.5) * 0.08), extra);
+      wood.add(box, SIGN_PLANK, m(T(dir * len * 0.5, 0, 0.065).multiply(S(len, 0.2, 0.04))));
+      // The pointed end of the arrow.
+      const tip = new ConeGeometry(0.14, 0.18, 4);
+      wood.add(tip, SIGN_PLANK, m(T(dir * (len + 0.04), 0, 0.065).multiply(RZ(-dir * Math.PI / 2)).multiply(RY(Math.PI / 4)).multiply(S(0.72, 1, 0.3))));
+      tip.dispose();
+      // A few cream marks for the writing.
+      plain.add(box, "#efe6c8", m(T(dir * len * 0.45, 0.03, 0.09).multiply(S(len * 0.6, 0.02, 0.006))));
+      plain.add(box, "#efe6c8", m(T(dir * len * 0.4, -0.03, 0.09).multiply(S(len * 0.4, 0.02, 0.006))));
+    }
+  }
+  for (const bike of specs.bicycles) {
+    // Leaning on its stand: turned a little about its length.
+    const g = placementMatrix({ position: bike.position, rotationY: bike.rotationY });
+    const lean = (extra: Matrix4) => at(g, RX(0.16), extra);
+    const bar = (x0: number, y0: number, x1: number, y1: number, r: number, color: string) => {
+      const len = Math.hypot(x1 - x0, y1 - y0);
+      plain.add(box, color, lean(T((x0 + x1) / 2, (y0 + y1) / 2, 0).multiply(RZ(Math.atan2(y1 - y0, x1 - x0))).multiply(S(len, r, r))));
+    };
+    const rear: [number, number] = [-0.42, 0.26];
+    const front: [number, number] = [0.42, 0.26];
+    const bb: [number, number] = [0, 0.27];
+    const seat: [number, number] = [-0.13, 0.62];
+    const head: [number, number] = [0.3, 0.6];
+    const tyre = new TorusGeometry(0.26, 0.02, 5, 22);
+    const rim = new TorusGeometry(0.235, 0.008, 4, 22);
+    for (const [wx, wy] of [rear, front]) {
+      plain.add(tyre, "#2b2b30", lean(T(wx, wy, 0)));
+      plain.add(rim, "#9a9aa4", lean(T(wx, wy, 0)));
+      plain.add(new CylinderGeometry(0.03, 0.03, 0.06, 8), "#9a9aa4", lean(T(wx, wy, 0).multiply(RX(Math.PI / 2))));
+      for (let i = 0; i < 8; i++) plain.add(box, "#b8b8c0", lean(T(wx, wy, 0).multiply(RZ((i / 8) * Math.PI)).multiply(S(0.47, 0.006, 0.006))));
+    }
+    tyre.dispose();
+    rim.dispose();
+    bar(bb[0], bb[1], seat[0], seat[1], 0.026, FRAME_GREEN);
+    bar(seat[0], seat[1], head[0], head[1], 0.024, FRAME_GREEN);
+    bar(bb[0], bb[1], head[0], head[1] - 0.02, 0.03, FRAME_GREEN);
+    bar(head[0], head[1] - 0.02, front[0], front[1], 0.022, IRON_DARK);
+    bar(bb[0], bb[1], rear[0], rear[1], 0.022, FRAME_GREEN);
+    bar(seat[0], seat[1], rear[0], rear[1], 0.02, FRAME_GREEN);
+    // Handlebars with grips, a saddle, a chainring and pedals.
+    plain.add(box, IRON_DARK, lean(T(0.3, 0.66, 0).multiply(S(0.02, 0.07, 0.02))));
+    plain.add(box, IRON_DARK, lean(T(0.3, 0.7, 0).multiply(S(0.03, 0.025, 0.36))));
+    for (const z of [-0.18, 0.18]) plain.add(box, "#6b3a22", lean(T(0.3, 0.7, z).multiply(S(0.05, 0.03, 0.06))));
+    plain.add(box, "#5a3a22", lean(T(-0.15, 0.655, 0).multiply(S(0.2, 0.04, 0.1))));
+    plain.add(disc16(), "#9a9aa4", lean(T(0, 0.27, 0.03).multiply(RX(Math.PI / 2)).multiply(S(0.07, 0.01, 0.07))));
+    for (const z of [-0.09, 0.09]) plain.add(box, IRON_DARK, lean(T(z === 0.09 ? 0.04 : -0.04, z === 0.09 ? 0.2 : 0.34, z).multiply(S(0.1, 0.02, 0.05))));
+    // The stand.
+    plain.add(box, IRON_DARK, at(g, T(-0.28, 0.06, 0.12), RZ(0.5), S(0.2, 0.014, 0.014)));
+  }
+}
+
+const disc16 = () => new CylinderGeometry(1, 1, 1, 14);
 
 const DORMER_WALL = "#ece2c8";
 const DORMER_FRAME = "#5a3a22";

@@ -329,3 +329,24 @@ describe("what makes each house its own", () => {
     expect(mapSchema.safeParse(m).success).toBe(true);
   });
 });
+
+describe("the notice board, the signpost and the bicycle", () => {
+  it("are in the street, solid, and the notice board has its interaction", () => {
+    expect(M.worldProps.noticeBoards).toHaveLength(1);
+    expect(M.worldProps.signposts).toHaveLength(1);
+    expect(M.worldProps.bicycles).toHaveLength(1);
+    for (const prefix of ["notice-board-", "signpost-", "bicycle-"]) expect(M.colliders.some((c) => c.id.startsWith(prefix)), prefix).toBe(true);
+    const notice = M.interactables.find((i) => i.id === "notice")!;
+    const board = M.worldProps.noticeBoards[0];
+    // The prompt is in front of the board and its spot is clear.
+    expect(Math.hypot(notice.x - board.position[0], notice.z - board.position[2])).toBeLessThan(0.5);
+    expect(notice.approach.z).toBeGreaterThan(board.position[2] + 0.5);
+  });
+
+  it("have flowers along the top of the notice board and a potted plant beside it", () => {
+    const board = M.worldProps.noticeBoards[0];
+    const base = heightAt(M.terrainGrid, board.position[0], board.position[2]);
+    expect(M.worldProps.flowers.some((f) => Math.abs(f.position[0] - board.position[0]) < 0.6 && f.position[1] > base + 1.4)).toBe(true);
+    expect(M.worldProps.pots.some((p) => Math.hypot(p.position[0] - board.position[0], p.position[2] - board.position[2]) < 1.5)).toBe(true);
+  });
+});

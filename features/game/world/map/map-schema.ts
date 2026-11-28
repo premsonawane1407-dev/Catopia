@@ -166,6 +166,13 @@ export const ivySchema = z.strictObject({ position: vec3, width: num.min(0.3).ma
 /** A hanging shop sign on a bracket; the picture says what the shop is. */
 export const signSchema = z.strictObject({ position: vec3, kind: z.enum(["paw", "cup", "bread"]).default("paw") });
 
+/** A public notice board on two posts with pinned papers; `position` is the middle of its foot. */
+export const noticeBoardSchema = z.strictObject({ position: vec3, rotationY: num.optional(), seed: int });
+/** A wooden signpost with arrow-shaped planks pointing different ways. */
+export const signpostSchema = z.strictObject({ position: vec3, rotationY: num.optional(), seed: int });
+/** A vintage bicycle leaning on its stand; its length runs along x before it is turned. */
+export const bicycleSchema = z.strictObject({ position: vec3, rotationY: num.optional(), seed: int });
+
 /** A round café table with a few things on it. */
 export const tableSchema = z.strictObject({ position: vec3, radius: num.min(0.15).max(0.6).default(0.3), seed: int });
 /** A wooden café chair; at rotation 0 its seat faces +z, and it turns the way the table is. */
@@ -248,6 +255,9 @@ export const mapSchema = z.strictObject({
     statues: z.array(statueSchema).default([]),
     flowers: z.array(flowerClusterSchema).default([]),
     trees: z.array(treeSchema).default([]),
+    noticeBoards: z.array(noticeBoardSchema).default([]),
+    signposts: z.array(signpostSchema).default([]),
+    bicycles: z.array(bicycleSchema).default([]),
     dormers: z.array(dormerSchema).default([]),
     balconies: z.array(balconySchema).default([]),
     ivy: z.array(ivySchema).default([]),
@@ -283,6 +293,9 @@ export type StatueSpec = z.infer<typeof statueSchema>;
 export type FlowerClusterSpec = z.infer<typeof flowerClusterSchema>;
 export type TreeSpec = z.infer<typeof treeSchema>;
 export type DormerSpec = z.infer<typeof dormerSchema>;
+export type NoticeBoardSpec = z.infer<typeof noticeBoardSchema>;
+export type SignpostSpec = z.infer<typeof signpostSchema>;
+export type BicycleSpec = z.infer<typeof bicycleSchema>;
 export type BalconySpec = z.infer<typeof balconySchema>;
 export type IvySpec = z.infer<typeof ivySchema>;
 export type SignSpec = z.infer<typeof signSchema>;
