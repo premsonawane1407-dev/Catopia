@@ -144,6 +144,13 @@ export const bridgeSchema = z.strictObject({
 /** A small wooden rowing boat with a pointed bow, seats and planks, floating at `position`. */
 export const boatSchema = z.strictObject({ position: vec3, rotationY: num.optional(), scale: num.positive().default(1) });
 
+/**
+ * A leafy tree or bush, built in code: an "oak" (thick trunk, branches, a wide layered canopy of leaf clusters in several greens
+ * with yellow-green highlights), a smaller "round" tree, a "bush" (a low mound of leaf clusters) or a "flowering" bush. `scale`
+ * scales the whole thing; `seed` makes each one different.
+ */
+export const treeSchema = z.strictObject({ position: vec3, kind: z.enum(["oak", "round", "bush", "flowering"]).default("oak"), scale: num.min(0.3).max(3).default(1), seed: int });
+
 /** A round café table with a few things on it. */
 export const tableSchema = z.strictObject({ position: vec3, radius: num.min(0.15).max(0.6).default(0.3), seed: int });
 /** A wooden café chair; at rotation 0 its seat faces +z, and it turns the way the table is. */
@@ -225,6 +232,7 @@ export const mapSchema = z.strictObject({
     chalkboards: z.array(chalkboardSchema).default([]),
     statues: z.array(statueSchema).default([]),
     flowers: z.array(flowerClusterSchema).default([]),
+    trees: z.array(treeSchema).default([]),
     bridges: z.array(bridgeSchema).default([]),
     boats: z.array(boatSchema).default([]),
   }),
@@ -253,6 +261,7 @@ export type UmbrellaSpec = z.infer<typeof umbrellaSchema>;
 export type ChalkboardSpec = z.infer<typeof chalkboardSchema>;
 export type StatueSpec = z.infer<typeof statueSchema>;
 export type FlowerClusterSpec = z.infer<typeof flowerClusterSchema>;
+export type TreeSpec = z.infer<typeof treeSchema>;
 export type BridgeSpec = z.infer<typeof bridgeSchema>;
 export type BoatSpec = z.infer<typeof boatSchema>;
 export type BuntingString = z.infer<typeof buntingSchema>;

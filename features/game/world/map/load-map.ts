@@ -8,10 +8,10 @@ import type { Interactable } from "../../player/interactions";
 import type { Placement } from "../static-batch";
 import type { Vec3 } from "../stage-constants";
 import { buildHouse, type WindowSpec } from "./build-house";
-import { BARREL, CHAIR, CHALKBOARD, CRATE_RADIUS_PER_SIZE, HOUSE_HEIGHT, LAMP_POST, PIECE_PROFILES, POT, TABLE, UMBRELLA_POLE } from "./collision-profiles";
+import { BARREL, BUSH, CHAIR, CHALKBOARD, TREE_TRUNK, CRATE_RADIUS_PER_SIZE, HOUSE_HEIGHT, LAMP_POST, PIECE_PROFILES, POT, TABLE, UMBRELLA_POLE } from "./collision-profiles";
 import { heightAt, heightColliders, rasterizeTerrain, waterColliders, type TerrainGrid } from "./terrain";
 import { deckHeight } from "../stone-geometry";
-import { mapSchema, type AwningSpec, type BarrelSpec, type BuntingString, type BoatSpec, type BridgeSpec, type ChairSpec, type ChalkboardSpec, type CrateSpec, type FlowerClusterSpec, type StatueSpec, type TableSpec, type UmbrellaSpec, type MapCamera, type MapData, type PlanterSpec, type PosterSpec, type PotSpec, type ProduceSpec } from "./map-schema";
+import { mapSchema, type AwningSpec, type BarrelSpec, type BuntingString, type BoatSpec, type BridgeSpec, type TreeSpec, type ChairSpec, type ChalkboardSpec, type CrateSpec, type FlowerClusterSpec, type StatueSpec, type TableSpec, type UmbrellaSpec, type MapCamera, type MapData, type PlanterSpec, type PosterSpec, type PotSpec, type ProduceSpec } from "./map-schema";
 
 export class MapError extends Error {
   constructor(
@@ -43,6 +43,7 @@ export interface PropSpecs {
   chalkboards: readonly ChalkboardSpec[];
   statues: readonly StatueSpec[];
   flowers: readonly FlowerClusterSpec[];
+  trees: readonly TreeSpec[];
   bridges: readonly BridgeSpec[];
   boats: readonly BoatSpec[];
 }
@@ -127,6 +128,12 @@ export function buildColliders(data: MapData, grid: TerrainGrid): Collider[] {
   });
   data.props.pots.forEach((p, i) => {
     if (p.layer !== "framing" && near(p.position[0], p.position[2])) out.push({ kind: "circle", id: `pot-${i}`, x: p.position[0], z: p.position[2], r: POT.radius, height: base(p.position[0], p.position[2]) + POT.height });
+  });
+  data.props.trees.forEach((t, i) => {
+    if (!near(t.position[0], t.position[2], 0.5)) return;
+    const bush = t.kind === "bush" || t.kind === "flowering";
+    const r = (bush ? BUSH.radius : TREE_TRUNK.radius) * t.scale;
+    out.push({ kind: "circle", id: `${bush ? "bush" : "tree"}-${i}`, x: t.position[0], z: t.position[2], r, height: base(t.position[0], t.position[2]) + (bush ? BUSH.height * t.scale : TREE_TRUNK.height) });
   });
   data.props.tables.forEach((t, i) => {
     if (near(t.position[0], t.position[2])) out.push({ kind: "circle", id: `table-${i}`, x: t.position[0], z: t.position[2], r: t.radius, height: base(t.position[0], t.position[2]) + TABLE.height });
@@ -275,6 +282,7 @@ export function loadMap(raw: unknown): LoadedMap {
     chalkboards: liftProp(data.props.chalkboards),
     statues: liftProp(data.props.statues),
     flowers: liftProp(data.props.flowers),
+    trees: liftProp(data.props.trees),
     bridges: liftProp(data.props.bridges),
     boats: liftProp(data.props.boats),
   };
@@ -306,8 +314,8 @@ export function loadMap(raw: unknown): LoadedMap {
     glows,
     worldGlows: glows.filter((g) => g.kind !== "foreground"),
     framingGlows: glows.filter((g) => g.kind === "foreground"),
-    worldProps: { crates: framing(props.crates, false), barrels: framing(props.barrels, false), produce: props.produce, pots: framing(props.pots, false), awnings: framing(props.awnings, false), planters, tables: props.tables, chairs: props.chairs, umbrellas: props.umbrellas, chalkboards: props.chalkboards, statues: props.statues, flowers: props.flowers, bridges: props.bridges, boats: props.boats },
-    framingProps: { crates: framing(props.crates, true), barrels: framing(props.barrels, true), produce: [], pots: framing(props.pots, true), awnings: framing(props.awnings, true), planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [] },
+    worldProps: { crates: framing(props.crates, false), barrels: framing(props.barrels, false), produce: props.produce, pots: framing(props.pots, false), awnings: framing(props.awnings, false), planters, tables: props.tables, chairs: props.chairs, umbrellas: props.umbrellas, chalkboards: props.chalkboards, statues: props.statues, flowers: props.flowers, trees: props.trees, bridges: props.bridges, boats: props.boats },
+    framingProps: { crates: framing(props.crates, true), barrels: framing(props.barrels, true), produce: [], pots: framing(props.pots, true), awnings: framing(props.awnings, true), planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], trees: [], bridges: [], boats: [] },
     bunting: data.bunting.map((b) => ({ ...b, from: lift(b.from as Vec3), to: lift(b.to as Vec3) })),
     posters: data.posters.map((p) => ({ ...p, position: lift(p.position as Vec3) })),
     sign: data.sign ? lift(data.sign.position as Vec3) : null,

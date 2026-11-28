@@ -174,9 +174,97 @@ export function buildPropGeometries(specs: PropSpecs): PropGeometries {
 
   buildCafeProps(specs, wood, plain);
   buildFlowerClusters(specs, plain);
+  buildTrees(specs, plain);
   buildBridges(specs, stone);
   buildBoats(specs, wood);
   return { wood: wood.merge(), plain: plain.merge(), stone: stone.merge() };
+}
+
+const BARK = ["#6b4a2e", "#5c3f27"];
+const CANOPY_DARK = ["#24562a", "#2b6330"];
+const CANOPY_MID = ["#2f6b2e", "#3a7d34", "#45903a", "#3d8236"];
+const CANOPY_LIGHT = ["#55a043", "#62ab48", "#6fb44c"];
+const CANOPY_GOLD = ["#8cb84a", "#9ec24f", "#b0cc58"];
+
+/**
+ * Leafy trees and bushes: a trunk with a flared foot and a few branches, and a canopy made of many overlapping leaf clusters,
+ * dark underneath and lit on top, with yellow-green highlights, so it reads as layered foliage rather than one ball. Each
+ * tree is different (its seed shuffles the clusters). Everything has colour in the vertices and goes in the plain mesh.
+ */
+function buildTrees(specs: PropSpecs, plain: PartList): void {
+  const blob = new IcosahedronGeometry(1, 1);
+  const trunkShape = lathe([[0, 0], [0.3, 0], [0.26, 0.08], [0.18, 0.4], [0.14, 1.2], [0.12, 1.7], [0, 1.7]], 9);
+  const limb = new CylinderGeometry(0.045, 0.07, 1, 6);
+  const pick = (rand: () => number, list: string[]) => list[Math.floor(rand() * list.length)];
+  const vary = (hex: string, rand: () => number) => new Color(hex).multiplyScalar(0.94 + rand() * 0.12);
+  const cluster = (g: Matrix4, rand: () => number, cx: number, cy: number, cz: number, radius: number, shade: number, count: number) => {
+    // A lobe of foliage: several overlapping blobs round a centre, darker toward the bottom and the middle, lighter on top.
+    for (let i = 0; i < count; i++) {
+      const a = rand() * Math.PI * 2;
+      const d = Math.sqrt(rand()) * radius * 0.62;
+      const lift = (rand() - 0.35) * radius * 0.7;
+      const r = radius * (0.34 + rand() * 0.2);
+      const top = (lift / radius + 0.5) * 0.5 + shade;
+      const tone = top > 0.75 && rand() < 0.35 ? pick(rand, CANOPY_GOLD) : top > 0.5 ? pick(rand, CANOPY_LIGHT) : top > 0.2 ? pick(rand, CANOPY_MID) : pick(rand, CANOPY_DARK);
+      plain.add(blob, vary(tone, rand), g.clone().multiply(new Matrix4().makeTranslation(cx + Math.cos(a) * d, cy + lift, cz + Math.sin(a) * d)).multiply(new Matrix4().makeRotationY(rand() * 6)).multiply(new Matrix4().makeScale(r, r * 0.82, r)));
+    }
+  };
+  for (const t of specs.trees) {
+    const g = placementMatrix({ position: t.position, scale: t.scale });
+    const rand = lcg(t.seed * 5113 + 41);
+    if (t.kind === "bush" || t.kind === "flowering") {
+      const lobes = 4 + Math.floor(rand() * 3);
+      for (let i = 0; i < lobes; i++) {
+        const a = (i / lobes) * Math.PI * 2 + rand();
+        const d = i === 0 ? 0 : 0.2 + rand() * 0.16;
+        cluster(g, rand, Math.cos(a) * d, 0.3 + rand() * 0.08, Math.sin(a) * d, 0.34 + rand() * 0.1, 0.2, 5);
+      }
+      if (t.kind === "flowering") {
+        const bloom = new IcosahedronGeometry(1, 0);
+        const palette = [["#f06a8a", "#f48fb1"], ["#f4f0e0", "#f4d03f"], ["#a56be0", "#d9a8ff"], ["#ff9a3c", "#f4d03f"]][Math.floor(rand() * 4)];
+        for (let i = 0; i < 26; i++) {
+          const a = rand() * Math.PI * 2;
+          const d = Math.sqrt(rand()) * 0.42;
+          const y = 0.26 + (1 - d / 0.42) * 0.22 + rand() * 0.06;
+          plain.add(bloom, new Color(palette[i % 2]).multiplyScalar(1.15), g.clone().multiply(new Matrix4().makeTranslation(Math.cos(a) * d, y, Math.sin(a) * d)).multiply(new Matrix4().makeScale(0.034, 0.034, 0.034)));
+        }
+      }
+      continue;
+    }
+    const oak = t.kind === "oak";
+    const trunkHeight = oak ? 1.0 : 0.8;
+    const k = oak ? 1.0 : 0.72;
+    plain.add(trunkShape, pick(rand, BARK), g.clone().multiply(new Matrix4().makeScale(oak ? 1 : 0.8, oak ? 1 : 0.8, oak ? 1 : 0.8)));
+    // Branches reaching up and out into the canopy.
+    const branches = oak ? 5 : 3;
+    for (let i = 0; i < branches; i++) {
+      const a = (i / branches) * Math.PI * 2 + rand() * 0.8;
+      const len = (oak ? 1.25 : 0.9) * (0.8 + rand() * 0.4);
+      const tilt = 0.75 + rand() * 0.3;
+      plain.add(limb, BARK[1], g.clone().multiply(new Matrix4().makeTranslation(0, 1.3 * k + trunkHeight * 0.2, 0)).multiply(new Matrix4().makeRotationY(-a)).multiply(new Matrix4().makeRotationZ(-tilt)).multiply(new Matrix4().makeTranslation(0, len / 2, 0)).multiply(new Matrix4().makeScale(1, len, 1)));
+    }
+    // The canopy: a ring of lobes round the middle, a second ring above and a crown on top, with a few low hanging clusters.
+    const cy = oak ? 2.5 : 1.95;
+    const reach = oak ? 0.78 : 0.56;
+    const lobeRadius = oak ? 0.72 : 0.54;
+    const ring = oak ? 7 : 5;
+    for (let i = 0; i < ring; i++) {
+      const a = (i / ring) * Math.PI * 2 + rand() * 0.5;
+      const d = reach * (0.8 + rand() * 0.35);
+      cluster(g, rand, Math.cos(a) * d, cy - 0.1 + rand() * 0.25, Math.sin(a) * d, lobeRadius * (0.85 + rand() * 0.3), 0.0, oak ? 9 : 7);
+    }
+    for (let i = 0; i < (oak ? 4 : 3); i++) {
+      const a = (i / (oak ? 4 : 3)) * Math.PI * 2 + rand();
+      const d = reach * 0.45 * (0.6 + rand() * 0.6);
+      cluster(g, rand, Math.cos(a) * d, cy + (oak ? 0.7 : 0.5), Math.sin(a) * d, lobeRadius * 0.9, 0.12, oak ? 9 : 7);
+    }
+    cluster(g, rand, 0, cy + (oak ? 1.15 : 0.85), 0, lobeRadius * 0.85, 0.25, oak ? 10 : 8);
+    // A few clusters hanging lower on the outside, in the shade.
+    for (let i = 0; i < (oak ? 3 : 2); i++) {
+      const a = rand() * Math.PI * 2;
+      cluster(g, rand, Math.cos(a) * reach * 1.25, cy - 0.45, Math.sin(a) * reach * 1.25, lobeRadius * 0.55, -0.15, 5);
+    }
+  }
 }
 
 const STONE_TONES = ["#d3c9b2", "#cbc0a8", "#dad0ba", "#c5baa2"];

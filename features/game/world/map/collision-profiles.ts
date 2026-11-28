@@ -31,6 +31,9 @@ export const BARREL = { radius: 0.17, height: 0.34 } as const;
 export const POT = { radius: 0.13, height: 0.2 } as const;
 /** Café furniture: a table, a chair (low enough to jump onto), a parasol's pole, a chalkboard. */
 export const TABLE = { height: 0.43 } as const;
+/** Leafy trees: only the trunk is solid (the canopy is above the cat); a bush is a low solid mound the cat can jump onto. */
+export const TREE_TRUNK = { radius: 0.2, height: 3 } as const;
+export const BUSH = { radius: 0.34, height: 0.5 } as const;
 export const CHAIR = { radius: 0.15, height: 0.3 } as const;
 export const UMBRELLA_POLE = { radius: 0.05, height: 2 } as const;
 export const CHALKBOARD = { radius: 0.2, height: 0.55 } as const;

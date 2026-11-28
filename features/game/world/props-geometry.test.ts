@@ -19,6 +19,7 @@ const ALL_PROPS = {
   flowers: MARKET_STREET.worldProps.flowers,
   bridges: MARKET_STREET.worldProps.bridges,
   boats: MARKET_STREET.worldProps.boats,
+  trees: MARKET_STREET.worldProps.trees,
 };
 
 describe("lcg", () => {
@@ -80,7 +81,7 @@ describe("buildPropGeometries", () => {
   });
 
   it("builds nothing, without failing, when there is nothing to build", () => {
-    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [] });
+    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [] });
     expect(empty.wood.getAttribute("position")).toBeUndefined();
     expect(empty.plain.getAttribute("position")).toBeUndefined();
   });
@@ -113,7 +114,7 @@ describe("buildSignChains", () => {
 });
 
 describe("the café furniture and the statue", () => {
-  const only = (extra: Partial<typeof ALL_PROPS>): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], ...extra });
+  const only = (extra: Partial<typeof ALL_PROPS>): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], ...extra });
   const verts = (g: ReturnType<typeof buildPropGeometries>) => (g.wood.getAttribute("position")?.count ?? 0) + (g.plain.getAttribute("position")?.count ?? 0);
 
   it("are in the street: tables, chairs, a parasol, chalkboards and a statue", () => {
@@ -146,5 +147,52 @@ describe("the café furniture and the statue", () => {
 
   it("are solid where they should be: tables, parasol poles and chalkboards block the cat, flowers do not", () => {
     for (const prefix of ["table-", "chair-", "umbrella-", "chalkboard-"]) expect(MARKET_STREET.colliders.some((c) => c.id.startsWith(prefix)), prefix).toBe(true);
+  });
+});
+
+describe("leafy trees and bushes", () => {
+  const only = (trees: PropSpecsTrees): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees });
+  type PropSpecsTrees = typeof ALL_PROPS.trees;
+  const verts = (g: ReturnType<typeof buildPropGeometries>) => g.plain.getAttribute("position")?.count ?? 0;
+
+  it("are in the street: oaks, round trees and many bushes, and the stock low-poly trees are gone", () => {
+    const kinds = MARKET_STREET.worldProps.trees.map((t) => t.kind);
+    expect(kinds.filter((k) => k === "oak").length).toBeGreaterThanOrEqual(5);
+    expect(kinds.filter((k) => k === "round").length).toBeGreaterThanOrEqual(3);
+    expect(kinds.filter((k) => k === "bush" || k === "flowering").length).toBeGreaterThanOrEqual(30);
+    expect(MARKET_STREET.placements.some((p) => p.piece.startsWith("tree"))).toBe(false);
+  });
+
+  it("build a canopy of many clusters, taller and fuller for an oak than for a round tree or a bush, standing on the ground", () => {
+    const at = [0, 0, 0] as [number, number, number];
+    const oak = buildPropGeometries(only([{ position: at, kind: "oak", scale: 1, seed: 1 }]));
+    const round = buildPropGeometries(only([{ position: at, kind: "round", scale: 1, seed: 1 }]));
+    const bush = buildPropGeometries(only([{ position: at, kind: "bush", scale: 1, seed: 1 }]));
+    expect(verts(oak)).toBeGreaterThan(verts(round));
+    expect(verts(round)).toBeGreaterThan(verts(bush));
+    for (const g of [oak, round, bush]) {
+      g.plain.computeBoundingBox();
+      expect(g.plain.boundingBox!.min.y).toBeGreaterThanOrEqual(-0.05);
+    }
+    oak.plain.computeBoundingBox();
+    bush.plain.computeBoundingBox();
+    expect(oak.plain.boundingBox!.max.y).toBeGreaterThan(3.2);
+    expect(bush.plain.boundingBox!.max.y).toBeLessThan(0.9);
+  });
+
+  it("make each tree different, and the same tree the same every time", () => {
+    const at = [0, 0, 0] as [number, number, number];
+    const a = buildPropGeometries(only([{ position: at, kind: "oak", scale: 1, seed: 1 }])).plain.getAttribute("position");
+    const b = buildPropGeometries(only([{ position: at, kind: "oak", scale: 1, seed: 2 }])).plain.getAttribute("position");
+    const c = buildPropGeometries(only([{ position: at, kind: "oak", scale: 1, seed: 1 }])).plain.getAttribute("position");
+    expect(Array.from(a.array.slice(-600))).toEqual(Array.from(c.array.slice(-600)));
+    expect(Array.from(a.array.slice(-600))).not.toEqual(Array.from(b.array.slice(-600)));
+  });
+
+  it("are solid at the trunk, not the canopy: the cat walks under an oak but is stopped by its trunk and a bush", () => {
+    const trunk = MARKET_STREET.colliders.find((c) => c.id.startsWith("tree-"))!;
+    expect(trunk.kind).toBe("circle");
+    if (trunk.kind === "circle") expect(trunk.r).toBeLessThan(0.45);
+    expect(MARKET_STREET.colliders.some((c) => c.id.startsWith("bush-"))).toBe(true);
   });
 });
