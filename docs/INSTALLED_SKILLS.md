@@ -57,7 +57,7 @@ Review notes (read before installing, 2026-11-25):
 - `threejs-gameplay-systems` ships `scripts/create_threejs_game.py` (a standalone Vite scaffold). Do not run it in the Next.js app root; use it only as a pattern reference.
 - `pixel-art-studio` bundles 30+ colour palettes (many from public community palettes). Their individual terms were not checked; verify a palette's terms before shipping art that uses it.
 - The CLI also created `.claude/skills/` symlinks with absolute machine paths. They are local convenience links and should not be committed.
-- First use (Phase 0, 2026-11-25): `pixel-art-studio`'s rules guided the placeholder cat sprite; its Python scripts did not run because Python is not installed. The other four new skills have not been exercised yet.
+- First use (Phase 0, 2026-11-25): `pixel-art-studio`'s rules guided the placeholder cat sprite; its Python scripts did not run because Python is not installed. Second use (Phase 2, 2026-11-26): its written rubric (`references/05-quality-rubric.md`) and rules (five-tone hue-shifted ramps, a darker outline, no pillow shading, the stray-pixel cap) guided the generated cat, and the well-defined checks were ported to TypeScript (`features/game/cat/quality.ts`); the skill's scripts and art were not used or copied. The other four new skills have not been exercised yet.
 
 ## Discovery and selection
 

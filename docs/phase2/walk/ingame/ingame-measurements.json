@@ -1,0 +1,39 @@
+{
+  "note": "Measured from the frames the running game drew (dev server, Chromium, 1600x900 buffer): sprite position and sheet frame per rendered frame, planted paws grouped into stances. Units: sprite pixels on the screen (a sprite pixel is 2 screen pixels here).",
+  "E-run-lock0": {
+    "samples": 231,
+    "pawMaxStrayPx": 3.26,
+    "pawRmsStrayPx": 1.82,
+    "pictureOffFromTruePathPx": 0.34
+  },
+  "E-run-lock1": {
+    "samples": 231,
+    "pawMaxStrayPx": 0.46,
+    "pawRmsStrayPx": 0.17,
+    "pictureOffFromTruePathPx": 3.2
+  },
+  "E-walk-lock0": {
+    "samples": 248,
+    "pawMaxStrayPx": 1.81,
+    "pawRmsStrayPx": 0.96,
+    "pictureOffFromTruePathPx": 0.26
+  },
+  "E-walk-lock1": {
+    "samples": 248,
+    "pawMaxStrayPx": 0.28,
+    "pawRmsStrayPx": 0.14,
+    "pictureOffFromTruePathPx": 1.77
+  },
+  "S-walk-lock0": {
+    "samples": 248,
+    "pawMaxStrayPx": 0.97,
+    "pawRmsStrayPx": 0.45,
+    "pictureOffFromTruePathPx": 0.34
+  },
+  "S-walk-lock1": {
+    "samples": 248,
+    "pawMaxStrayPx": 0.42,
+    "pawRmsStrayPx": 0.18,
+    "pictureOffFromTruePathPx": 0.97
+  }
+}

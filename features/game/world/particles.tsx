@@ -1,8 +1,9 @@
 // Drifting fireflies and falling leaves. With reduced motion the fireflies hold still and the leaves go.
 import { Sparkles } from "@react-three/drei";
+import type { TimePreset } from "../render/time-presets";
 import { useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { Color, DoubleSide, Object3D, type InstancedMesh } from "three";
+import { Color, DoubleSide, Object3D, type BufferAttribute, type InstancedMesh, type Points } from "three";
 
 const LEAF_COLORS = ["#d9572b", "#e8872f", "#c23b2a", "#f0b441", "#a8532a"];
 
@@ -75,13 +76,29 @@ export interface ParticlesProps {
   /** Rough on-screen size of a firefly in CSS pixels. */
   fireflySize: number;
   fireflyColor: string;
+  /** The live look: fireflies come out in the evening and are gone by day (`fireflies`, 0 to 1). */
+  look: TimePreset;
   motion: boolean;
 }
 
-export function Particles({ scale, fireflySize, fireflyColor, motion }: ParticlesProps) {
+export function Particles({ scale, fireflySize, fireflyColor, look, motion }: ParticlesProps) {
+  const sparkles = useRef<Points>(null);
+  const shown = useRef(-1);
+  useFrame(() => {
+    const points = sparkles.current;
+    const opacity = points?.geometry.getAttribute("opacity") as BufferAttribute | undefined;
+    if (!points || !opacity) return;
+    // Only touch the buffer when the amount has really changed.
+    if (Math.abs(look.fireflies - shown.current) < 0.01) return;
+    shown.current = look.fireflies;
+    (opacity.array as Float32Array).fill(0.95 * look.fireflies);
+    opacity.needsUpdate = true;
+    points.visible = look.fireflies > 0.01;
+  });
   return (
     <group>
       <Sparkles
+        ref={sparkles}
         count={Math.max(6, Math.round(46 * scale))}
         size={fireflySize}
         scale={[14, 2.4, 8]}

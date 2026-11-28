@@ -6,7 +6,7 @@ import { AdditiveBlending, Color, InstancedMesh, Matrix4, MeshBasicMaterial, Qua
 import { makeRadialTexture } from "../render/soft-textures";
 import type { TimePreset } from "../render/time-presets";
 import { glowFlicker, glowIntensity } from "./glow-math";
-import type { GlowSpec } from "./stage-data";
+import type { GlowSpec } from "./map/load-map";
 
 // Billboard each instance in view space: the quad's corners are offset from the instance centre along
 // the camera's right and up axes, scaled by the instance's own size.
@@ -57,17 +57,23 @@ export function GlowBatch({ glows, preset, motion }: GlowBatchProps) {
     m.instanceMatrix.needsUpdate = true;
   };
 
-  useLayoutEffect(() => {
+  // The halos are as bright as the lamps are, which changes through the day: the colours are set every frame.
+  const colorize = () => {
     const m = mesh.current;
     if (!m) return;
     glows.forEach((g, i) => m.setColorAt(i, scratch.color.set(preset.lanternColor).multiplyScalar(glowIntensity(g.kind, preset.lanternIntensity))));
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
+  };
+
+  useLayoutEffect(() => {
+    colorize();
     place(0);
-    // `place` only reads props that are already in the dependency list.
+    // `place` and `colorize` only read props that are already in the dependency list.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [glows, preset.lanternColor, preset.lanternIntensity, motion, scratch]);
+  }, [glows, motion, scratch]);
 
   useFrame(({ clock }) => {
+    colorize();
     if (motion) place(clock.elapsedTime);
   });
 

@@ -6,7 +6,8 @@ export const DIRECTIONS = ["S", "SE", "E", "NE", "N", "NW", "W", "SW"] as const;
 export type Direction = (typeof DIRECTIONS)[number];
 export const DIRECTION_COUNT = DIRECTIONS.length;
 
-export type ClipName = "idle" | "walk" | "run" | "sitDown" | "sit" | "lieDown" | "sleep";
+export type EmoteClip = "emoteMeow" | "emoteHappy" | "emoteCurious" | "emoteSurprised" | "emoteSleepy" | "emoteWave";
+export type ClipName = "idle" | "walk" | "run" | "sitDown" | "sit" | "lieDown" | "sleep" | "jump" | EmoteClip;
 
 export interface ClipSpec {
   /** Number of drawn frames per direction. */
@@ -16,9 +17,15 @@ export interface ClipSpec {
   loop: boolean;
   /** How far the cat travels, in sprite pixels, during one full loop. Only walk and run, which play by distance. */
   stridePx?: number;
+  /** How many directions are drawn. Left out, all eight. The emotes are drawn only facing the camera (1). */
+  directions?: number;
 }
 
-export const CLIP_NAMES: readonly ClipName[] = ["idle", "walk", "run", "sitDown", "sit", "lieDown", "sleep"];
+/** How many directions a clip is drawn in. */
+export const clipDirections = (clip: ClipName): number => CLIPS[clip].directions ?? DIRECTION_COUNT;
+
+export const EMOTE_CLIPS: readonly EmoteClip[] = ["emoteMeow", "emoteHappy", "emoteCurious", "emoteSurprised", "emoteSleepy", "emoteWave"];
+export const CLIP_NAMES: readonly ClipName[] = ["idle", "walk", "run", "sitDown", "sit", "lieDown", "sleep", "jump", ...EMOTE_CLIPS];
 
 export const CLIPS: Record<ClipName, ClipSpec> = {
   // Four breathing frames plus a blink (frame 4).
@@ -31,7 +38,38 @@ export const CLIPS: Record<ClipName, ClipSpec> = {
   // Sitting to curled up asleep, one way. Played backwards, it is waking.
   lieDown: { frames: 3, fps: 6, loop: false },
   sleep: { frames: 4, fps: 2, loop: true },
+  // Anticipation, take-off, rise, the top, fall, brace, land (front paws), landed, recover, and a leap's stretch; chosen from the cat's real motion (see player/air.ts).
+  jump: { frames: 10, fps: 0, loop: false },
+  // Sitting facing the camera, one short loop each.
+  emoteMeow: { frames: 4, fps: 5, loop: true, directions: 1 },
+  emoteHappy: { frames: 4, fps: 5, loop: true, directions: 1 },
+  emoteCurious: { frames: 4, fps: 4, loop: true, directions: 1 },
+  emoteSurprised: { frames: 4, fps: 5, loop: true, directions: 1 },
+  emoteSleepy: { frames: 4, fps: 3, loop: true, directions: 1 },
+  emoteWave: { frames: 4, fps: 6, loop: true, directions: 1 },
 };
+
+/** The little picture that floats above the cat while it emotes (or sleeps). */
+export type BubbleIcon = "note" | "heart" | "question" | "exclaim" | "zzz" | "sparkle";
+
+export interface EmoteSpec {
+  id: string;
+  label: string;
+  clip: EmoteClip;
+  icon: BubbleIcon;
+  /** How long the emote plays, in seconds. */
+  seconds: number;
+}
+
+/** What the cat can say without words, in the order of the picker (and the number keys 1 to 6). */
+export const EMOTES: readonly EmoteSpec[] = [
+  { id: "meow", label: "Meow", clip: "emoteMeow", icon: "note", seconds: 2.4 },
+  { id: "happy", label: "Happy", clip: "emoteHappy", icon: "heart", seconds: 2.8 },
+  { id: "curious", label: "Curious", clip: "emoteCurious", icon: "question", seconds: 2.8 },
+  { id: "surprised", label: "Surprised", clip: "emoteSurprised", icon: "exclaim", seconds: 1.8 },
+  { id: "sleepy", label: "Sleepy", clip: "emoteSleepy", icon: "zzz", seconds: 3.2 },
+  { id: "wave", label: "Hello", clip: "emoteWave", icon: "sparkle", seconds: 2.6 },
+];
 
 /** Frame order of the blinking idle and sit loops: breathing frames 0 to 3 and back, a blink now and then (frame 4). */
 export const BLINK_SEQUENCE: readonly number[] = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 4, 0];
@@ -57,17 +95,18 @@ const OFFSETS: Record<ClipName, number> = (() => {
   let next = 0;
   for (const name of CLIP_NAMES) {
     out[name] = next;
-    next += CLIPS[name].frames * DIRECTION_COUNT;
+    next += CLIPS[name].frames * (CLIPS[name].directions ?? DIRECTION_COUNT);
   }
   return out;
 })();
 
-export const TOTAL_FRAMES = CLIP_NAMES.reduce((sum, name) => sum + CLIPS[name].frames * DIRECTION_COUNT, 0);
+export const TOTAL_FRAMES = CLIP_NAMES.reduce((sum, name) => sum + CLIPS[name].frames * (CLIPS[name].directions ?? DIRECTION_COUNT), 0);
 
 /** Position in the sheet's frame list of one frame of one clip facing one way. */
 export function frameIndex(clip: ClipName, direction: number, frame: number): number {
   const spec = CLIPS[clip];
-  const d = ((Math.round(direction) % DIRECTION_COUNT) + DIRECTION_COUNT) % DIRECTION_COUNT;
+  const count = spec.directions ?? DIRECTION_COUNT;
+  const d = count === 1 ? 0 : ((Math.round(direction) % DIRECTION_COUNT) + DIRECTION_COUNT) % DIRECTION_COUNT;
   const f = Math.min(spec.frames - 1, Math.max(0, Math.floor(frame)));
   return OFFSETS[clip] + d * spec.frames + f;
 }

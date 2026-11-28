@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Catopia walk in the game: foot lock off and on</title>
+<style>body{margin:0;background:#1b2138;color:#fffdf5;font:15px/1.45 system-ui,sans-serif}main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}h1{font-size:1.25rem;margin:0 0 4px}p{color:#aab3cf;margin:0 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}button{font:inherit;background:#262e4c;color:#fffdf5;border:1px solid #3c4770;border-radius:8px;padding:6px 12px;cursor:pointer}button[aria-pressed=true]{background:#e9c56e;color:#2a2418;border-color:#e9c56e}
+.stage{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}figure{margin:0;text-align:center}img{width:440px;max-width:100%;image-rendering:pixelated;border-radius:8px;background:#000}figcaption{color:#aab3cf;margin-top:4px}</style></head><body><main>
+<h1>The walk in the real game: foot lock off and on</h1><p>Frames the running game drew (dev server, full quality, 1600 x 900 buffer), cropped around the cat, about 60 a second, shown 2 times bigger without smoothing. Left: the cat's picture is exactly where the cat is (paws drift on the cobbles by up to half a step between frames). Right: the picture is held back so planted paws stay on one cobble (the body then moves in small steps with the frames). Watch a planted paw against a cobble stone, then the body against the screen.</p>
+<div class="row" id="clips"></div><div class="row" id="speed"></div><div class="row"><button id="play" aria-pressed="true">Pause</button><button id="prev">Step back</button><button id="next">Step forward</button><span id="info"></span></div>
+<div class="stage"><figure><img id="a" alt="foot lock off"><figcaption>Foot lock off (paws drift, body smooth)</figcaption></figure><figure><img id="b" alt="foot lock on"><figcaption>Foot lock on (paws held, body steps)</figcaption></figure></div>
+<script>
+const SETS={"Walking sideways (E)":["E",82,80],"Walking toward the camera (S)":["S",81,83],"Running sideways (E)":["Erun",77,77]};
+const $=id=>document.getElementById(id);let key="Walking sideways (E)",i=0,play=true,rate=1,acc=0,last=0;
+const pad=n=>String(n).padStart(3,"0");
+Object.keys(SETS).forEach(k=>{const b=document.createElement("button");b.textContent=k;b.setAttribute("aria-pressed",String(k===key));b.onclick=()=>{key=k;i=0;[...$("clips").children].forEach(x=>x.setAttribute("aria-pressed",String(x===b)))};$("clips").append(b)});
+[["Slow motion (0.25x)",0.25],["Half speed",0.5],["Real time",1]].forEach(([n,v])=>{const b=document.createElement("button");b.textContent=n;b.setAttribute("aria-pressed",String(v===rate));b.onclick=()=>{rate=v;[...$("speed").children].forEach(x=>x.setAttribute("aria-pressed",String(x===b)))};$("speed").append(b)});
+function show(){const [n,c0,c1]=SETS[key];$("a").src=n+"-lock0-"+pad(Math.min(i,c0-1))+".jpg";$("b").src=n+"-lock1-"+pad(Math.min(i,c1-1))+".jpg";$("info").textContent="frame "+(i+1)+" of "+Math.min(c0,c1)}
+function tick(t){if(play){acc+=(t-last)/1000*60*rate;while(acc>=1){acc-=1;i=(i+1)%Math.min(SETS[key][1],SETS[key][2])}}last=t;show();requestAnimationFrame(tick)}
+$("play").onclick=()=>{play=!play;$("play").textContent=play?"Pause":"Play";$("play").setAttribute("aria-pressed",String(play))};
+$("prev").onclick=()=>{play=false;const m=Math.min(SETS[key][1],SETS[key][2]);i=(i+m-1)%m};$("next").onclick=()=>{play=false;i=(i+1)%Math.min(SETS[key][1],SETS[key][2])};
+requestAnimationFrame(tick);
+</script></main></body></html>

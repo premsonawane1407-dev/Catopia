@@ -3,7 +3,7 @@
 // The Phase 0 street drew about 500 objects a frame; this draws one mesh per surface.
 import { BufferGeometry, Matrix4, Quaternion, Vector3 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { surfaceFor, surfaceKey, type PieceName, type Surface } from "./pieces";
+import { surfaceFor, surfaceKey, type PieceName, type RoofVariant, type Surface } from "./pieces";
 import type { Vec3 } from "./stage-constants";
 
 export interface Placement {
@@ -12,6 +12,8 @@ export interface Placement {
   /** Turn about the vertical axis, in radians. */
   rotationY?: number;
   scale?: number | Vec3;
+  /** For a roof: the colour of its tiles. */
+  variant?: RoofVariant;
 }
 
 export interface StaticBatch {
@@ -48,7 +50,7 @@ export function triangleCountOf(geometry: BufferGeometry): number {
 export function batchPlacements(placements: readonly Placement[], geometries: ReadonlyMap<string, BufferGeometry>): StaticBatch[] {
   const groups = new Map<string, Placement[]>();
   for (const placement of placements) {
-    const key = surfaceKey(placement.piece);
+    const key = surfaceKey(placement.piece, placement.variant);
     const group = groups.get(key);
     if (group) group.push(placement);
     else groups.set(key, [placement]);
@@ -67,7 +69,7 @@ export function batchPlacements(placements: readonly Placement[], geometries: Re
     if (!geometry) throw new Error(`Could not merge the pieces for surface "${key}": their attributes differ`);
     geometry.computeBoundingBox();
     geometry.computeBoundingSphere();
-    batches.push({ key, surface: surfaceFor(group[0].piece), geometry, pieceCount: group.length, triangleCount: triangleCountOf(geometry) });
+    batches.push({ key, surface: surfaceFor(group[0].piece, group[0].variant), geometry, pieceCount: group.length, triangleCount: triangleCountOf(geometry) });
   }
   return batches;
 }

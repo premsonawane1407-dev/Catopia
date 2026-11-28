@@ -1,0 +1,140 @@
+{
+  "note": "From the game's own simulation. Heights and distances in world units (one sprite pixel is 0.0155). A jump from standing, walking and running.",
+  "scenarios": {
+    "standard-jump": {
+      "peakHeightWorld": 0.341,
+      "peakHeightPx": 22,
+      "jumpKinds": [
+        "standard"
+      ],
+      "framesShown": 9
+    },
+    "jump-onto-platform": {
+      "peakHeightWorld": 0.341,
+      "peakHeightPx": 22,
+      "jumpKinds": [
+        "standard",
+        "down"
+      ],
+      "framesShown": 9
+    },
+    "vertical-jump-onto-tall": {
+      "peakHeightWorld": 0.341,
+      "peakHeightPx": 22,
+      "jumpKinds": [
+        "standard"
+      ],
+      "framesShown": 9
+    },
+    "long-leap-across-gap": {
+      "peakHeightWorld": 0.217,
+      "peakHeightPx": 14,
+      "jumpKinds": [
+        "long"
+      ],
+      "framesShown": 8
+    },
+    "small-hop-onto-kerb": {
+      "peakHeightWorld": 0.139,
+      "peakHeightPx": 9,
+      "jumpKinds": [
+        "hop"
+      ],
+      "framesShown": 9
+    }
+  },
+  "kinds": {
+    "hop": {
+      "heightPx": 9,
+      "heightWorld": 0.14,
+      "flightSeconds": 0.35,
+      "standing": {
+        "distanceWorld": 0,
+        "peakWorld": 0.139,
+        "airSeconds": 0.35,
+        "landingImpact": 0.4
+      },
+      "walking": {
+        "distanceWorld": 0.3,
+        "peakWorld": 0.139,
+        "airSeconds": 0.35,
+        "landingImpact": 0.4
+      },
+      "running": {
+        "distanceWorld": 0.72,
+        "peakWorld": 0.139,
+        "airSeconds": 0.35,
+        "landingImpact": 0.4
+      }
+    },
+    "standard": {
+      "heightPx": 22,
+      "heightWorld": 0.341,
+      "flightSeconds": 0.55,
+      "standing": {
+        "distanceWorld": 0,
+        "peakWorld": 0.341,
+        "airSeconds": 0.55,
+        "landingImpact": 0.63
+      },
+      "walking": {
+        "distanceWorld": 0.47,
+        "peakWorld": 0.341,
+        "airSeconds": 0.55,
+        "landingImpact": 0.63
+      },
+      "running": {
+        "distanceWorld": 1.12,
+        "peakWorld": 0.341,
+        "airSeconds": 0.55,
+        "landingImpact": 0.63
+      }
+    },
+    "vertical": {
+      "heightPx": 44,
+      "heightWorld": 0.682,
+      "flightSeconds": 0.77,
+      "standing": {
+        "distanceWorld": 0,
+        "peakWorld": 0.682,
+        "airSeconds": 0.78,
+        "landingImpact": 0.91
+      },
+      "walking": {
+        "distanceWorld": 0.64,
+        "peakWorld": 0.682,
+        "airSeconds": 0.78,
+        "landingImpact": 0.91
+      },
+      "running": {
+        "distanceWorld": 1.52,
+        "peakWorld": 0.682,
+        "airSeconds": 0.78,
+        "landingImpact": 0.91
+      }
+    },
+    "long": {
+      "heightPx": 14,
+      "heightWorld": 0.217,
+      "flightSeconds": 0.44,
+      "standing": {
+        "distanceWorld": 1.02,
+        "peakWorld": 0.217,
+        "airSeconds": 0.45,
+        "landingImpact": 0.53
+      },
+      "walking": {
+        "distanceWorld": 1.08,
+        "peakWorld": 0.217,
+        "airSeconds": 0.45,
+        "landingImpact": 0.53
+      },
+      "running": {
+        "distanceWorld": 1.15,
+        "peakWorld": 0.217,
+        "airSeconds": 0.45,
+        "landingImpact": 0.53
+      }
+    }
+  }
+}

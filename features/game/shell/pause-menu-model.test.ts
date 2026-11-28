@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_SETTINGS, parseSettings, type GameSettings } from "../settings/settings";
-import { MOTION_CHOICES, QUALITY_CHOICES, buildMenuItems, cycleChoice, describeChange, interpretKey, moveSelection, settingsPatch, type MenuItem } from "./pause-menu-model";
+import { MOTION_CHOICES, QUALITY_CHOICES, TIME_CHOICES, buildMenuItems, cycleChoice, describeChange, interpretKey, moveSelection, settingsPatch, type MenuItem } from "./pause-menu-model";
 
 const settings = (patch: Partial<GameSettings> = {}): GameSettings => ({ ...DEFAULT_SETTINGS, ...patch });
 const item = (kind: MenuItem["kind"]): MenuItem => ({ id: "quality", kind, label: "x" });
 
 describe("buildMenuItems", () => {
   it("lists the rows in order: resume first, leave last", () => {
-    expect(buildMenuItems(settings()).map((i) => i.id)).toEqual(["resume", "sound", "quality", "motion", "stats", "leave"]);
+    expect(buildMenuItems(settings()).map((i) => i.id)).toEqual(["resume", "sound", "quality", "motion", "time", "stats", "leave"]);
   });
 
   it("reads the current settings out as words", () => {
@@ -15,6 +15,7 @@ describe("buildMenuItems", () => {
     expect(rows.sound).toMatchObject({ kind: "toggle", on: true, value: "On" });
     expect(rows.quality).toMatchObject({ kind: "choice", value: "Automatic" });
     expect(rows.motion).toMatchObject({ kind: "choice", value: "Follow my device" });
+    expect(rows.time).toMatchObject({ kind: "choice", value: "Let the day pass" });
     expect(rows.stats).toMatchObject({ kind: "toggle", on: false, value: "Off" });
     expect(rows.resume).toMatchObject({ kind: "action" });
     expect(rows.resume.value).toBeUndefined();
@@ -31,6 +32,7 @@ describe("buildMenuItems", () => {
   it("only offers choices that the settings accept", () => {
     for (const c of QUALITY_CHOICES) expect(parseSettings(JSON.stringify({ quality: c.value })).quality).toBe(c.value);
     for (const c of MOTION_CHOICES) expect(parseSettings(JSON.stringify({ motion: c.value })).motion).toBe(c.value);
+    for (const c of TIME_CHOICES) expect(parseSettings(JSON.stringify({ time: c.value })).time).toBe(c.value);
   });
 });
 

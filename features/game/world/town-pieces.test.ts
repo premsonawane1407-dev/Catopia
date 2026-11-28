@@ -9,10 +9,17 @@ describe("surfaceFor", () => {
     expect(surfaceFor("wall-window-glass").profile).toBe("plaster");
   });
 
-  it("tints the red roof toward terracotta and softens the teal one", () => {
-    expect(surfaceFor("roof-high-gable").tint?.[0]).toBeGreaterThan(surfaceFor("roof-high-gable").tint?.[2] ?? 1);
-    expect(surfaceFor("roof-gable").profile).toBe("roof");
+  it("colours roofs: the steep stock roof is terracotta, the low one mossy, and a variant overrides either", () => {
+    expect(surfaceFor("roof-high-gable").profile).toBe("roof");
+    expect(surfaceFor("roof-high-gable").tint).toEqual(surfaceFor("roof-high-gable", "terracotta").tint);
+    expect(surfaceFor("roof-gable").tint).toEqual(surfaceFor("roof-gable", "moss").tint);
     expect(surfaceKey("roof-gable")).not.toBe(surfaceKey("roof-high-gable"));
+    expect(surfaceKey("roof-high-gable", "slate")).not.toBe(surfaceKey("roof-high-gable", "terracotta"));
+    // Slate is blue-grey: after the multiplication blue stays above red.
+    const slate = surfaceFor("roof-high-gable", "slate").tint!;
+    expect(slate[2]).toBeGreaterThan(slate[0]);
+    // A variant does not change anything that is not a roof.
+    expect(surfaceFor("stall-red", "slate")).toEqual(surfaceFor("stall-red"));
   });
 
   it("lets pieces with the same surface share a key, so they can be merged", () => {

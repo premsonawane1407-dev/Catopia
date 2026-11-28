@@ -6,7 +6,8 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { Bloom, BrightnessContrast, EffectComposer, HueSaturation, SMAA, ToneMapping, Vignette } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { BrightnessContrastEffect, BloomEffect, HueSaturationEffect, VignetteEffect } from "postprocessing";
 import { HalfFloatType, NeutralToneMapping, NoToneMapping, UnsignedByteType, Vector3 } from "three";
 import type { TierSpec } from "../quality/tiers";
 import type { Vec3 } from "../world/stage-constants";
@@ -57,15 +58,29 @@ export interface PostStackProps {
 }
 
 export function PostStack({ tier, preset, focus }: PostStackProps) {
+  // The grade follows the live look as the day goes by: the effects are adjusted in place every frame.
+  const bloom = useRef<BloomEffect>(null);
+  const hueSaturation = useRef<HueSaturationEffect>(null);
+  const brightnessContrast = useRef<BrightnessContrastEffect>(null);
+  const vignette = useRef<VignetteEffect>(null);
+  useFrame(() => {
+    if (bloom.current) {
+      bloom.current.intensity = preset.bloomIntensity;
+      bloom.current.luminanceMaterial.threshold = preset.bloomThreshold;
+    }
+    if (hueSaturation.current) hueSaturation.current.saturation = preset.saturation;
+    if (brightnessContrast.current) brightnessContrast.current.contrast = preset.contrast;
+    if (vignette.current) vignette.current.darkness = preset.vignette;
+  }, -10);
   return (
     <EffectComposer multisampling={tier.msaa} frameBufferType={tier.frameBuffer === "byte" ? UnsignedByteType : HalfFloatType}>
       {tier.blur && <TiltBokeh target={focus} samples={tier.blurSamples} />}
-      {tier.bloom && <Bloom intensity={preset.bloomIntensity} luminanceThreshold={preset.bloomThreshold} luminanceSmoothing={LOOK.bloom.smoothing} mipmapBlur radius={LOOK.bloom.radius} />}
-      <HueSaturation saturation={preset.saturation} />
-      <BrightnessContrast contrast={preset.contrast} />
+      {tier.bloom && <Bloom ref={bloom} intensity={preset.bloomIntensity} luminanceThreshold={preset.bloomThreshold} luminanceSmoothing={LOOK.bloom.smoothing} mipmapBlur radius={LOOK.bloom.radius} />}
+      <HueSaturation ref={hueSaturation} saturation={preset.saturation} />
+      <BrightnessContrast ref={brightnessContrast} contrast={preset.contrast} />
       <ToneMapping mode={ToneMappingMode.NEUTRAL} />
       {tier.smaa && <SMAA />}
-      <Vignette offset={LOOK.vignetteOffset} darkness={preset.vignette} />
+      <Vignette ref={vignette} offset={LOOK.vignetteOffset} darkness={preset.vignette} />
     </EffectComposer>
   );
 }

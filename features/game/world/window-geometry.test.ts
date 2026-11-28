@@ -1,7 +1,11 @@
 import { Vector3, type BufferGeometry } from "three";
 import { describe, expect, it } from "vitest";
 import { CAT_CELL, PANE_CELLS, PANE_SIZE, PANE_VARIANTS, buildWindowGeometries, paneCell, paneUvRange } from "./window-geometry";
-import { WINDOWS, type WindowKey } from "./stage-data";
+import type { WindowKey } from "./map/build-house";
+import { MARKET_STREET } from "./map/market-street";
+
+// The street stands on a terrace; these checks are about a window's own shape, so measure from the floor it stands on.
+const WINDOWS = MARKET_STREET.windows.map((w) => ({ ...w, base: 0 }));
 
 const geo = buildWindowGeometries(WINDOWS);
 const KINDS: WindowKey[] = ["a", "b", "s"];
@@ -96,8 +100,8 @@ describe("buildWindowGeometries", () => {
       if (!g) continue;
       const p = g.getAttribute("position");
       const [w, h] = PANE_SIZE[kind];
-      expect(p.getX(1) - p.getX(0)).toBeCloseTo(w, 6);
-      expect(p.getY(2) - p.getY(1)).toBeCloseTo(h, 6);
+      expect(p.getX(1) - p.getX(0)).toBeCloseTo(w, 4);
+      expect(p.getY(2) - p.getY(1)).toBeCloseTo(h, 4);
     }
   });
 

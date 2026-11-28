@@ -10,8 +10,8 @@ import { VIEW_ELEVATION_DEG, directionHeading } from "../cat/clips";
 const rad = (deg: number) => (deg * Math.PI) / 180;
 
 /** Share of its ground stride the sprite's feet cover on screen, per unit of forward heading toward the camera. */
-export function footDepthScale(): number {
-  const pitch = rad(CAMERA.pitch);
+export function footDepthScale(pitchDeg: number = CAMERA.pitch): number {
+  const pitch = rad(pitchDeg);
   const tilt = pitch * SPRITE_LEAN;
   // A step of one sprite pixel along the ground toward the camera moves a drawn paw by sin(elevation) sprite pixels up
   // the sprite, and a sprite pixel counts cos(pitch - tilt) on screen.
@@ -19,11 +19,12 @@ export function footDepthScale(): number {
 }
 
 /** Ground distance per full cycle for a cat facing `direction` (0 to 7), as a multiple of the clip's own stride in sprite pixels. */
-export function strideFactor(direction: number): number {
+/** `pitchDeg` is the map's camera pitch (the market street's by default). */
+export function strideFactor(direction: number, pitchDeg: number = CAMERA.pitch): number {
   const h = directionHeading(direction);
   const sx = Math.sin(h);
   const cz = Math.cos(h);
-  const foot = Math.hypot(sx, cz * footDepthScale());
-  const ground = Math.hypot(sx, cz * Math.sin(rad(CAMERA.pitch)));
+  const foot = Math.hypot(sx, cz * footDepthScale(pitchDeg));
+  const ground = Math.hypot(sx, cz * Math.sin(rad(pitchDeg)));
   return foot / ground;
 }

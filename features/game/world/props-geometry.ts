@@ -4,17 +4,9 @@
 import { BoxGeometry, BufferGeometry, Color, Float32BufferAttribute, IcosahedronGeometry, LatheGeometry, Matrix4, TorusGeometry, Vector2 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Vec3 } from "./stage-constants";
-import { BARRELS, CRATES, POTS, PRODUCE, type BarrelSpec, type BuntingString, type CrateSpec, type PotSpec, type ProduceSpec } from "./stage-data";
+import type { PropSpecs } from "./map/load-map";
+import type { BuntingString } from "./map/map-schema";
 import { placementMatrix } from "./static-batch";
-
-export interface PropSpecs {
-  crates: readonly CrateSpec[];
-  barrels: readonly BarrelSpec[];
-  produce: readonly ProduceSpec[];
-  pots: readonly PotSpec[];
-}
-
-export const DEFAULT_PROP_SPECS: PropSpecs = { crates: CRATES, barrels: BARRELS, produce: PRODUCE, pots: POTS };
 
 export interface PropGeometries {
   /** Wooden things: they get the plank pattern. */
@@ -74,7 +66,7 @@ class PartList {
 
 const lathe = (points: [number, number][], segments: number) => new LatheGeometry(points.map(([r, y]) => new Vector2(r, y)), segments);
 
-export function buildPropGeometries(specs: PropSpecs = DEFAULT_PROP_SPECS): PropGeometries {
+export function buildPropGeometries(specs: PropSpecs): PropGeometries {
   const wood = new PartList();
   const plain = new PartList();
 
@@ -127,6 +119,52 @@ export function buildPropGeometries(specs: PropSpecs = DEFAULT_PROP_SPECS): Prop
       // The look test lit blooms slightly from within; here that is a little extra brightness in the colour.
       const color = new Color(FLOWER_COLORS[Math.floor(rand() * FLOWER_COLORS.length)]).multiplyScalar(1.18);
       plain.add(bloom, color, group.clone().multiply(new Matrix4().makeTranslation(Math.cos(a) * r, y, Math.sin(a) * r)));
+    }
+  }
+
+  // Awnings: canvas stripes sloping down and out from the wall, each with a valance hanging from its outer edge.
+  const STRIPE = 0.1;
+  const valanceBox = new BoxGeometry(1, 1, 1);
+  for (const a of specs.awnings) {
+    const group = placementMatrix({ position: a.position, rotationY: a.rotationY });
+    const slope = Math.atan2(a.drop, a.reach);
+    const length = Math.hypot(a.reach, a.drop);
+    const count = Math.max(2, Math.round(a.width / STRIPE));
+    const w = a.width / count;
+    for (let i = 0; i < count; i++) {
+      const color = a.colors[i % 2];
+      const x = -a.width / 2 + w * (i + 0.5);
+      // The slab: its middle is half way along the slope.
+      const slab = group.clone().multiply(new Matrix4().makeTranslation(x, -a.drop / 2, a.reach / 2)).multiply(new Matrix4().makeRotationX(slope)).multiply(new Matrix4().makeScale(w, 0.012, length));
+      plain.add(valanceBox, color, slab);
+      // The valance: a short drop of cloth at the outer edge.
+      const hang = group.clone().multiply(new Matrix4().makeTranslation(x, -a.drop - 0.03, a.reach)).multiply(new Matrix4().makeScale(w, 0.06, 0.012));
+      plain.add(valanceBox, color, hang);
+    }
+    // Two thin poles at the outer corners hold it up.
+    for (const side of [-1, 1]) {
+      const pole = group.clone().multiply(new Matrix4().makeTranslation(side * (a.width / 2 - 0.02), -a.drop - 0.03 - 0.34, a.reach - 0.01)).multiply(new Matrix4().makeScale(0.016, 0.68, 0.016));
+      wood.add(valanceBox, BARREL_WOOD, pole);
+    }
+  }
+
+  // Flower boxes: a wooden trough under a window, soil, a row of leaves and a scatter of blooms.
+  const trough = new BoxGeometry(1, 0.07, 0.09);
+  const soil = new BoxGeometry(1, 0.012, 0.075);
+  const tuft = new IcosahedronGeometry(0.035, 0);
+  for (const p of specs.planters) {
+    const group = placementMatrix({ position: p.position, rotationY: p.rotationY });
+    wood.add(trough, BARREL_WOOD, group.clone().multiply(new Matrix4().makeScale(p.width, 1, 1)));
+    plain.add(soil, "#4a3626", group.clone().multiply(new Matrix4().makeTranslation(0, 0.037, 0)).multiply(new Matrix4().makeScale(p.width * 0.96, 1, 1)));
+    const rand = lcg(p.seed * 6151 + 11);
+    const n = Math.max(4, Math.round(p.width / 0.055));
+    for (let i = 0; i < n; i++) {
+      const x = -p.width / 2 + p.width * ((i + 0.5) / n) + (rand() - 0.5) * 0.015;
+      plain.add(tuft, LEAVES, group.clone().multiply(new Matrix4().makeTranslation(x, 0.065, (rand() - 0.5) * 0.03)).multiply(new Matrix4().makeScale(1, 0.8, 1)));
+      if (rand() < 0.85) {
+        const color = new Color(FLOWER_COLORS[Math.floor(rand() * FLOWER_COLORS.length)]).multiplyScalar(1.18);
+        plain.add(bloom, color, group.clone().multiply(new Matrix4().makeTranslation(x + (rand() - 0.5) * 0.02, 0.1 + rand() * 0.03, 0.01 + (rand() - 0.5) * 0.03)));
+      }
     }
   }
 

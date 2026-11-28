@@ -11,6 +11,8 @@ export interface BoxCollider {
   /** Half the size along x and z. */
   hx: number;
   hz: number;
+  /** How tall it is, in world units. Left out, it is a wall. A cat that is higher than this stands on top of it instead of bumping into it. */
+  height?: number;
 }
 export interface CircleCollider {
   kind: "circle";
@@ -18,6 +20,7 @@ export interface CircleCollider {
   x: number;
   z: number;
   r: number;
+  height?: number;
 }
 export type Collider = BoxCollider | CircleCollider;
 
@@ -68,12 +71,25 @@ function pushOut(p: Point, radius: number, c: Collider): Point {
   return { x: p.x, z: c.z + c.hz + radius };
 }
 
-/** Keeps a circle inside the walkable area and outside every collider. A few passes settle corners where two things meet. */
-export function resolveCollisions(p: Point, radius: number, colliders: readonly Collider[], bounds: Bounds): Point {
+/**
+ * How high a step the cat simply walks up (and down) without jumping, in world units: the rise of a stair, a kerb. Anything
+ * taller than this above the cat's feet is a wall to it until it has jumped high enough.
+ */
+export const STEP_UP = 0.18;
+
+/** Is the cat, at height `y`, able to walk onto this thing (so it does not block)? */
+const isBelowCat = (c: Collider, y: number): boolean => c.height !== undefined && y >= c.height - STEP_UP;
+
+/**
+ * Keeps a circle inside the walkable area and outside every collider it is not above. A few passes settle corners where two
+ * things meet. `y` is how high the cat's feet are: a cat higher than a collider's top walks over it.
+ */
+export function resolveCollisions(p: Point, radius: number, colliders: readonly Collider[], bounds: Bounds, y = 0): Point {
   let pos = p;
   for (let pass = 0; pass < 8; pass++) {
     let moved = false;
     for (const c of colliders) {
+      if (isBelowCat(c, y)) continue;
       const next = pushOut(pos, radius, c);
       if (next !== pos) {
         pos = next;
@@ -91,7 +107,42 @@ export function resolveCollisions(p: Point, radius: number, colliders: readonly 
 }
 
 /** Is a circle clear of everything? */
-export function isClear(p: Point, radius: number, colliders: readonly Collider[], bounds: Bounds): boolean {
-  const r = resolveCollisions(p, radius - 0.003, colliders, bounds);
+export function isClear(p: Point, radius: number, colliders: readonly Collider[], bounds: Bounds, y = 0): boolean {
+  const r = resolveCollisions(p, radius - 0.003, colliders, bounds, y);
   return Math.abs(r.x - p.x) < 1e-6 && Math.abs(r.z - p.z) < 1e-6;
+}
+
+/** Is a point over the top of a collider (with a little give, since a cat's paws overhang the edge)? */
+function overFootprint(p: Point, c: Collider, margin: number): boolean {
+  if (c.kind === "circle") return Math.hypot(p.x - c.x, p.z - c.z) <= c.r + margin;
+  return Math.abs(p.x - c.x) <= c.hx + margin && Math.abs(p.z - c.z) <= c.hz + margin;
+}
+
+/**
+ * The height of the floor under a cat at `p` whose feet are at `y`: the top of the highest thing it is over that it could stand
+ * on (not higher than a step above where it is), or 0 for the ground.
+ */
+export function supportHeight(p: Point, radius: number, colliders: readonly Collider[], y: number): number {
+  let best = 0;
+  for (const c of colliders) {
+    if (c.height === undefined) continue;
+    if (c.height > y + STEP_UP) continue;
+    if (c.height > best && overFootprint(p, c, radius * 0.7)) best = c.height;
+  }
+  return best;
+}
+
+/** The tallest standable surface within `reach` ahead of `p` along (dx, dz) that is above `y`, or 0 when there is none. */
+export function platformAhead(p: Point, dx: number, dz: number, radius: number, colliders: readonly Collider[], y: number, reach: number): number {
+  const len = Math.hypot(dx, dz);
+  if (len < 1e-6) return 0;
+  let best = 0;
+  for (let d = radius; d <= reach + 1e-9; d += 0.08) {
+    const q = { x: p.x + (dx / len) * d, z: p.z + (dz / len) * d };
+    for (const c of colliders) {
+      if (c.height === undefined || c.height <= y + 0.03) continue;
+      if (c.height > best && overFootprint(q, c, radius * 0.5)) best = c.height;
+    }
+  }
+  return best;
 }

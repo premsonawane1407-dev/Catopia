@@ -29,8 +29,8 @@ describe("loadSettings", () => {
 
   it("reads back what was saved", () => {
     const storage = memoryStorage();
-    saveSettings({ muted: true, quality: "light", motion: "reduced", showStats: true }, storage);
-    expect(loadSettings(storage)).toEqual({ muted: true, quality: "light", motion: "reduced", showStats: true });
+    saveSettings({ muted: true, quality: "light", motion: "reduced", time: "dusk", showStats: true }, storage);
+    expect(loadSettings(storage)).toEqual({ muted: true, quality: "light", motion: "reduced", time: "dusk", showStats: true });
   });
 
   it("repairs a damaged value instead of trusting it", () => {

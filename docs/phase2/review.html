@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catopia cat: animation review</title>
+<style>
+  :root { color-scheme: dark; --bg: #1b2138; --panel: #262e4c; --ink: #fffdf5; --muted: #aab3cf; --gold: #e9c56e; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 20px 16px 48px; }
+  h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  p.sub { margin: 0 0 16px; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+  .row label { color: var(--muted); margin-right: 4px; }
+  button, select, input { font: inherit; }
+  button, select { background: var(--panel); color: var(--ink); border: 1px solid #3c4770; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--gold); color: #2a2418; border-color: var(--gold); }
+  .stage { background: #3b4468; border-radius: 12px; padding: 12px; display: flex; justify-content: center; }
+  canvas { image-rendering: pixelated; background: #4a5470; border-radius: 6px; max-width: 100%; }
+  .info { color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.4em; }
+  .strip { display: flex; gap: 2px; overflow-x: auto; padding: 8px 0; }
+  .strip canvas { flex: none; cursor: pointer; outline: 2px solid transparent; }
+  .strip canvas[data-on="true"] { outline-color: var(--gold); }
+  .note { color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Catopia cat: animation review</h1>
+  <p class="sub">Frames are drawn at 1 pixel per sprite pixel and enlarged without smoothing. Pick a coat, a clip and a direction; step through frame by frame, or turn on the moving ground for walking and running to check that planted feet do not slide.</p>
+  <div class="row"><label>Coat</label><select id="coat"></select><label>Clip</label><select id="clip"></select><label>Zoom</label><select id="zoom"><option>4</option><option selected>6</option><option>8</option></select></div>
+  <div class="row" id="dirs"><label>Direction</label></div>
+  <div class="row">
+    <button id="play" aria-pressed="true">Pause</button><button id="prev">Step back</button><button id="next">Step forward</button>
+    <label>Speed</label><input id="fps" type="range" min="1" max="24" value="10"><span id="fpsv"></span>
+    <button id="ground" aria-pressed="false">Moving ground</button>
+  </div>
+  <div class="stage"><canvas id="view"></canvas></div>
+  <p class="info" id="info"></p>
+  <div class="strip" id="strip"></div>
+  <p class="note">The moving ground scrolls by exactly one body step per frame, the speed the game moves the cat at that gait. A planted paw should stay on the same cobble. In the game the step cycle is driven by distance travelled, so the feet match the ground at any speed.</p>
+</main>
+<script>
+const D = {"frameW":72,"frameH":60,"cols":16,"directions":["S","SE","E","NE","N","NW","W","SW"],"clips":[{"name":"idle","frames":5,"fps":5,"stridePx":0,"offset":0,"directions":8},{"name":"walk","frames":8,"fps":0,"stridePx":26,"offset":40,"directions":8},{"name":"run","frames":8,"fps":0,"stridePx":50,"offset":104,"directions":8},{"name":"sitDown","frames":3,"fps":9,"stridePx":0,"offset":168,"directions":8},{"name":"sit","frames":5,"fps":4,"stridePx":0,"offset":192,"directions":8},{"name":"lieDown","frames":3,"fps":6,"stridePx":0,"offset":232,"directions":8},{"name":"sleep","frames":4,"fps":2,"stridePx":0,"offset":256,"directions":8},{"name":"jump","frames":10,"fps":0,"stridePx":0,"offset":288,"directions":8},{"name":"emoteMeow","frames":4,"fps":5,"stridePx":0,"offset":368,"directions":1},{"name":"emoteHappy","frames":4,"fps":5,"stridePx":0,"offset":372,"directions":1},{"name":"emoteCurious","frames":4,"fps":4,"stridePx":0,"offset":376,"directions":1},{"name":"emoteSurprised","frames":4,"fps":5,"stridePx":0,"offset":380,"directions":1},{"name":"emoteSleepy","frames":4,"fps":3,"stridePx":0,"offset":384,"directions":1},{"name":"emoteWave","frames":4,"fps":6,"stridePx":0,"offset":388,"directions":1}],"coats":[{"id":"marmalade","label":"Marmalade tabby"},{"id":"storm","label":"Storm-grey tabby"},{"id":"midnight","label":"Midnight"},{"id":"tuxedo","label":"Tuxedo"},{"id":"patches","label":"Patchwork calico"},{"id":"biscuit","label":"Biscuit point"}],"footDepth":0.4528322786401069,"elevation":28};
+const $ = (id) => document.getElementById(id);
+const images = {};
+let coat = D.coats[0].id, clip = D.clips.find(c => c.name === "walk"), dir = 2, frame = 0, playing = true, ground = false, groundX = 0, groundY = 0, last = 0, acc = 0;
+const sheet = (id) => images[id] || (images[id] = Object.assign(new Image(), { src: "sheet-" + id + ".png" }));
+for (const c of D.coats) { const o = document.createElement("option"); o.value = c.id; o.textContent = c.label; $("coat").append(o); }
+for (const c of D.clips) { const o = document.createElement("option"); o.value = c.name; o.textContent = c.name + " (" + c.frames + " frames)"; if (c.name === "walk") o.selected = true; $("clip").append(o); }
+D.directions.forEach((name, i) => { const b = document.createElement("button"); b.textContent = name; b.dataset.i = i; b.onclick = () => { dir = i; sync(); }; $("dirs").append(b); });
+const view = $("view"), ctx = view.getContext("2d");
+function cell(c, d, f) { const idx = c.offset + (c.directions === 1 ? 0 : d) * c.frames + f; return { x: (idx % D.cols) * D.frameW, y: Math.floor(idx / D.cols) * D.frameH }; }
+function draw() {
+  const z = +$("zoom").value; view.width = D.frameW * z; view.height = D.frameH * z; ctx.imageSmoothingEnabled = false;
+  if (ground) {
+    ctx.fillStyle = "#4a5470"; ctx.fillRect(0, 0, view.width, view.height);
+    const size = 12 * z;
+    for (let y = -2; y < view.height / size + 2; y++) for (let x = -2; x < view.width / size + 2; x++) {
+      if ((x + y) % 2) continue;
+      ctx.fillStyle = "#566085"; ctx.fillRect(Math.round(x * size + groundX * z % size), Math.round(y * size + groundY * z % size), size, size);
+    }
+  }
+  const img = sheet(coat); if (!img.complete) { img.onload = draw; return; }
+  const s = cell(clip, dir, frame);
+  ctx.drawImage(img, s.x, s.y, D.frameW, D.frameH, 0, 0, view.width, view.height);
+  const strip = $("strip"); [...strip.children].forEach((el, i) => el.dataset.on = String(i === frame));
+  $("info").textContent = clip.name + " / " + D.directions[dir] + " / frame " + (frame + 1) + " of " + clip.frames + (clip.stridePx ? " / body step " + (clip.stridePx / clip.frames).toFixed(2) + " px per frame" : "");
+}
+function buildStrip() {
+  const strip = $("strip"); strip.replaceChildren();
+  const img = sheet(coat);
+  for (let f = 0; f < clip.frames; f++) {
+    const c = document.createElement("canvas"); c.width = D.frameW * 2; c.height = D.frameH * 2; c.title = "frame " + (f + 1);
+    const g = c.getContext("2d"); g.imageSmoothingEnabled = false; const s = cell(clip, dir, f);
+    const paint = () => g.drawImage(img, s.x, s.y, D.frameW, D.frameH, 0, 0, c.width, c.height);
+    img.complete ? paint() : img.addEventListener("load", paint, { once: true });
+    c.onclick = () => { frame = f; playing = false; sync(); };
+    strip.append(c);
+  }
+}
+function sync() {
+  [...$("dirs").querySelectorAll("button")].forEach((b, i) => b.setAttribute("aria-pressed", String(i === dir)));
+  $("play").textContent = playing ? "Pause" : "Play"; $("play").setAttribute("aria-pressed", String(playing));
+  $("ground").setAttribute("aria-pressed", String(ground));
+  $("fpsv").textContent = $("fps").value + " frames per second";
+  buildStrip(); draw();
+}
+function tick(t) {
+  const fps = +$("fps").value;
+  if (playing) { acc += (t - last) / 1000 * fps; while (acc >= 1) { acc -= 1; frame = (frame + 1) % clip.frames; stepGround(); } draw(); }
+  last = t; requestAnimationFrame(tick);
+}
+function stepGround() {
+  if (!ground || !clip.stridePx) return;
+  const step = clip.stridePx / clip.frames, h = dir * Math.PI / 4;
+  groundX -= step * Math.sin(h); groundY += step * Math.cos(h) * D.footDepth;
+}
+$("coat").onchange = (e) => { coat = e.target.value; sync(); };
+$("clip").onchange = (e) => { clip = D.clips.find(c => c.name === e.target.value); frame = 0; sync(); };
+$("zoom").onchange = draw; $("fps").oninput = sync;
+$("play").onclick = () => { playing = !playing; sync(); };
+$("prev").onclick = () => { playing = false; frame = (frame + clip.frames - 1) % clip.frames; sync(); };
+$("next").onclick = () => { playing = false; frame = (frame + 1) % clip.frames; sync(); };
+$("ground").onclick = () => { ground = !ground; groundX = groundY = 0; sync(); };
+sync(); requestAnimationFrame(tick);
+</script>
+</body>
+</html>

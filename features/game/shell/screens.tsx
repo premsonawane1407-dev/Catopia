@@ -51,6 +51,7 @@ export function BeginScreen({ onBegin }: { onBegin: () => void }) {
         <button type="button" data-autofocus className="cg-btn cg-btn--primary" onClick={onBegin}>
           <Play size={18} aria-hidden="true" /> Begin
         </button>
+        <p className="cg-controls-hint">Move with the arrow keys or WASD (Shift to run, Space to jump, E to interact, 1 to 6 or Q for emotes), a gamepad, or by dragging or tapping the screen.</p>
         <p className="cg-fine">A placeholder street and cat, not the real campus yet.</p>
       </Card>
     </div>

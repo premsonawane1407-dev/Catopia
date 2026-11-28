@@ -57,7 +57,10 @@ function nodeMatrix(node) {
 }
 const isIdentity = (m) => m.every((v, i) => Math.abs(v - (i % 5 === 0 ? 1 : 0)) < 1e-6);
 
-function extractPiece(file) {
+/** Which primitives to take: the stock pieces carry one set of colour-map faces, and a few (the fountain) a second mesh with its own "Water" material, which must not be read through the colour map. */
+const isWater = (json, prim) => json.materials?.[prim.material]?.name === "Water";
+
+function extractPiece(file, water = false) {
   const glb = readGlb(file);
   const { json } = glb;
   const positions = [];
@@ -70,6 +73,7 @@ function extractPiece(file) {
     const m = nodeMatrix(node);
     if (node.mesh !== undefined) {
       for (const prim of json.meshes[node.mesh].primitives) {
+        if (isWater(json, prim) !== water) continue;
         const p = readAccessor(glb, prim.attributes.POSITION);
         const n = readAccessor(glb, prim.attributes.NORMAL);
         const t = readAccessor(glb, prim.attributes.TEXCOORD_0);
@@ -123,7 +127,9 @@ let totalVertices = 0;
 let totalTriangles = 0;
 for (const file of files) {
   const name = file.replace(/\.glb$/, "");
-  const { positions, normals, uvs, indices } = extractPiece(path.join(SRC, file));
+  for (const water of [false, true]) {
+  const { positions, normals, uvs, indices } = extractPiece(path.join(SRC, file), water);
+  if (water && positions.length === 0) continue;
   const vertexCount = positions.length / 3;
   if (vertexCount > 65535) throw new Error(`${name}: too many vertices for 16-bit indices`);
   const min = [Infinity, Infinity, Infinity];
@@ -133,7 +139,7 @@ for (const file of files) {
     max[k] = Math.max(max[k], positions[i + k]);
   }
   const r = (v) => Math.round(v * 1000) / 1000;
-  manifest.pieces[name] = {
+  manifest.pieces[water ? `${name}-water` : name] = {
     vertexCount,
     indexCount: indices.length,
     positionOffset: push(positions),
@@ -145,6 +151,7 @@ for (const file of files) {
   };
   totalVertices += vertexCount;
   totalTriangles += indices.length / 3;
+  }
 }
 
 mkdirSync(OUT, { recursive: true });

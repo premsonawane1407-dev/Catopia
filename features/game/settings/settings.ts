@@ -1,6 +1,8 @@
 // Player preferences. Kept as plain data plus validation, so loading a stale or tampered value
 // from storage can never put the game into an impossible state.
 
+import type { TimeSetting } from "../render/day-clock";
+
 export type QualitySetting = "auto" | "full" | "light" | "minimal";
 export type MotionSetting = "system" | "full" | "reduced";
 
@@ -8,6 +10,8 @@ export interface GameSettings {
   muted: boolean;
   quality: QualitySetting;
   motion: MotionSetting;
+  /** The time of day: "auto" lets the day pass, anything else holds the street at that moment. */
+  time: TimeSetting;
   /** Show the frame-time and draw-call overlay. */
   showStats: boolean;
 }
@@ -16,6 +20,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   muted: false,
   quality: "auto",
   motion: "system",
+  time: "auto",
   showStats: false,
 };
 
@@ -23,6 +28,7 @@ export const SETTINGS_KEY = "catopia.game.settings.v1";
 
 const QUALITY: readonly QualitySetting[] = ["auto", "full", "light", "minimal"];
 const MOTION: readonly MotionSetting[] = ["system", "full", "reduced"];
+const TIME: readonly TimeSetting[] = ["auto", "dawn", "day", "golden", "dusk", "night"];
 
 /** Reads settings from stored JSON, falling back to the default for anything missing or invalid. */
 export function parseSettings(raw: string | null | undefined): GameSettings {
@@ -39,6 +45,7 @@ export function parseSettings(raw: string | null | undefined): GameSettings {
     muted: typeof d.muted === "boolean" ? d.muted : DEFAULT_SETTINGS.muted,
     quality: QUALITY.includes(d.quality as QualitySetting) ? (d.quality as QualitySetting) : DEFAULT_SETTINGS.quality,
     motion: MOTION.includes(d.motion as MotionSetting) ? (d.motion as MotionSetting) : DEFAULT_SETTINGS.motion,
+    time: TIME.includes(d.time as TimeSetting) ? (d.time as TimeSetting) : DEFAULT_SETTINGS.time,
     showStats: typeof d.showStats === "boolean" ? d.showStats : DEFAULT_SETTINGS.showStats,
   };
 }

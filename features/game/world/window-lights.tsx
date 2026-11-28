@@ -5,11 +5,11 @@
 // (three pane atlases, one halo mesh and one pool mesh). Each window breathes with its own phase, computed
 // on the GPU, and its halo and pool breathe with it.
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useLayoutEffect, useMemo } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo } from "react";
 import { AdditiveBlending, MeshBasicMaterial, type Texture } from "three";
 import { makeGroundSpillTexture, makePaneAtlas, makeWindowHaloTexture } from "../render/pixel-textures";
 import type { TimePreset } from "../render/time-presets";
-import type { WindowKey, WindowSpec } from "./stage-data";
+import type { WindowKey, WindowSpec } from "./map/build-house";
 import { CAT_CELL, PANE_CELLS, buildWindowGeometries } from "./window-geometry";
 
 const KINDS: readonly WindowKey[] = ["a", "b", "s"];
@@ -88,15 +88,21 @@ export function WindowLights({ windows, preset, motion }: WindowLightsProps) {
     [atlases, lightTextures, paneMaterials, haloMaterial, poolMaterial],
   );
 
-  useLayoutEffect(() => {
+  // The panes, halos and light pools follow the live look as the day goes by: how lit the windows are is set every frame.
+  const applyLook = useCallback(() => {
     paneUniforms.uBase.value = 1 + 0.45 * preset.windowGlow;
-    paneUniforms.uFlicker.value = motion ? FLICKER_AMOUNT : 0;
-    if (!motion) paneUniforms.uTime.value = 0;
     haloMaterial.color.set(preset.windowColor).multiplyScalar(HALO_GAIN * preset.windowGlow);
     poolMaterial.color.set(preset.windowColor).multiplyScalar(POOL_GAIN * preset.windowGlow);
-  }, [paneUniforms, haloMaterial, poolMaterial, preset.windowColor, preset.windowGlow, motion]);
+  }, [paneUniforms, haloMaterial, poolMaterial, preset]);
+
+  useLayoutEffect(() => {
+    applyLook();
+    paneUniforms.uFlicker.value = motion ? FLICKER_AMOUNT : 0;
+    if (!motion) paneUniforms.uTime.value = 0;
+  }, [paneUniforms, applyLook, motion]);
 
   useFrame(({ clock }) => {
+    applyLook();
     if (motion) paneUniforms.uTime.value = clock.elapsedTime;
   });
 

@@ -6,8 +6,8 @@
 // painted onto the surface. Then outlines go on, stray single pixels are cleaned up, and the whole thing is
 // written out as colours plus normals. No random numbers, so the same inputs always make the same pixels.
 import { CAT_FRAME_H, CAT_FRAME_W, CAT_ORIGIN_PX, VIEW_ELEVATION_DEG } from "./clips";
-import { buildPalette, materialAt, type CatCoat, type CoatPalette, type Material, type PartKind, type RGB, type SurfacePoint } from "./coat";
-import { LEG_NAMES, buildParts, type EllipsoidPrim, type LegName, type Pose, type Prim, type TrianglePrim } from "./model";
+import { buildPalette, materialAt, type CatCoat, type CoatPalette, type Material, type RGB, type SurfacePoint } from "./coat";
+import { LEG_NAMES, buildParts, type CatLook, type EllipsoidPrim, type LegName, type Pose, type Prim, type TrianglePrim } from "./model";
 import { IDENTITY, add, clamp, dot, mulMat, mulVec, normalize, rotY, scale, sub, transpose, type M3, type V3 } from "./vec";
 
 export { VIEW_ELEVATION_DEG };
@@ -20,6 +20,9 @@ const TOWARD: V3 = [0, Math.sin(ELEV), Math.cos(ELEV)];
 /** The light, in camera space (x right, y up, z toward the viewer): from the top left, in front. */
 const LIGHT_CAM: V3 = normalize([-0.6, 0.5, 0.62]);
 const LIGHT_WORLD: V3 = normalize(add(add(scale(RIGHT, LIGHT_CAM[0]), scale(UP, LIGHT_CAM[1])), scale(TOWARD, LIGHT_CAM[2])));
+/** The refined look is lit from more in front, so the side turned away from the light is not a dark slab. */
+const LIGHT_CAM_REFINED: V3 = normalize([-0.24, 0.55, 0.8]);
+const LIGHT_WORLD_REFINED: V3 = normalize(add(add(scale(RIGHT, LIGHT_CAM_REFINED[0]), scale(UP, LIGHT_CAM_REFINED[1])), scale(TOWARD, LIGHT_CAM_REFINED[2])));
 
 export interface RenderedFrame {
   width: number;
@@ -105,7 +108,10 @@ function rayTriangle(origin: V3, dir: V3, t: TrianglePrim): { t: number; u: numb
   return dist > 1e-6 ? { t: dist, u, v } : null;
 }
 
-const level = (shade: number): number => (shade > 0.86 ? 4 : shade > 0.58 ? 3 : shade > 0.18 ? 2 : shade > -0.22 ? 1 : 0);
+const level = (shade: number, look: CatLook): number => (shade > 0.86 ? 4 : shade > 0.58 ? 3 : shade > (look === "refined" ? 0.15 : 0.18) ? 2 : shade > (look === "refined" ? -0.42 : -0.22) ? 1 : 0);
+
+/** Half-width and half-height of the refined head in pixels, which the refined face is measured in. */
+const REFINED_HEAD = [9.2, 7.7] as const;
 
 const pack = (c: RGB): number => (Math.round(c[0]) << 16) | (Math.round(c[1]) << 8) | Math.round(c[2]);
 
@@ -126,13 +132,17 @@ export interface RenderInput {
   heading: number;
   coat: CatCoat;
   palette?: CoatPalette;
+  /** Which drawing of the cat. The refined look has a more natural face (round eyes with a glint, a small nose and mouth, whiskers) and softer shadows. */
+  look?: CatLook;
 }
 
-export function renderCat({ pose, heading, coat, palette = buildPalette(coat) }: RenderInput): RenderedFrame {
+export function renderCat({ pose, heading, coat, palette = buildPalette(coat), look = "original" }: RenderInput): RenderedFrame {
   const W = CAT_FRAME_W;
   const H = CAT_FRAME_H;
   const [ox, oy] = CAT_ORIGIN_PX;
-  const prims = buildParts(pose).map((p) => transformPrim(p, heading));
+  const prims = buildParts(pose, look).map((p) => transformPrim(p, heading));
+  const lightCam = look === "refined" ? LIGHT_CAM_REFINED : LIGHT_CAM;
+  const lightWorld = look === "refined" ? LIGHT_WORLD_REFINED : LIGHT_WORLD;
   const caches: Cache[] = prims.map((p) => (p.kind === "ell" ? { inv: transpose(p.R) } : { inv: IDENTITY }));
 
   // Which pixels each solid can touch: its bounding circle, projected.
@@ -196,7 +206,7 @@ export function renderCat({ pose, heading, coat, palette = buildPalette(coat) }:
         const dz = p[2] - q.c[2];
         const R = Math.max(q.r[0], q.r[1], q.r[2]);
         // Cheap bound first: the ray must pass within the solid's radius.
-        const along = dx * LIGHT_WORLD[0] + dy * LIGHT_WORLD[1] + dz * LIGHT_WORLD[2];
+        const along = dx * lightWorld[0] + dy * lightWorld[1] + dz * lightWorld[2];
         if (along > 0) continue;
         const dist2 = dx * dx + dy * dy + dz * dz - along * along;
         if (dist2 > R * R) continue;
@@ -204,15 +214,15 @@ export function renderCat({ pose, heading, coat, palette = buildPalette(coat) }:
         const lx = (m[0] * dx + m[1] * dy + m[2] * dz) / q.r[0];
         const ly = (m[3] * dx + m[4] * dy + m[5] * dz) / q.r[1];
         const lz = (m[6] * dx + m[7] * dy + m[8] * dz) / q.r[2];
-        const ex = (m[0] * LIGHT_WORLD[0] + m[1] * LIGHT_WORLD[1] + m[2] * LIGHT_WORLD[2]) / q.r[0];
-        const ey = (m[3] * LIGHT_WORLD[0] + m[4] * LIGHT_WORLD[1] + m[5] * LIGHT_WORLD[2]) / q.r[1];
-        const ez = (m[6] * LIGHT_WORLD[0] + m[7] * LIGHT_WORLD[1] + m[8] * LIGHT_WORLD[2]) / q.r[2];
+        const ex = (m[0] * lightWorld[0] + m[1] * lightWorld[1] + m[2] * lightWorld[2]) / q.r[0];
+        const ey = (m[3] * lightWorld[0] + m[4] * lightWorld[1] + m[5] * lightWorld[2]) / q.r[1];
+        const ez = (m[6] * lightWorld[0] + m[7] * lightWorld[1] + m[8] * lightWorld[2]) / q.r[2];
         const a = ex * ex + ey * ey + ez * ez;
         const b = lx * ex + ly * ey + lz * ez;
         const c = lx * lx + ly * ly + lz * lz - 1;
         const disc = b * b - a * c;
         if (disc >= 0 && (-b + Math.sqrt(disc)) / a > 0.02) return true;
-      } else if (rayTriangle(p, LIGHT_WORLD, q)) return true;
+      } else if (rayTriangle(p, lightWorld, q)) return true;
     }
     return false;
   };
@@ -235,9 +245,11 @@ export function renderCat({ pose, heading, coat, palette = buildPalette(coat) }:
     const u = px + 0.5 - ox;
     const v = oy - (py + 0.5);
     const world: V3 = [RIGHT[0] * u + UP[0] * v + TOWARD[0] * hit.depth, RIGHT[1] * u + UP[1] * v + TOWARD[1] * hit.depth, RIGHT[2] * u + UP[2] * v + TOWARD[2] * hit.depth];
-    let lvl = level(hit.nx * LIGHT_CAM[0] + hit.ny * LIGHT_CAM[1] + hit.nz * LIGHT_CAM[2]);
+    let lvl = level(hit.nx * lightCam[0] + hit.ny * lightCam[1] + hit.nz * lightCam[2], look);
     const nWorld: V3 = add(add(scale(RIGHT, hit.nx), scale(UP, hit.ny)), scale(TOWARD, hit.nz));
     if (lvl > 1 && shadowed(add(world, scale(nWorld, 0.5)), hit.prim)) lvl = 1;
+    // A leg on the far side of the body (or a back leg seen from the front) is one tone darker, so the near legs read clearly against it.
+    if (prim.kind === "ell" && prim.leg !== undefined && prim.c[2] < -1.5) lvl = Math.max(0, lvl - 1);
 
     let surface: SurfacePoint;
     if (prim.kind === "ell") {
@@ -249,7 +261,7 @@ export function renderCat({ pose, heading, coat, palette = buildPalette(coat) }:
     }
     const mat = materialAt(coat, surface);
     levelOf[idx] = lvl;
-    const decal = faceDecal(prim, hit, surface, pose, palette, lvl);
+    const decal = faceDecal(prim, hit, surface, pose, palette, lvl, look);
     if (decal) return { hit, color: pack(decal.color), mat: MATERIALS.indexOf(mat), keep: decal.keep };
     return { hit, color: pack(palette.ramps[mat][lvl]), mat: MATERIALS.indexOf(mat), keep: false };
   }
@@ -335,6 +347,40 @@ export function renderCat({ pose, heading, coat, palette = buildPalette(coat) }:
   }
 
   cleanOrphans(out, keep, W, H);
+
+  // Whiskers (refined look): thin light lines from either side of the muzzle, drawn last so they stay one pixel wide.
+  const whiskerPixels: { idx: number }[] = [];
+  if (look === "refined") {
+    const head = prims.find((p): p is EllipsoidPrim => p.kind === "ell" && p.part === "head");
+    if (head) {
+      const facing = dot(mulVec(head.R, [0, 0, 1]), TOWARD);
+      if (facing > 0.12) {
+        for (const side of [1, -1]) {
+          for (const [dy, dz] of [[0.22, -0.12], [-0.3, -0.3]] as const) {
+            const root: V3 = [side * 3.0, -2.3 + (dy > 0 ? 0.6 : -0.6), 7.4];
+            const dir = normalize([side, dy, dz]);
+            for (let t = 0; t <= 6.4; t += 0.4) {
+              const q = add(head.c, mulVec(head.R, add(root, scale(dir, t))));
+              const px = Math.floor(ox + dot(q, RIGHT));
+              const py = Math.floor(oy - dot(q, UP));
+              if (px < 0 || py < 0 || px >= W || py >= H) continue;
+              const idx = py * W + px;
+              const here = dot(q, TOWARD);
+              // Hidden where something nearer than the whisker covers the pixel (the far side's whiskers in a profile).
+              if (depth[idx] > here + 0.8) continue;
+              // Only where the picture is empty, so the whiskers show as lines reaching out past the cheeks, not across the face.
+              if (out[idx] >= 0) continue;
+              whiskerPixels.push({ idx });
+            }
+          }
+        }
+      }
+    }
+  }
+  for (const { idx } of whiskerPixels) {
+    out[idx] = pack(palette.whisker);
+    outNormal[idx] = [0, 0, 1];
+  }
 
   for (let idx = 0; idx < W * H; idx++) {
     const o = idx * 4;
@@ -422,11 +468,39 @@ export function cleanOrphans(colors: Int32Array, keep: Uint8Array, w: number, h:
 // ---- the face ----
 
 /** Paints the eyes, nose, mouth and inner ears. Returns null where the plain fur colour should show. */
-function faceDecal(prim: Prim, hit: Hit, s: SurfacePoint, pose: Pose, pal: CoatPalette, lvl: number): { color: RGB; keep: boolean } | null {
+function faceDecal(prim: Prim, hit: Hit, s: SurfacePoint, pose: Pose, pal: CoatPalette, lvl: number, look: CatLook): { color: RGB; keep: boolean } | null {
   if (prim.kind === "tri") {
     if (!prim.inner) return null;
-    const inside = Math.min(hit.b0, hit.b1, hit.b2) > 0.2;
+    const inside = Math.min(hit.b0, hit.b1, hit.b2) > (look === "refined" ? 0.1 : 0.2);
     return inside ? { color: lvl <= 1 ? pal.earInnerDark : pal.earInner, keep: false } : null;
+  }
+  if (look === "refined") {
+    if (prim.part === "head" && s.sz > 0.3) {
+      // Round eyes set a little lower and wider apart, measured in pixels so they stay round: a dark upper lid,
+      // a bright iris, an upright pupil and a glint at the top left, which is what makes a cat look alive.
+      for (const side of [1, -1]) {
+        const ex = (s.sx - side * 0.5) * REFINED_HEAD[0];
+        const ey = (s.sy + 0.02) * REFINED_HEAD[1];
+        if ((ex / 1.0) ** 2 + (ey / 1.12) ** 2 > (pose.expression?.eyes === "wide" ? 10 : 8.2)) continue;
+        const style = pose.expression?.eyes;
+        // Smiling eyes are an arch (a happy, squeezed-shut look); closed eyes a soft downward curve, as a sleeper's look.
+        if (style === "happy") return Math.abs(ey - (0.55 - 0.75 * (ex / 2.3) ** 2)) < 0.62 ? { color: pal.outline.base, keep: true } : null;
+        if (pose.eyes < 0.5 && style !== "half" && style !== "wide") return Math.abs(ey - (-0.55 + 0.55 * (ex / 2.3) ** 2)) < 0.62 ? { color: pal.outline.base, keep: true } : null;
+        // Half-closed: the upper half is lid.
+        if (style === "half" && ey > -0.2) return Math.abs(ey - 0.1) < 0.6 ? { color: pal.outline.base, keep: true } : { color: pal.ramps.base[2], keep: false };
+        if (ey > (style === "wide" ? 2.5 : 1.85)) return { color: pal.eye.dark, keep: false };
+        if (ex * side < -0.15 && ex * side > -1.1 && ey > 0.35 && ey < 1.25) return { color: pal.eye.glint, keep: true };
+        if ((ex / 0.85) ** 2 + (ey / 1.2) ** 2 <= 1) return { color: pal.eye.pupil, keep: false };
+        return { color: pal.eye.light, keep: false };
+      }
+    }
+    if (prim.part === "muzzle") {
+      const open = pose.expression?.mouth ?? 0;
+      if (open > 0.25 && s.sz > 0.35 && Math.abs(s.sx) < 0.18 + 0.3 * open && s.sy < 0.05 && s.sy > -0.2 - 0.5 * open) return { color: open > 0.6 && s.sy < -0.3 ? pal.earInner : pal.mouth, keep: true };
+      if (s.sz > 0.5 && s.sy > 0.3 && Math.abs(s.sx) < 0.4) return { color: s.sy > 0.5 && s.sx < 0 ? pal.noseLight : pal.nose, keep: true };
+      if (s.sz > 0.5 && ((Math.abs(s.sx) < 0.1 && s.sy < 0.3 && s.sy > -0.12) || (Math.abs(s.sx) > 0.16 && Math.abs(s.sx) < 0.62 && s.sy < -0.2 && s.sy > -0.46))) return { color: pal.mouth, keep: false };
+    }
+    return null;
   }
   if (prim.part === "head" && s.sz > 0.3) {
     for (const side of [1, -1]) {

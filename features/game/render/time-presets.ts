@@ -1,7 +1,7 @@
-// Lighting and grading for each time of day. Dusk is the approved default look; golden hour and night
-// are there for the day/night clock that arrives in Phase 3.
+// Lighting and grading for the key moments of the day. Dusk ("blue hour") is the look approved in Phase 0; the day/night
+// clock (day-clock.ts) blends between these moments as the hours pass.
 
-export type TimeOfDay = "golden" | "dusk" | "night";
+export type TimeOfDay = "dawn" | "day" | "golden" | "dusk" | "night";
 
 export interface TimePreset {
   label: string;
@@ -25,9 +25,57 @@ export interface TimePreset {
   vignette: number;
   saturation: number;
   contrast: number;
+  /** How visible the drifting fireflies are, 0 (none) to 1. */
+  fireflies: number;
 }
 
 export const TIME_PRESETS: Record<TimeOfDay, TimePreset> = {
+  dawn: {
+    label: "Dawn",
+    background: "#e6b9a3",
+    fogColor: "#e6b9a3",
+    fogDensity: 0.028,
+    hemiSky: "#bfc9ee",
+    hemiGround: "#9a7b72",
+    hemiIntensity: 0.85,
+    sunColor: "#ffb88c",
+    sunIntensity: 2.4,
+    sunPosition: [7, 4, 5],
+    lanternColor: "#ffb45e",
+    lanternIntensity: 3.5,
+    windowColor: "#ffd9a0",
+    windowGlow: 0.9,
+    catGlow: 0.3,
+    bloomIntensity: 0.65,
+    bloomThreshold: 0.8,
+    vignette: 0.5,
+    saturation: 0.08,
+    contrast: 0.06,
+    fireflies: 0.3,
+  },
+  day: {
+    label: "Day",
+    background: "#bcd7e6",
+    fogColor: "#bcd7e6",
+    fogDensity: 0.016,
+    hemiSky: "#dfeaff",
+    hemiGround: "#b8a07c",
+    hemiIntensity: 1,
+    sunColor: "#fff0d4",
+    sunIntensity: 3.8,
+    sunPosition: [-3, 9, 4],
+    lanternColor: "#ffb45e",
+    lanternIntensity: 0,
+    windowColor: "#ffe2a8",
+    windowGlow: 0.08,
+    catGlow: 0.1,
+    bloomIntensity: 0.35,
+    bloomThreshold: 0.95,
+    vignette: 0.35,
+    saturation: 0.05,
+    contrast: 0.04,
+    fireflies: 0,
+  },
   golden: {
     label: "Golden hour",
     background: "#d9b98c",
@@ -49,6 +97,7 @@ export const TIME_PRESETS: Record<TimeOfDay, TimePreset> = {
     vignette: 0.45,
     saturation: 0.06,
     contrast: 0.05,
+    fireflies: 0.2,
   },
   dusk: {
     label: "Blue hour",
@@ -71,6 +120,7 @@ export const TIME_PRESETS: Record<TimeOfDay, TimePreset> = {
     vignette: 0.6,
     saturation: 0.12,
     contrast: 0.08,
+    fireflies: 1,
   },
   night: {
     label: "Night",
@@ -93,11 +143,14 @@ export const TIME_PRESETS: Record<TimeOfDay, TimePreset> = {
     vignette: 0.7,
     saturation: 0.15,
     contrast: 0.1,
+    fireflies: 1,
   },
 };
 
 export const DEFAULT_TIME: TimeOfDay = "dusk";
 
+export const TIMES_OF_DAY: readonly TimeOfDay[] = ["dawn", "day", "golden", "dusk", "night"];
+
 export function isTimeOfDay(value: string | null | undefined): value is TimeOfDay {
-  return value === "golden" || value === "dusk" || value === "night";
+  return TIMES_OF_DAY.includes(value as TimeOfDay);
 }

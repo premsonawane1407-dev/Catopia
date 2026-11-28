@@ -3,27 +3,44 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { DoubleSide, type Group } from "three";
-import { makeCobblePixel, makePosterTexture, makeSignTexture } from "../render/pixel-textures";
+import { createGroundMaterial, createGroundTextures, createTerrainTexture } from "../render/ground-material";
+import { makePosterTexture, makeSignTexture } from "../render/pixel-textures";
 import { createSurfaceMaterial, type SurfaceTextures } from "../render/surface-material";
+import { createWaterMaterial } from "../render/water-material";
 import type { GameAssets } from "./game-assets";
 import { SIGN_BOARD_SIZE, buildBuntingGeometry, buildPropGeometries, buildSignChains } from "./props-geometry";
+import type { PropSpecs } from "./map/load-map";
 import type { Vec3 } from "./stage-constants";
-import { BUNTING, POSTERS, type BuntingString } from "./stage-data";
+import type { BuntingString, MapData, PosterSpec } from "./map/map-schema";
+import type { TerrainGrid } from "./map/terrain";
+import { buildTerrainGeometry } from "./map/terrain-mesh";
 import { batchPlacements, type Placement } from "./static-batch";
 
-/** The cobbles: a pixel-art albedo tiled across a 40 x 40 unit plane (about 42 texels per world unit). */
-export function Ground() {
-  const map = useMemo(() => {
-    const t = makeCobblePixel();
-    t.repeat.set(13.1, 13.1);
-    return t;
-  }, []);
-  useEffect(() => () => map.dispose(), [map]);
+/**
+ * The ground: drawn from the map's terrain grid, each square its own surface, with the edges between them drawn in the
+ * shader (render/ground-material.ts). Raised ground adds flat tops at their heights (the same shader paints them) and
+ * stone walls wherever a square stands higher than its neighbour: terrace walls, quays, the risers of every stair.
+ */
+export function Ground({ terrain, grid, surfaces }: { terrain: MapData["terrain"]; grid: TerrainGrid; surfaces: SurfaceTextures }) {
+  const textures = useMemo(() => createGroundTextures(), []);
+  const index = useMemo(() => createTerrainTexture(grid), [grid]);
+  // The ground tile repeats `repeat` times across the terrain's width.
+  const material = useMemo(() => createGroundMaterial({ textures, terrain: index, grid, tile: terrain.repeat / terrain.size[0] }), [textures, index, grid, terrain.repeat, terrain.size]);
+  const geometry = useMemo(() => buildTerrainGeometry(grid), [grid]);
+  const wallMaterial = useMemo(() => createSurfaceMaterial({ profile: "stone", textures: surfaces, tint: [0.78, 0.72, 0.64] }), [surfaces]);
+  useEffect(() => () => textures.dispose(), [textures]);
+  useEffect(() => () => index.dispose(), [index]);
+  useEffect(() => () => material.dispose(), [material]);
+  useEffect(() => () => [geometry.tops, geometry.risers].forEach((g) => g.dispose()), [geometry]);
+  useEffect(() => () => wallMaterial.dispose(), [wallMaterial]);
   return (
-    <mesh rotation-x={-Math.PI / 2} receiveShadow>
-      <planeGeometry args={[40, 40]} />
-      <meshStandardMaterial map={map} color="#ffffff" roughness={0.85} metalness={0} />
-    </mesh>
+    <group>
+      <mesh rotation-x={-Math.PI / 2} position={[terrain.center?.[0] ?? 0, 0, terrain.center?.[1] ?? 0]} receiveShadow material={material}>
+        <planeGeometry args={terrain.size} />
+      </mesh>
+      {geometry.topCount > 0 && <mesh geometry={geometry.tops} material={material} castShadow receiveShadow />}
+      {geometry.riserCount > 0 && <mesh geometry={geometry.risers} material={wallMaterial} castShadow receiveShadow />}
+    </group>
   );
 }
 
@@ -31,7 +48,7 @@ export function Ground() {
 export function StaticStreet({ assets, textures, placements }: { assets: GameAssets; textures: SurfaceTextures; placements: readonly Placement[] }) {
   const batches = useMemo(() => batchPlacements(placements, assets.pieces), [placements, assets.pieces]);
   const materials = useMemo(
-    () => batches.map((b) => createSurfaceMaterial({ profile: b.surface.profile, textures, tint: b.surface.tint, colormap: assets.colormap })),
+    () => batches.map((b) => (b.surface.profile === "water" ? createWaterMaterial() : createSurfaceMaterial({ profile: b.surface.profile, textures, tint: b.surface.tint, colormap: assets.colormap }))),
     [batches, textures, assets.colormap],
   );
   useEffect(() => () => batches.forEach((b) => b.geometry.dispose()), [batches]);
@@ -46,8 +63,8 @@ export function StaticStreet({ assets, textures, placements }: { assets: GameAss
 }
 
 /** Crates, barrels, produce and flower pots built in code: two draw calls for the lot. */
-export function PropMeshes({ textures }: { textures: SurfaceTextures }) {
-  const geometries = useMemo(() => buildPropGeometries(), []);
+export function PropMeshes({ textures, specs }: { textures: SurfaceTextures; specs: PropSpecs }) {
+  const geometries = useMemo(() => buildPropGeometries(specs), [specs]);
   const woodMaterial = useMemo(() => createSurfaceMaterial({ profile: "wood", textures, vertexColors: true }), [textures]);
   const plainMaterial = useMemo(() => createSurfaceMaterial({ profile: "none", textures, vertexColors: true }), [textures]);
   useEffect(() => () => [geometries.wood, geometries.plain].forEach((g) => g.dispose()), [geometries]);
@@ -61,7 +78,7 @@ export function PropMeshes({ textures }: { textures: SurfaceTextures }) {
 }
 
 /** Strings of flags across the market. They breathe in a light breeze unless motion is reduced. */
-export function Bunting({ strings = BUNTING, motion }: { strings?: readonly BuntingString[]; motion: boolean }) {
+export function Bunting({ strings, motion }: { strings: readonly BuntingString[]; motion: boolean }) {
   const group = useRef<Group>(null);
   const geometry = useMemo(() => buildBuntingGeometry(strings), [strings]);
   useEffect(() => () => geometry.dispose(), [geometry]);
@@ -122,10 +139,10 @@ function Poster({ position, seed, rotationZ }: { position: Vec3; seed: number; r
   );
 }
 
-export function Posters() {
+export function Posters({ posters }: { posters: readonly PosterSpec[] }) {
   return (
     <group>
-      {POSTERS.map((p) => (
+      {posters.map((p) => (
         <Poster key={p.seed} position={p.position} seed={p.seed} rotationZ={p.rotationZ} />
       ))}
     </group>

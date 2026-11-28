@@ -1,8 +1,9 @@
 // Draws every frame of every clip in every direction and packs them into one colour sheet and one normal
 // sheet. The game builds this once when it loads (a coat is only settings, so there are no image files to
 // fetch), and the review scripts build the same sheets to look at and to check.
-import { ATLAS_COLS, ATLAS_H, ATLAS_W, CAT_FRAME_H, CAT_FRAME_W, CLIPS, CLIP_NAMES, DIRECTION_COUNT, TOTAL_FRAMES, atlasCell, directionHeading, frameIndex, type ClipName } from "./clips";
+import { ATLAS_COLS, ATLAS_H, ATLAS_W, CAT_FRAME_H, CAT_FRAME_W, CLIPS, CLIP_NAMES, TOTAL_FRAMES, atlasCell, clipDirections, directionHeading, frameIndex, type ClipName } from "./clips";
 import { buildPalette, type CatCoat } from "./coat";
+import type { CatLook } from "./model";
 import { poseFor } from "./poses";
 import { renderCat, type RenderedFrame } from "./render";
 
@@ -30,7 +31,7 @@ export function copyFrameInto(atlas: { color: Uint8ClampedArray; normal: Uint8Cl
 /** Every (clip, direction, frame) in sheet order. */
 export function frameList(): { clip: ClipName; direction: number; frame: number; index: number }[] {
   const list: { clip: ClipName; direction: number; frame: number; index: number }[] = [];
-  for (const clip of CLIP_NAMES) for (let direction = 0; direction < DIRECTION_COUNT; direction++) for (let frame = 0; frame < CLIPS[clip].frames; frame++) list.push({ clip, direction, frame, index: frameIndex(clip, direction, frame) });
+  for (const clip of CLIP_NAMES) for (let direction = 0; direction < clipDirections(clip); direction++) for (let frame = 0; frame < CLIPS[clip].frames; frame++) list.push({ clip, direction, frame, index: frameIndex(clip, direction, frame) });
   return list;
 }
 
@@ -44,13 +45,13 @@ export function emptyAtlas(): CatAtlas {
  * Builds the whole sheet. `onProgress` is called after every `chunk` frames and may return a promise (to let the
  * page breathe between pieces), so a long build never freezes the loading screen.
  */
-export async function buildAtlas(coat: CatCoat, onProgress?: (done: number, total: number) => void | Promise<void>, chunk = 12): Promise<CatAtlas> {
+export async function buildAtlas(coat: CatCoat, onProgress?: (done: number, total: number) => void | Promise<void>, chunk = 12, look: CatLook = "original"): Promise<CatAtlas> {
   const palette = buildPalette(coat);
   const atlas = emptyAtlas();
   const list = frameList();
   let done = 0;
   for (const item of list) {
-    const frame = renderCat({ pose: poseFor(item.clip, item.frame), heading: directionHeading(item.direction), coat, palette });
+    const frame = renderCat({ pose: poseFor(item.clip, item.frame, look), heading: directionHeading(item.direction), coat, palette, look });
     atlas.frames[item.index] = frame;
     copyFrameInto(atlas, frame, item.index);
     done++;

@@ -1,7 +1,7 @@
 // How bright each kind of light halo is for a given time of day. The halos are additive sprites, so
 // the numbers are multipliers on the lamp colour; the foreground ones are capped so the big near lanterns
 // never wash out the corners at night.
-import type { GlowSpec } from "./stage-data";
+import type { GlowSpec } from "./map/load-map";
 
 export function glowIntensity(kind: GlowSpec["kind"], lanternIntensity: number): number {
   const lamp = 0.35 + lanternIntensity * 0.09;

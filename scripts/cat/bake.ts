@@ -4,9 +4,12 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { buildAtlas, type CatAtlas } from "../../features/game/cat/atlas";
-import { ATLAS_H, ATLAS_W, CAT_FRAME_H, CAT_FRAME_W, CLIPS, CLIP_NAMES, DIRECTIONS, frameIndex } from "../../features/game/cat/clips";
+import { ATLAS_COLS, ATLAS_H, ATLAS_W, CAT_FRAME_H, CAT_FRAME_W, CLIPS, CLIP_NAMES, DIRECTIONS, VIEW_ELEVATION_DEG, clipDirections, frameIndex } from "../../features/game/cat/clips";
+import { footDepthScale } from "../../features/game/player/stride";
+import { reviewPage } from "./review-page";
 import { buildPalette, COAT_PRESETS, DEFAULT_COAT, rgbToHex, type CatCoat } from "../../features/game/cat/coat";
 import { checkGait } from "../../features/game/cat/gait-check";
+import { DEFAULT_LOOK } from "../../features/game/cat/model";
 import { checkClip, checkFrame, rampHueTurn, scoreFrame, type PaletteReport } from "../../features/game/cat/quality";
 // @ts-expect-error plain JS helper
 import { blit, canvas, encodePng } from "../lib/png.mjs";
@@ -28,7 +31,7 @@ function paletteReport(coat: CatCoat): { report: PaletteReport; all: Set<string>
     turns[name] = rampHueTurn(hexes);
   }
   Object.values(p.outline).forEach((c) => all.add(rgbToHex(c)));
-  for (const c of [p.eye.rim, p.eye.light, p.eye.dark, p.eye.pupil, p.eye.glint, p.nose, p.noseLight, p.mouth, p.earInner, p.earInnerDark]) all.add(rgbToHex(c));
+  for (const c of [p.eye.rim, p.eye.light, p.eye.dark, p.eye.pupil, p.eye.glint, p.nose, p.noseLight, p.mouth, p.earInner, p.earInnerDark, p.whisker]) all.add(rgbToHex(c));
   return { report: { colors: all.size, rampHueTurn: turns, warmHighlightCoolShadow: true }, all };
 }
 
@@ -37,7 +40,7 @@ const t0 = performance.now();
 const coatRows: { atlas: CatAtlas; row: number[] }[] = [];
 
 for (const coat of COAT_PRESETS) {
-  const atlas = await buildAtlas(coat);
+  const atlas = await buildAtlas(coat, undefined, 12, DEFAULT_LOOK);
   const { report: pal, all } = paletteReport(coat);
   const perClip: Record<string, unknown> = {};
   let worst = 100;
@@ -52,7 +55,7 @@ for (const coat of COAT_PRESETS) {
     let worstAt = "";
     let maxComponents = 0;
     const massByDir: number[] = [];
-    for (let d = 0; d < DIRECTIONS.length; d++) {
+    for (let d = 0; d < clipDirections(clip); d++) {
       const frames: Canvas["data"][] = [];
       const images = [];
       for (let f = 0; f < CLIPS[clip].frames; f++) {
@@ -91,14 +94,14 @@ for (const coat of COAT_PRESETS) {
   };
   console.log(coat.id, "mean", (sum / count).toFixed(1), "worst", worst.toFixed(1), "orphans max", (orphanMax * 100).toFixed(1) + "%", "palette", pal.colors, "off-palette px", offPalette);
 
+  write(`sheet-${coat.id}.png`, { width: ATLAS_W, height: ATLAS_H, data: atlas.color });
   if (coat.id === DEFAULT_COAT.id) {
-    write(`sheet-${coat.id}.png`, { width: ATLAS_W, height: ATLAS_H, data: atlas.color });
     write(`sheet-${coat.id}-normal.png`, { width: ATLAS_W, height: ATLAS_H, data: atlas.normal });
     for (const clip of CLIP_NAMES) {
       const zoom = CLIPS[clip].frames > 5 ? 3 : 4;
       const n = CLIPS[clip].frames;
-      const sheet: Canvas = canvas(n * CAT_FRAME_W * zoom, 8 * CAT_FRAME_H * zoom, BG);
-      for (let d = 0; d < 8; d++) for (let f = 0; f < n; f++) blit(sheet, cellOf(atlas, frameIndex(clip, d, f)), 0, 0, CAT_FRAME_W, CAT_FRAME_H, f * CAT_FRAME_W * zoom, d * CAT_FRAME_H * zoom, zoom);
+      const sheet: Canvas = canvas(n * CAT_FRAME_W * zoom, clipDirections(clip) * CAT_FRAME_H * zoom, BG);
+      for (let d = 0; d < clipDirections(clip); d++) for (let f = 0; f < n; f++) blit(sheet, cellOf(atlas, frameIndex(clip, d, f)), 0, 0, CAT_FRAME_W, CAT_FRAME_H, f * CAT_FRAME_W * zoom, d * CAT_FRAME_H * zoom, zoom);
       write(`frames-${clip}.png`, sheet);
     }
   }
@@ -122,4 +125,9 @@ report.notes = [
   "Gait checks are geometric facts about the animation data (planted paws move back exactly one body step per frame, every leg can reach its paw), not measurements of drawn pixels.",
 ];
 writeFileSync(path.join(outDir, "quality-report.json"), JSON.stringify(report, null, 2));
+const clipTable = CLIP_NAMES.map((name) => ({ name, frames: CLIPS[name].frames, fps: CLIPS[name].fps, stridePx: CLIPS[name].stridePx ?? 0, offset: frameIndex(name, 0, 0), directions: clipDirections(name) }));
+writeFileSync(
+  path.join(outDir, "review.html"),
+  reviewPage({ frameW: CAT_FRAME_W, frameH: CAT_FRAME_H, cols: ATLAS_COLS, directions: [...DIRECTIONS], clips: clipTable, coats: COAT_PRESETS.map((c) => ({ id: c.id, label: c.label })), footDepth: footDepthScale(), elevation: VIEW_ELEVATION_DEG }),
+);
 console.log("wrote", outDir);

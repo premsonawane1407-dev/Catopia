@@ -7,7 +7,10 @@ export type CoatPattern = "solid" | "tabby" | "tuxedo" | "calico" | "pointed";
 
 export interface CatCoat {
   id: string;
+  /** What kind of cat it is, e.g. "Marmalade tabby". */
   label: string;
+  /** The cat's name (owner decision, 2026-11-28). */
+  name: string;
   pattern: CoatPattern;
   /** Main fur colour (the mid tone), as #rrggbb. */
   base: string;
@@ -28,15 +31,15 @@ export type RGB = readonly [number, number, number];
 export type Ramp = readonly [RGB, RGB, RGB, RGB, RGB];
 
 export const COAT_PRESETS: readonly CatCoat[] = [
-  { id: "marmalade", label: "Marmalade tabby", pattern: "tabby", base: "#e0833a", mark: "#b0522c", white: "#f6dcae", eyes: "#8fd35e", seed: 3 },
-  { id: "storm", label: "Storm-grey tabby", pattern: "tabby", base: "#8d95a8", mark: "#4f5870", white: "#e8e4ee", eyes: "#e8b840", seed: 5 },
-  { id: "midnight", label: "Midnight", pattern: "solid", base: "#3a3548", white: "#4a4458", eyes: "#e2c548", seed: 7 },
-  { id: "tuxedo", label: "Tuxedo", pattern: "tuxedo", base: "#35303f", white: "#f4efe6", eyes: "#7fcf62", seed: 9 },
-  { id: "patches", label: "Patchwork calico", pattern: "calico", base: "#f1ece2", mark: "#38323f", patch: "#e08a3c", white: "#f1ece2", eyes: "#d8b84a", seed: 12 },
-  { id: "biscuit", label: "Biscuit point", pattern: "pointed", base: "#efdcb9", mark: "#6e4c3e", white: "#f8ecd2", eyes: "#72b8ec", seed: 14 },
+  { id: "marmalade", name: "Pumpkin", label: "Marmalade tabby", pattern: "tabby", base: "#e0833a", mark: "#b0522c", white: "#f6dcae", eyes: "#8fd35e", seed: 3 },
+  { id: "storm", name: "Ash", label: "Storm-grey tabby", pattern: "tabby", base: "#8d95a8", mark: "#4f5870", white: "#e8e4ee", eyes: "#e8b840", seed: 5 },
+  { id: "midnight", name: "Salem", label: "Midnight", pattern: "solid", base: "#3a3548", white: "#4a4458", eyes: "#e2c548", seed: 7 },
+  { id: "tuxedo", name: "Oreo", label: "Tuxedo", pattern: "tuxedo", base: "#35303f", white: "#f4efe6", eyes: "#7fcf62", seed: 9 },
+  { id: "patches", name: "Patches", label: "Patchwork calico", pattern: "calico", base: "#f1ece2", mark: "#38323f", patch: "#e08a3c", white: "#f1ece2", eyes: "#d8b84a", seed: 12 },
+  { id: "biscuit", name: "Toffee", label: "Biscuit point", pattern: "pointed", base: "#efdcb9", mark: "#6e4c3e", white: "#f8ecd2", eyes: "#72b8ec", seed: 14 },
 ];
 
-/** The coat the game starts with. A placeholder: the owner chooses the real default (Phase 2 decision). */
+/** The coat the game starts with: the marmalade tabby, Pumpkin (owner decision, 2026-11-28). */
 export const DEFAULT_COAT: CatCoat = COAT_PRESETS[0];
 
 export function coatById(id: string | null | undefined): CatCoat {

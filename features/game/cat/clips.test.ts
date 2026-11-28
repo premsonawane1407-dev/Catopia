@@ -45,3 +45,18 @@ describe("directions", () => {
     expect(directionHeading(2)).toBeCloseTo(Math.PI / 2);
   });
 });
+
+describe("clips with fewer than eight directions", () => {
+  it("draws the emotes facing the camera only, and every direction asked for lands on that one", async () => {
+    const { EMOTE_CLIPS, clipDirections, EMOTES } = await import("./clips");
+    for (const clip of EMOTE_CLIPS) {
+      expect(clipDirections(clip)).toBe(1);
+      for (let d = 0; d < 8; d++) expect(frameIndex(clip, d, 2), clip).toBe(frameIndex(clip, 0, 2));
+    }
+    expect(EMOTES).toHaveLength(6);
+    expect(new Set(EMOTES.map((e) => e.clip)).size).toBe(6);
+  });
+  it("numbers every frame exactly once even so (jump has all eight directions, the emotes one)", () => {
+    expect(TOTAL_FRAMES).toBe(288 + 10 * 8 + 6 * 4);
+  });
+});

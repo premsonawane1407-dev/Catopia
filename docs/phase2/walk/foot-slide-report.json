@@ -1,0 +1,133 @@
+{
+  "unit": "sprite pixels on the screen; stray = how far a planted paw wanders from the middle of its own stance",
+  "bodyStepPerFramePx": 3.25,
+  "halfStepPx": 1.63,
+  "walk": {
+    "0.4 x walking speed": {
+      "S": {
+        "maxStrayPx": 0.78,
+        "rmsStrayPx": 0.42,
+        "stances": 21
+      },
+      "SE": {
+        "maxStrayPx": 1.34,
+        "rmsStrayPx": 0.79,
+        "stances": 17
+      },
+      "E": {
+        "maxStrayPx": 1.68,
+        "rmsStrayPx": 0.93,
+        "stances": 17
+      },
+      "NE": {
+        "maxStrayPx": 1.34,
+        "rmsStrayPx": 0.79,
+        "stances": 17
+      },
+      "N": {
+        "maxStrayPx": 0.78,
+        "rmsStrayPx": 0.42,
+        "stances": 21
+      },
+      "NW": {
+        "maxStrayPx": 1.34,
+        "rmsStrayPx": 0.79,
+        "stances": 17
+      },
+      "W": {
+        "maxStrayPx": 1.68,
+        "rmsStrayPx": 0.93,
+        "stances": 17
+      },
+      "SW": {
+        "maxStrayPx": 1.34,
+        "rmsStrayPx": 0.79,
+        "stances": 17
+      }
+    },
+    "1 x walking speed": {
+      "S": {
+        "maxStrayPx": 0.74,
+        "rmsStrayPx": 0.42,
+        "stances": 48
+      },
+      "SE": {
+        "maxStrayPx": 1.31,
+        "rmsStrayPx": 0.79,
+        "stances": 41
+      },
+      "E": {
+        "maxStrayPx": 1.7,
+        "rmsStrayPx": 0.93,
+        "stances": 39
+      },
+      "NE": {
+        "maxStrayPx": 1.31,
+        "rmsStrayPx": 0.79,
+        "stances": 41
+      },
+      "N": {
+        "maxStrayPx": 0.74,
+        "rmsStrayPx": 0.42,
+        "stances": 48
+      },
+      "NW": {
+        "maxStrayPx": 1.31,
+        "rmsStrayPx": 0.79,
+        "stances": 41
+      },
+      "W": {
+        "maxStrayPx": 1.7,
+        "rmsStrayPx": 0.93,
+        "stances": 39
+      },
+      "SW": {
+        "maxStrayPx": 1.31,
+        "rmsStrayPx": 0.79,
+        "stances": 41
+      }
+    },
+    "1.6 x walking speed": {
+      "S": {
+        "maxStrayPx": 0.71,
+        "rmsStrayPx": 0.42,
+        "stances": 75
+      },
+      "SE": {
+        "maxStrayPx": 1.23,
+        "rmsStrayPx": 0.78,
+        "stances": 64
+      },
+      "E": {
+        "maxStrayPx": 1.62,
+        "rmsStrayPx": 0.93,
+        "stances": 61
+      },
+      "NE": {
+        "maxStrayPx": 1.23,
+        "rmsStrayPx": 0.78,
+        "stances": 64
+      },
+      "N": {
+        "maxStrayPx": 0.71,
+        "rmsStrayPx": 0.42,
+        "stances": 75
+      },
+      "NW": {
+        "maxStrayPx": 1.23,
+        "rmsStrayPx": 0.78,
+        "stances": 64
+      },
+      "W": {
+        "maxStrayPx": 1.62,
+        "rmsStrayPx": 0.93,
+        "stances": 61
+      },
+      "SW": {
+        "maxStrayPx": 1.23,
+        "rmsStrayPx": 0.78,
+        "stances": 64
+      }
+    }
+  }
+}

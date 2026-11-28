@@ -1,0 +1,1183 @@
+{
+  "format": 1,
+  "id": "market-street",
+  "name": "Village Square (prototype)",
+  "sample": true,
+  "camera": {
+    "fov": 28,
+    "pitch": 34,
+    "distance": 14,
+    "catScreen": 0.115,
+    "target": [
+      0,
+      0.9,
+      -0.9
+    ],
+    "follow": {
+      "minX": -8,
+      "maxX": 6.2,
+      "minZ": -4.2,
+      "maxZ": 7.2
+    }
+  },
+  "terrain": {
+    "size": [
+      40,
+      40
+    ],
+    "surface": "cobbles",
+    "repeat": 13.1,
+    "cell": 0.25,
+    "paint": [
+      {
+        "height": 0.8,
+        "rect": {
+          "minX": -12,
+          "maxX": 8.6,
+          "minZ": -12,
+          "maxZ": 5.5
+        }
+      },
+      {
+        "surface": "grass",
+        "rect": {
+          "minX": -20,
+          "maxX": 8.6,
+          "minZ": 5.5,
+          "maxZ": 20
+        }
+      },
+      {
+        "surface": "grass",
+        "rect": {
+          "minX": -20,
+          "maxX": -12,
+          "minZ": -12,
+          "maxZ": 5.5
+        }
+      },
+      {
+        "surface": "road",
+        "rect": {
+          "minX": 0,
+          "maxX": 2,
+          "minZ": -12,
+          "maxZ": -2.4
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": -4.5,
+          "maxX": -0.5,
+          "minZ": -2.5,
+          "maxZ": -1.8
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": 2.5,
+          "maxX": 5.5,
+          "minZ": -2.5,
+          "maxZ": -1.7
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": 3.5,
+          "maxX": 7.5,
+          "minZ": 2,
+          "maxZ": 2.6
+        }
+      },
+      {
+        "surface": "bed",
+        "circle": {
+          "x": 0.8,
+          "z": -1.2,
+          "r": 2.3
+        }
+      },
+      {
+        "surface": "paving",
+        "circle": {
+          "x": 0.8,
+          "z": -1.2,
+          "r": 1.85
+        }
+      },
+      {
+        "surface": "grass",
+        "rect": {
+          "minX": -12,
+          "maxX": -4.7,
+          "minZ": -6,
+          "maxZ": 0.2
+        }
+      },
+      {
+        "surface": "dirt",
+        "rect": {
+          "minX": -8.4,
+          "maxX": -7.6,
+          "minZ": -4.2,
+          "maxZ": 0.2
+        }
+      },
+      {
+        "surface": "bed",
+        "rect": {
+          "minX": -9.6,
+          "maxX": -5.4,
+          "minZ": -0.5,
+          "maxZ": 0.2
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": -4.7,
+          "maxX": -4.1,
+          "minZ": -1,
+          "maxZ": 0.2
+        }
+      },
+      {
+        "surface": "grass",
+        "rect": {
+          "minX": -12,
+          "maxX": -4.5,
+          "minZ": 0.2,
+          "maxZ": 5.5
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": -8,
+          "maxX": -6.8,
+          "minZ": 3.5,
+          "maxZ": 5.5
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": 0.8,
+          "maxX": 5.5,
+          "minZ": 2.6,
+          "maxZ": 5.5
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": 7.6,
+          "maxX": 8.6,
+          "minZ": -3,
+          "maxZ": 5.5
+        }
+      },
+      {
+        "surface": "water",
+        "rect": {
+          "minX": 8.6,
+          "maxX": 20,
+          "minZ": -12,
+          "maxZ": 20
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": -1.2,
+          "maxX": 1.2,
+          "minZ": 7.7,
+          "maxZ": 20
+        }
+      },
+      {
+        "surface": "paving",
+        "rect": {
+          "minX": -1.2,
+          "maxX": 1.2,
+          "minZ": 5.5,
+          "maxZ": 7.7
+        },
+        "stairs": {
+          "axis": "z",
+          "from": 0.8,
+          "to": 0,
+          "tread": 0.25
+        }
+      }
+    ]
+  },
+  "walkBounds": {
+    "minX": -10.4,
+    "maxX": 8,
+    "minZ": -6.3,
+    "maxZ": 9.8
+  },
+  "spawn": {
+    "x": -0.3,
+    "z": 1.4,
+    "direction": 0
+  },
+  "houses": [
+    {
+      "x0": -4,
+      "cols": 4,
+      "zFront": -3,
+      "depth": 3,
+      "style": "stone",
+      "floors": [
+        "cbdc",
+        "cabc"
+      ],
+      "roof": "roof-high-gable",
+      "windowBoxes": true,
+      "roofColor": "terracotta",
+      "roofScaleY": 1.05,
+      "chimneyAt": 1
+    },
+    {
+      "x0": 3,
+      "cols": 3,
+      "zFront": -3,
+      "depth": 3,
+      "style": "stone",
+      "floors": [
+        "cdc",
+        "cac"
+      ],
+      "roof": "roof-high-gable",
+      "windowBoxes": true,
+      "roofColor": "slate",
+      "roofScaleY": 0.95,
+      "chimneyAt": 1
+    },
+    {
+      "x0": 6,
+      "cols": 3,
+      "zFront": -2,
+      "depth": 3,
+      "style": "wood",
+      "floors": [
+        "cdc",
+        "cbc",
+        "cac"
+      ],
+      "roof": "roof-high-gable",
+      "windowBoxes": true,
+      "roofColor": "slate",
+      "roofScaleY": 0.85,
+      "chimneyAt": 2
+    },
+    {
+      "x0": 4,
+      "cols": 4,
+      "zFront": 1.5,
+      "depth": 3,
+      "style": "stone",
+      "floors": [
+        "cbdc",
+        "cabc"
+      ],
+      "roof": "roof-high-gable",
+      "windowBoxes": true,
+      "roofColor": "terracotta",
+      "roofScaleY": 0.9,
+      "chimneyAt": 2
+    },
+    {
+      "x0": -10,
+      "cols": 3,
+      "zFront": 3,
+      "depth": 3,
+      "style": "stone",
+      "floors": [
+        "cdc",
+        "cac"
+      ],
+      "roof": "roof-high-gable",
+      "windowBoxes": true,
+      "roofColor": "terracotta",
+      "chimneyAt": 0
+    },
+    {
+      "x0": -7,
+      "cols": 3,
+      "zFront": 3.5,
+      "depth": 2,
+      "style": "wood",
+      "floors": [
+        "cdc"
+      ],
+      "roof": "roof-high-gable",
+      "windowBoxes": true,
+      "roofColor": "slate",
+      "roofScaleY": 0.8
+    },
+    {
+      "x0": -11,
+      "cols": 3,
+      "zFront": -3,
+      "depth": 2,
+      "style": "stone",
+      "floors": [
+        "cdc",
+        "cac"
+      ],
+      "roof": "roof-high-gable",
+      "windowBoxes": true,
+      "roofColor": "terracotta",
+      "roofScaleY": 0.9,
+      "chimneyAt": 1
+    },
+    {
+      "x0": -1,
+      "cols": 3,
+      "zFront": -7,
+      "depth": 2,
+      "style": "stone",
+      "floors": [
+        "cdc",
+        "cac"
+      ],
+      "roof": "roof-high-gable",
+      "roofColor": "terracotta",
+      "roofScaleY": 0.9
+    },
+    {
+      "x0": -11,
+      "cols": 6,
+      "zFront": -10,
+      "depth": 2,
+      "style": "wood",
+      "floors": [
+        "cabdac",
+        "csabsc"
+      ],
+      "roof": "roof-gable",
+      "chimneyAt": 3
+    },
+    {
+      "x0": 4,
+      "cols": 6,
+      "zFront": -10,
+      "depth": 2,
+      "style": "stone",
+      "floors": [
+        "cbdasc",
+        "casbac"
+      ],
+      "roof": "roof-high-gable",
+      "roofScaleY": 0.85,
+      "chimneyAt": 2
+    }
+  ],
+  "watcher": {
+    "x": 4,
+    "level": 1,
+    "key": "a"
+  },
+  "pieces": [
+    {
+      "piece": "fountain-round",
+      "position": [
+        0.8,
+        0,
+        -1.2
+      ],
+      "scale": 1.45
+    },
+    {
+      "piece": "fountain-round-water",
+      "position": [
+        0.8,
+        0,
+        -1.2
+      ],
+      "scale": 1.45,
+      "solid": false
+    },
+    {
+      "piece": "stall-bench",
+      "position": [
+        -1.5,
+        0,
+        0.9
+      ],
+      "rotationY": 2.0707963267948966
+    },
+    {
+      "piece": "stall-bench",
+      "position": [
+        3.1,
+        0,
+        0.9
+      ],
+      "rotationY": 1.0707963267948966
+    },
+    {
+      "piece": "stall-bench",
+      "position": [
+        -6.2,
+        0,
+        -2
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "piece": "stall",
+      "position": [
+        -2.4,
+        0,
+        -1.9
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "piece": "stall",
+      "position": [
+        -1.6,
+        0,
+        -1.9
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "piece": "stall",
+      "position": [
+        3.1,
+        0,
+        -1.8
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "piece": "stall",
+      "position": [
+        3.9,
+        0,
+        -1.8
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "piece": "stall",
+      "position": [
+        4.7,
+        0,
+        -1.8
+      ],
+      "rotationY": 1.5707963267948966
+    },
+    {
+      "piece": "tree-high",
+      "position": [
+        -8.2,
+        0,
+        -3.4
+      ],
+      "scale": 1.5
+    },
+    {
+      "piece": "tree",
+      "position": [
+        -10.2,
+        0,
+        -1.2
+      ],
+      "scale": 1.1
+    },
+    {
+      "piece": "tree-crooked",
+      "position": [
+        -9.6,
+        0,
+        -4.9
+      ],
+      "scale": 1
+    },
+    {
+      "piece": "tree",
+      "position": [
+        -4.8,
+        0,
+        4.9
+      ],
+      "scale": 0.95
+    },
+    {
+      "piece": "tree-high",
+      "position": [
+        -5.6,
+        0,
+        8.2
+      ],
+      "scale": 1.4
+    },
+    {
+      "piece": "tree",
+      "position": [
+        4.2,
+        0,
+        8.4
+      ],
+      "scale": 1.2
+    },
+    {
+      "piece": "tree-crooked",
+      "position": [
+        6.6,
+        0,
+        7.2
+      ],
+      "scale": 1.1
+    },
+    {
+      "piece": "tree",
+      "position": [
+        -2.8,
+        0,
+        9
+      ],
+      "scale": 1
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -9,
+        0,
+        0.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -8,
+        0,
+        0.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -7,
+        0,
+        0.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -6,
+        0,
+        0.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -5,
+        0,
+        0.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        1.4,
+        0,
+        5.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        2.4,
+        0,
+        5.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        3.4,
+        0,
+        5.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        4.4,
+        0,
+        5.3
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        0.8,
+        0,
+        3.4
+      ],
+      "rotationY": 0
+    },
+    {
+      "piece": "fence",
+      "position": [
+        0.8,
+        0,
+        4.4
+      ],
+      "rotationY": 0
+    },
+    {
+      "piece": "fence",
+      "position": [
+        5.7,
+        0,
+        3
+      ],
+      "rotationY": 0
+    },
+    {
+      "piece": "fence",
+      "position": [
+        5.7,
+        0,
+        4
+      ],
+      "rotationY": 0
+    },
+    {
+      "piece": "fence",
+      "position": [
+        5.7,
+        0,
+        5
+      ],
+      "rotationY": 0
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -12,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -11,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -10,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -9,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "fence",
+      "position": [
+        -8,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "hedge",
+      "position": [
+        -3.5,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "hedge",
+      "position": [
+        -2.5,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "hedge",
+      "position": [
+        2.5,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "hedge",
+      "position": [
+        6.3,
+        0,
+        5.2
+      ],
+      "rotationY": -1.5707963267948966
+    },
+    {
+      "piece": "hedge",
+      "position": [
+        -6.5,
+        0,
+        0.1
+      ],
+      "rotationY": -1.5707963267948966
+    }
+  ],
+  "lamps": [
+    {
+      "head": [
+        -4.9,
+        1.15,
+        -1.6
+      ]
+    },
+    {
+      "head": [
+        -5.4,
+        1.15,
+        1
+      ]
+    },
+    {
+      "head": [
+        -2.7,
+        1.15,
+        3.7
+      ]
+    },
+    {
+      "head": [
+        0.3,
+        1.15,
+        3
+      ]
+    },
+    {
+      "head": [
+        7.3,
+        1.15,
+        -0.9
+      ]
+    },
+    {
+      "head": [
+        7.4,
+        1.15,
+        4.6
+      ]
+    }
+  ],
+  "glows": [
+    {
+      "position": [
+        0,
+        0.9,
+        -8
+      ],
+      "size": 0.8,
+      "kind": "far"
+    }
+  ],
+  "props": {
+    "crates": [
+      {
+        "position": [
+          -4.6,
+          0,
+          -2.2
+        ],
+        "rotationY": 0.3,
+        "size": 0.24
+      },
+      {
+        "position": [
+          -4.3,
+          0.24,
+          -2.2
+        ],
+        "rotationY": -0.2,
+        "size": 0.18
+      },
+      {
+        "position": [
+          2.2,
+          0,
+          -1.9
+        ],
+        "rotationY": 0.2,
+        "size": 0.22
+      },
+      {
+        "position": [
+          5.4,
+          0,
+          -1.9
+        ],
+        "rotationY": -0.3,
+        "size": 0.22
+      }
+    ],
+    "barrels": [
+      {
+        "position": [
+          -0.8,
+          0,
+          -2.2
+        ],
+        "scale": 1
+      },
+      {
+        "position": [
+          5.8,
+          0,
+          -2.1
+        ],
+        "scale": 1.1
+      },
+      {
+        "position": [
+          7.2,
+          0,
+          2.3
+        ],
+        "scale": 1
+      }
+    ],
+    "produce": [
+      {
+        "position": [
+          -2.4,
+          0.37,
+          -1.9
+        ],
+        "rotationY": 0.1,
+        "seed": 3
+      },
+      {
+        "position": [
+          -1.6,
+          0.37,
+          -1.9
+        ],
+        "rotationY": -0.1,
+        "seed": 6
+      },
+      {
+        "position": [
+          3.1,
+          0.37,
+          -1.8
+        ],
+        "rotationY": 0.2,
+        "seed": 9
+      },
+      {
+        "position": [
+          3.9,
+          0.37,
+          -1.8
+        ],
+        "rotationY": -0.2,
+        "seed": 12
+      },
+      {
+        "position": [
+          4.7,
+          0.37,
+          -1.8
+        ],
+        "rotationY": 0.1,
+        "seed": 15
+      }
+    ],
+    "pots": [
+      {
+        "position": [
+          -3.5,
+          0,
+          -2.3
+        ],
+        "seed": 1,
+        "scale": 1
+      },
+      {
+        "position": [
+          -1.5,
+          0,
+          -2.3
+        ],
+        "seed": 2,
+        "scale": 1
+      },
+      {
+        "position": [
+          3,
+          0,
+          -2.3
+        ],
+        "seed": 3,
+        "scale": 1
+      },
+      {
+        "position": [
+          5,
+          0,
+          -2.3
+        ],
+        "seed": 4,
+        "scale": 1
+      },
+      {
+        "position": [
+          4,
+          0,
+          2.2
+        ],
+        "seed": 5,
+        "scale": 1
+      },
+      {
+        "position": [
+          7,
+          0,
+          2.2
+        ],
+        "seed": 6,
+        "scale": 1
+      },
+      {
+        "position": [
+          -9.2,
+          0,
+          3.6
+        ],
+        "seed": 7,
+        "scale": 1
+      },
+      {
+        "position": [
+          -6.6,
+          0,
+          3.9
+        ],
+        "seed": 8,
+        "scale": 1
+      }
+    ],
+    "awnings": [
+      {
+        "position": [
+          -2.5,
+          0.96,
+          -2.5
+        ],
+        "width": 2,
+        "reach": 0.55,
+        "drop": 0.16,
+        "colors": [
+          "#efe3c4",
+          "#c8553d"
+        ]
+      },
+      {
+        "position": [
+          3.9,
+          0.95,
+          -2.35
+        ],
+        "width": 2.9,
+        "reach": 0.95,
+        "drop": 0.25,
+        "colors": [
+          "#efe3c4",
+          "#7ea46a"
+        ]
+      },
+      {
+        "position": [
+          5.5,
+          0.96,
+          2
+        ],
+        "width": 3.6,
+        "reach": 0.6,
+        "drop": 0.16,
+        "colors": [
+          "#efe3c4",
+          "#d98240"
+        ]
+      }
+    ],
+    "planters": []
+  },
+  "bunting": [
+    {
+      "from": [
+        -0.5,
+        1.9,
+        -2.7
+      ],
+      "to": [
+        2.5,
+        1.9,
+        -2.7
+      ],
+      "sag": 0.26,
+      "flags": 14,
+      "size": 0.12
+    },
+    {
+      "from": [
+        -0.5,
+        1.5,
+        -2.8
+      ],
+      "to": [
+        2.5,
+        1.65,
+        -2.8
+      ],
+      "sag": 0.3,
+      "flags": 12,
+      "size": 0.11
+    }
+  ],
+  "posters": [
+    {
+      "position": [
+        -0.85,
+        0.62,
+        -2.47
+      ],
+      "seed": 1,
+      "rotationZ": 0.05
+    },
+    {
+      "position": [
+        -0.85,
+        1.5,
+        -2.47
+      ],
+      "seed": 2,
+      "rotationZ": -0.04
+    }
+  ],
+  "sign": {
+    "position": [
+      -3.7,
+      1.3,
+      -2.45
+    ]
+  },
+  "colliders": [],
+  "interactables": [
+    {
+      "id": "fountain",
+      "x": 0.8,
+      "z": -1.2,
+      "radius": 2.3,
+      "label": "Watch the water",
+      "verb": "look",
+      "text": "The fountain splashes round its stone cat, and the coins at the bottom wink. (Made up for this prototype square.)",
+      "approach": {
+        "x": 0.8,
+        "z": 0.65
+      },
+      "facing": 0
+    },
+    {
+      "id": "bench",
+      "x": -6.2,
+      "z": -2,
+      "radius": 1,
+      "label": "Sit under the oak",
+      "verb": "sit",
+      "approach": {
+        "x": -6.2,
+        "z": -1.3
+      },
+      "facing": 0
+    },
+    {
+      "id": "flowers",
+      "x": -1.2,
+      "z": -3,
+      "radius": 0.9,
+      "label": "Smell the bakery",
+      "verb": "look",
+      "text": "Warm bread and rain-wet stone. A very good smell. (Made up for this prototype square.)",
+      "approach": {
+        "x": -1.2,
+        "z": -1.1
+      }
+    },
+    {
+      "id": "notice",
+      "x": -4.6,
+      "z": 0.6,
+      "radius": 0.9,
+      "label": "Read the notice",
+      "verb": "look",
+      "text": "A notice: \"Lost, one blue button. Ask at the paw-print shop.\" (Made up for this prototype square.)",
+      "approach": {
+        "x": -4.6,
+        "z": 1
+      }
+    },
+    {
+      "id": "terrace",
+      "x": 3.2,
+      "z": 4,
+      "radius": 1.1,
+      "label": "Curl up by the café",
+      "verb": "sleep",
+      "approach": {
+        "x": 3.2,
+        "z": 3.6
+      },
+      "facing": 0
+    }
+  ]
+}

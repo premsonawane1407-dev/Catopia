@@ -9,22 +9,25 @@ import { renderCat } from "../../features/game/cat/render";
 // @ts-expect-error plain JS helper
 import { blit, canvas, encodePng } from "../lib/png.mjs";
 
-const [out, zoomArg, dirArg, clipArg, coatArg] = process.argv.slice(2);
+const [out, zoomArg, dirArg, clipArg, coatArg, framesArg] = process.argv.slice(2);
+const [firstFrame, lastFrame] = (framesArg ?? "0-99").split("-").map(Number);
 const zoom = Number(zoomArg ?? 3);
 const dirs = (dirArg ?? "2").split(",").map(Number);
 const clips = (clipArg ?? "walk").split(",") as ClipName[];
 const coat = coatById(coatArg);
 const palette = buildPalette(coat);
 const rows: { clip: ClipName; dir: number }[] = clips.flatMap((clip) => dirs.map((dir) => ({ clip, dir })));
-const maxFrames = Math.max(...rows.map((r) => CLIPS[r.clip].frames));
+const count = (clip: ClipName) => Math.min(CLIPS[clip].frames, lastFrame + 1) - firstFrame;
+const maxFrames = Math.max(...rows.map((r) => count(r.clip)));
 const cell = CAT_FRAME_W * zoom;
 const sheet = canvas(cell * Math.min(maxFrames, 8), CAT_FRAME_H * zoom * rows.length * Math.ceil(maxFrames / 8), [74, 84, 112]);
 let y = 0;
 for (const row of rows) {
-  const n = CLIPS[row.clip].frames;
-  for (let f = 0; f < n; f++) {
+  const n = count(row.clip);
+  for (let k = 0; k < n; k++) {
+    const f = firstFrame + k;
     const r = renderCat({ pose: poseFor(row.clip, f), heading: directionHeading(row.dir), coat, palette });
-    blit(sheet, { width: r.width, data: r.rgba }, 0, 0, r.width, r.height, (f % 8) * cell, y + Math.floor(f / 8) * CAT_FRAME_H * zoom, zoom);
+    blit(sheet, { width: r.width, data: r.rgba }, 0, 0, r.width, r.height, (k % 8) * cell, y + Math.floor(k / 8) * CAT_FRAME_H * zoom, zoom);
   }
   y += CAT_FRAME_H * zoom * Math.ceil(n / 8);
 }

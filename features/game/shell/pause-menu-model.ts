@@ -1,5 +1,6 @@
 // The rules of the pause menu, away from the screen: which rows there are, what the arrow keys do on
 // each kind of row, and which setting a row changes. The menu component only draws this and reports clicks.
+import type { TimeSetting } from "../render/day-clock";
 import type { GameSettings, MotionSetting, QualitySetting } from "../settings/settings";
 
 export interface Choice<T extends string> {
@@ -20,7 +21,16 @@ export const MOTION_CHOICES: readonly Choice<MotionSetting>[] = [
   { value: "reduced", label: "Reduced" },
 ];
 
-export type MenuItemId = "resume" | "sound" | "quality" | "motion" | "stats" | "leave";
+export const TIME_CHOICES: readonly Choice<TimeSetting>[] = [
+  { value: "auto", label: "Let the day pass" },
+  { value: "dawn", label: "Dawn" },
+  { value: "day", label: "Day" },
+  { value: "golden", label: "Golden hour" },
+  { value: "dusk", label: "Blue hour" },
+  { value: "night", label: "Night" },
+];
+
+export type MenuItemId = "resume" | "sound" | "quality" | "motion" | "time" | "stats" | "leave";
 
 /** An action does something when chosen; a toggle flips on and off; a choice steps through a short list. */
 export type MenuItemKind = "action" | "toggle" | "choice";
@@ -44,6 +54,7 @@ export function buildMenuItems(settings: GameSettings): MenuItem[] {
     { id: "sound", kind: "toggle", label: "Sound", on: !settings.muted, value: settings.muted ? "Off" : "On" },
     { id: "quality", kind: "choice", label: "Picture quality", value: labelOf(QUALITY_CHOICES, settings.quality) },
     { id: "motion", kind: "choice", label: "Motion", value: labelOf(MOTION_CHOICES, settings.motion) },
+    { id: "time", kind: "choice", label: "Time of day", value: labelOf(TIME_CHOICES, settings.time) },
     { id: "stats", kind: "toggle", label: "Performance numbers", on: settings.showStats, value: settings.showStats ? "On" : "Off" },
     { id: "leave", kind: "action", label: "Leave the street" },
   ];
@@ -72,6 +83,8 @@ export function settingsPatch(id: MenuItemId, direction: 1 | -1, settings: GameS
       return { quality: cycleChoice(QUALITY_CHOICES, settings.quality, direction) };
     case "motion":
       return { motion: cycleChoice(MOTION_CHOICES, settings.motion, direction) };
+    case "time":
+      return { time: cycleChoice(TIME_CHOICES, settings.time, direction) };
     default:
       return null;
   }

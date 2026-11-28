@@ -37,4 +37,9 @@ describe("coats", () => {
   it("has unique ids", () => {
     expect(new Set(COAT_PRESETS.map((c) => c.id)).size).toBe(COAT_PRESETS.length);
   });
+  it("gives every coat the name the owner chose, and starts as Pumpkin the marmalade tabby", () => {
+    expect(COAT_PRESETS.map((c) => c.name)).toEqual(["Pumpkin", "Ash", "Salem", "Oreo", "Patches", "Toffee"]);
+    expect(DEFAULT_COAT.id).toBe("marmalade");
+    expect(DEFAULT_COAT.name).toBe("Pumpkin");
+  });
 });

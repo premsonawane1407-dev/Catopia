@@ -6,7 +6,7 @@
 import { BufferGeometry, Float32BufferAttribute } from "three";
 import { PANE_CELL, paneUsesNarrowCell } from "../render/pixel-textures";
 import type { Vec3 } from "./stage-constants";
-import type { WindowKey, WindowSpec } from "./stage-data";
+import type { WindowKey, WindowSpec } from "./map/build-house";
 
 /** Pane size by window kind: width, height and the height of its centre above the floor of its storey. */
 export const PANE_SIZE: Record<WindowKey, readonly [number, number, number]> = {
@@ -121,9 +121,9 @@ export function buildWindowGeometries(windows: readonly WindowSpec[]): WindowGeo
     const cell = paneCell(ordinals[w.key], w.cat === true);
     if (!w.cat) ordinals[w.key]++;
     const [u0, u1] = paneUvRange(w.key, cell);
-    panes[w.key].add(wallQuad(w.x, w.level + cy, w.z + PANE_Z, pw, ph), [u0, 0, u1, 1], phase);
-    halo.add(wallQuad(w.x, w.level + cy - HALO.lower, w.z + HALO.z, pw * HALO.widthScale, ph * HALO.heightScale), [0, 0, 1, 1], phase);
-    if (w.level === 0) ground.add(groundQuad(w.x, GROUND_SPILL.y, w.z + GROUND_SPILL.z, pw * GROUND_SPILL.widthScale, GROUND_SPILL.depth), [0, 0, 1, 1], phase);
+    panes[w.key].add(wallQuad(w.x, (w.base ?? 0) + w.level + cy, w.z + PANE_Z, pw, ph), [u0, 0, u1, 1], phase);
+    halo.add(wallQuad(w.x, (w.base ?? 0) + w.level + cy - HALO.lower, w.z + HALO.z, pw * HALO.widthScale, ph * HALO.heightScale), [0, 0, 1, 1], phase);
+    if (w.level === 0) ground.add(groundQuad(w.x, (w.base ?? 0) + GROUND_SPILL.y, w.z + GROUND_SPILL.z, pw * GROUND_SPILL.widthScale, GROUND_SPILL.depth), [0, 0, 1, 1], phase);
   });
 
   const result: Partial<Record<WindowKey, BufferGeometry>> = {};

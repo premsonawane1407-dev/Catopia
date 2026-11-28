@@ -24,7 +24,14 @@ export interface MoveParams {
   runSpeed: number;
   /** The cat's collision radius in world units. */
   radius: number;
+  /** In the air: momentum carries on (no braking), and steering is gentle. */
+  airborne?: boolean;
+  /** How high the cat's feet are, so it can pass over things it is above. */
+  height?: number;
 }
+
+/** How quickly a cat in the air follows a push, as a time constant in seconds. Slow: it cannot turn on nothing. */
+export const AIR_TAU = 0.3;
 
 /** How quickly velocity follows the wanted velocity, as a time constant in seconds. Short is snappy; the cat still eases in and out. */
 export const ACCEL_TAU = 0.06;
@@ -53,12 +60,14 @@ export interface StepResult extends Motion {
 /** Advances the cat one step. */
 export function stepMotion(m: Motion, intent: Intent | null, dt: number, params: MoveParams, colliders: readonly Collider[], bounds: Bounds): StepResult {
   const want = wantedVelocity(intent, params);
-  const tau = want.vx === 0 && want.vz === 0 ? DECEL_TAU : ACCEL_TAU;
-  const k = 1 - Math.exp(-dt / tau);
+  const pushing = want.vx !== 0 || want.vz !== 0;
+  // In the air nothing brakes the cat, and a push only nudges it.
+  const tau = params.airborne ? (pushing ? AIR_TAU : Infinity) : pushing ? ACCEL_TAU : DECEL_TAU;
+  const k = Number.isFinite(tau) ? 1 - Math.exp(-dt / tau) : 0;
   const vx = m.vx + (want.vx - m.vx) * k;
   const vz = m.vz + (want.vz - m.vz) * k;
   const tryPos = { x: m.x + vx * dt, z: m.z + vz * dt };
-  const pos = resolveCollisions(tryPos, params.radius, colliders, bounds);
+  const pos = resolveCollisions(tryPos, params.radius, colliders, bounds, params.height ?? 0);
   const dx = pos.x - m.x;
   const dz = pos.z - m.z;
   const moved = Math.hypot(dx, dz);

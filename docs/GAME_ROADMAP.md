@@ -1,6 +1,6 @@
 # Catopia game roadmap (phased, gated)
 
-Status: **Phase 0 passed. Phase 1 is built and verified and is waiting for your review before it counts as mastered.** No later phase has started. Created 2026-11-25.
+Status: **Phase 0 passed. Phase 1 is built and verified. Phase 2 (the cat) is built and partly verified and is waiting for your review: two items need you (the cat's look and its name and default coat).** No later phase has started. Created 2026-11-25.
 
 ## The game
 
@@ -101,14 +101,24 @@ Also checked: pause freezes the picture (0 frames drawn in 2 s), quiets and muff
 
 **Build:** a code-generated cat (coat colour and pattern as settings) baked into sprite sheets, using the `pixel-art-studio` quality checks. Animations v1: idle, walk, run, sit and sleep, in the directions the camera needs, with normal-mapped lighting. Controls: keyboard, gamepad, touch joystick and tap-to-move. Camera follow with smoothing, collision against a greybox, and an interaction-prompt system.
 
-**Exit checklist**
-- [ ] Every animation has been reviewed frame by frame, with no foot sliding.
-- [ ] Automated quality-check scores are recorded.
-- [ ] A five-minute free roam works on keyboard, gamepad and touch without snagging.
-- [ ] The cat is readable at its on-screen size under the full effect stack.
-- [ ] You sign off the cat's look.
+**Status: built 2026-11-26 to 2026-11-28, partly verified, waiting for you.** What exists: a cat drawn entirely in code (no image files, no downloads) from coat settings, in 7 clips and 8 directions with a normal map; keyboard, gamepad, touch-stick and tap or click steering; a smoothed camera; greybox collision; and interaction prompts. Evidence and the review page are in `docs/phase2/`; the checks are recorded in `PROJECT_STATUS.md`; the decisions are in `TECHNICAL_DECISIONS.md`.
 
-**Parked until later:** groom, stretch and jump animations, and player customization.
+**Exit checklist**
+- [~] Every animation has been reviewed frame by frame, with no foot sliding. (Reviewed by me on the frame sheets, not by you. Foot sliding is checked as a fact about the data: planted paws move back exactly one body step per frame, every leg can reach its paw, and the step cycle is driven by distance travelled so the feet match the ground at any speed. Not yet seen to hold on screen by eye in motion; `docs/phase2/review.html` has a moving-ground mode for you to judge it.)
+- [x] Automated quality-check scores are recorded. (Ported to TypeScript because Python is not installed: mean 88.3 to 95.0 over 288 frames per coat, worst frame 81.5, strays at most 2.1% of a frame, 24 to 31 palette colours, no off-palette pixels, one connected piece in every frame. The run and the two transitions exceed the rubric's mass-steadiness figure; see `docs/phase2/quality-report.json` and the notes in `PROJECT_STATUS.md`. The skill's own scorer was not run.)
+- [~] A five-minute free roam works on keyboard, gamepad and touch without snagging. (A bot roamed 5 simulated minutes at 60 steps a second through the real collision data: never inside anything, never jumped, no pocket held it longer than 0.9 s once it steered away. In the browser each input was checked for a few seconds: held keys, a faked gamepad (stick, half tilt, drift, run), a dispatched touch stick and tap, and real mouse clicks by you. No person has roamed five real minutes, and no real gamepad or touch screen was used.)
+- [~] The cat is readable at its on-screen size under the full effect stack. (Seen in the running game at Full and Light tiers with the blur, bloom and lamp light: it reads as a cat in every pose I saw, and the sharp band follows it. Judged by me from screenshots on a 800 px wide pane, not by you at your screen size.)
+- [x] You sign off the cat's look. (Signed off by the owner on 2026-11-28, after reviewing the frame sheets, the in-game walk, sit, sleep, emotes and jump.)
+
+**Parked until later:** groom and stretch animations, and player customization (jump was built at the owner's request).
+
+**Decisions made by the owner on 2026-11-28:** the default coat is the marmalade tabby, and the six coats are named Pumpkin (marmalade tabby, the default), Ash (storm-grey tabby), Salem (midnight), Oreo (tuxedo), Patches (patchwork calico) and Toffee (biscuit point), stored as `name` in `COAT_PRESETS`; the cat's size stays as it is (`CAT_SCREEN_FRACTION`, about 11.5% of the window height); the walk stays at 8 frames with the foot lock off. **Still open:** the owner's sign-off on the cat's look (the checklist item above), and a name is not shown anywhere in the game yet (there is no screen that needs it).
+
+**What Phase 2 taught us so far:**
+- A small ray caster over a few ellipsoids gave every direction, pose and coat from one model, and a true normal map, with no hand-drawn frames; 288 frames take about 1.5 s to draw in the browser, so the loading screen shows it as one step.
+- The camera looks down at 34 degrees but the cat is drawn from 28, so walking toward or away from the camera needs a shorter step cycle per metre of ground (a factor of about 0.8) for the feet to stay planted on screen. Distance-driven animation made that a one-line correction.
+- Foreground framing objects placed for a fixed camera hid the cat as soon as it could walk; they now ride with the camera.
+- The Phase 1 cat was a 48 px front-facing sitter. A walking cat in 8 directions needs a 72 x 60 frame; the pixel size is unchanged.
 
 ## Phase 3: World engine and market street (2–3 weeks)
 
@@ -117,9 +127,9 @@ Also checked: pause freezes the picture (0 frames drawn in 2 s), quiets and muff
 **Build:** a map data format (terrain grid, placements, colliders, triggers, lights, spawn points, camera preset), a loader, collision and triggers, a scene-transition system, per-map camera presets, and a day/night clock. The street is dressed from the Kenney town modules and code-generated cobbles, awnings, crates and bunting, with dense detail near the walking path and ambient particles.
 
 **Exit checklist**
-- [ ] The street is built only from data, with no hardcoded placements.
-- [ ] The camera preset is read from the map data.
-- [ ] Day, dusk and night transitions work.
+- [x] The street is built only from data, with no hardcoded placements. (Done 2026-11-28: `maps/market-street.json`; model placements, props, lamps, glows, bunting, posters, sign, interactions, spawn, walkable area and colliders are all read from it, and a test proved the result identical to the old code before that was deleted. Still in code, by design: how solid each piece is, how a house expands into walls, the time-of-day presets.)
+- [x] The camera preset is read from the map data. (Done 2026-11-28: the canvas, the player rig and the cat's step length use `map.camera`; seen in the running game; no second map with a different camera exists yet to see it change.)
+- [~] Day, dusk and night transitions work. (Built 2026-11-28: a clock blends dawn, day, golden hour, blue hour and night; stills in `docs/phase3/stills/`; the pause menu can hold any moment. Tested by 19 unit tests and seen in the running game, but the real-time transitions were not watched by eye and the dawn and day looks are first guesses.)
 - [ ] At least ten richness techniques from the list below are visibly present.
 - [ ] You sign off stills at dawn, day, dusk and night.
 - [ ] The performance budget is met on each quality tier.
@@ -199,7 +209,7 @@ Save is local only, and the game says so. Server-side progress comes in Phase 8.
 |---|---|
 | Internal pixel resolution, palette, quality tiers | Phase 0 |
 | Final frame-rate and load-time targets | Phase 0 |
-| The player cat's name and default coat | Phase 2 |
+| The player cat's name and default coat | Decided 2026-11-28: Pumpkin, the marmalade tabby (the other coats are Ash, Salem, Oreo, Patches and Toffee) |
 | The street's invented name | Phase 3 |
 | Whether real campus places ever replace invented ones | Phase 8 |
 
@@ -207,7 +217,7 @@ Save is local only, and the game says so. Server-side progress comes in Phase 8.
 
 Ideas that are not scheduled yet. Add new ones here instead of building them.
 
-- Groom, stretch and jump animations
+- Groom and stretch animations (jump was built in Phase 2 at the owner's request)
 - Player customization (collars, hats)
 - Fishing-nook garden area with a top-down camera
 - Weather

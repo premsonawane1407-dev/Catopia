@@ -2,8 +2,10 @@ import { Vector3, type BufferGeometry } from "three";
 import { describe, expect, it } from "vitest";
 import { surfaceKey } from "./pieces";
 import { loadRealPieces } from "./real-pieces.fixture";
-import { STAGE_PLACEMENTS } from "./stage-data";
 import { batchPlacements, placementMatrix, triangleCountOf, type Placement } from "./static-batch";
+import { MARKET_STREET } from "./map/market-street";
+
+const STAGE_PLACEMENTS = MARKET_STREET.placements;
 
 const pieces = loadRealPieces();
 
@@ -81,9 +83,10 @@ describe("batchPlacements", () => {
 
   it("turns the whole street into a handful of meshes without losing a triangle", () => {
     const batches = batchPlacements(STAGE_PLACEMENTS, pieces);
-    const surfaces = new Set(STAGE_PLACEMENTS.map((p) => surfaceKey(p.piece)));
+    // One mesh per surface, and a roof colour is part of the surface.
+    const surfaces = new Set(STAGE_PLACEMENTS.map((p) => surfaceKey(p.piece, p.variant)));
     expect(batches).toHaveLength(surfaces.size);
-    expect(batches.length).toBeLessThanOrEqual(10);
+    expect(batches.length).toBeLessThanOrEqual(14);
 
     const expected = STAGE_PLACEMENTS.reduce((sum, p) => sum + triangleCountOf(pieces.get(p.piece)!), 0);
     expect(batches.reduce((sum, b) => sum + b.triangleCount, 0)).toBe(expected);

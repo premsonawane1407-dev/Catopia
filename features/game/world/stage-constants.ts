@@ -16,7 +16,10 @@ export const CAT_POSITION: Vec3 = [0, 0, 0.6];
 /** A point in the middle of the cat's body: its depth from the camera decides how big the cat looks. */
 export const CAT_BODY_CENTER: Vec3 = [0, 0.33, 0.6];
 
-/** Width of one cat sprite frame in sprite pixels. */
+/**
+ * The height, in sprite pixels, that sets how big a sprite pixel is: the window-height share below is for a frame
+ * this tall. (The real frames are 72 x 60, but the pixel size stays what Phase 1 approved.)
+ */
 export const CAT_FRAME_PX = 48;
 /**
  * About how much of the window height the cat's picture covers. The cat itself fills most of its frame,

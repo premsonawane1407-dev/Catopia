@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { buildBuntingGeometry, buildPropGeometries, buildSignChains, lcg } from "./props-geometry";
-import { BUNTING } from "./stage-data";
+import { MARKET_STREET } from "./map/market-street";
+
+const BUNTING = MARKET_STREET.bunting;
+/** Every prop of the street, the framing ones too. */
+const ALL_PROPS = {
+  crates: [...MARKET_STREET.worldProps.crates, ...MARKET_STREET.framingProps.crates],
+  barrels: [...MARKET_STREET.worldProps.barrels, ...MARKET_STREET.framingProps.barrels],
+  produce: MARKET_STREET.worldProps.produce,
+  pots: [...MARKET_STREET.worldProps.pots, ...MARKET_STREET.framingProps.pots],
+  awnings: [...MARKET_STREET.worldProps.awnings, ...MARKET_STREET.framingProps.awnings],
+  planters: MARKET_STREET.worldProps.planters,
+};
 
 describe("lcg", () => {
   it("repeats for the same start and stays between 0 and 1", () => {
@@ -20,7 +31,7 @@ describe("lcg", () => {
 });
 
 describe("buildPropGeometries", () => {
-  const { wood, plain } = buildPropGeometries();
+  const { wood, plain } = buildPropGeometries(ALL_PROPS);
 
   it("gives every vertex a position, normal, texture coordinate and colour", () => {
     for (const g of [wood, plain]) {
@@ -40,7 +51,7 @@ describe("buildPropGeometries", () => {
   });
 
   it("builds the same props every time", () => {
-    const again = buildPropGeometries();
+    const again = buildPropGeometries(ALL_PROPS);
     expect(Array.from(again.plain.getAttribute("position").array)).toEqual(Array.from(plain.getAttribute("position").array));
     expect(Array.from(again.plain.getAttribute("color").array)).toEqual(Array.from(plain.getAttribute("color").array));
   });
@@ -56,7 +67,7 @@ describe("buildPropGeometries", () => {
   });
 
   it("builds nothing, without failing, when there is nothing to build", () => {
-    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [] });
+    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [] });
     expect(empty.wood.getAttribute("position")).toBeUndefined();
     expect(empty.plain.getAttribute("position")).toBeUndefined();
   });

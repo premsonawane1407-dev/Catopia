@@ -10,17 +10,28 @@ import { benchFrames, frameFingerprint } from "../debug/bench";
 import { perfStore } from "../debug/perf-store";
 import { PerfOverlay } from "../debug/perf-overlay";
 import { supportsWebGL } from "../capability/webgl";
+import { coatById } from "../cat/coat";
+import { DEFAULT_LOOK, type CatLook } from "../cat/model";
+import { createInputHub } from "../player/input-hub";
+import type { Device } from "../player/input-map";
+import type { Interactable } from "../player/interactions";
 import { createGovernor } from "../quality/auto-tier";
 import { isNarrowPortrait } from "../quality/pixel-grid";
 import { initialTier, type TierName } from "../quality/tiers";
 import { GameCanvas } from "../render/game-canvas";
-import { DEFAULT_TIME } from "../render/time-presets";
+import { HOUR_OF, createClock, phaseName } from "../render/day-clock";
+import { isTimeOfDay } from "../render/time-presets";
 import { resolveMotion, type GameSettings } from "../settings/settings";
 import { useGameSettings } from "../settings/use-game-settings";
 import { loadGameAssets, type GameAssets } from "../world/game-assets";
+import type { PlayerDebug } from "../world/player-rig";
+import { FOOT_LOCK_DEFAULT } from "../player/cat-state";
+import { Caption, EmoteBar, InteractionPrompt, JumpButton, PromptAnnouncer, RunButton, TouchLayer, Toast } from "./controls";
+import { EMOTES } from "../cat/clips";
 import { PauseMenu } from "./pause-menu";
 import { hasCanvas, initialShellState, loopRunning, shellReducer } from "./shell-state";
 import { BeginScreen, COMMUNITY_HREF, LoadingScreen, PauseButton, ProblemScreen, RotateScreen } from "./screens";
+import { MARKET_STREET } from "../world/map/market-street";
 import { usePrefersReducedMotion } from "./use-reduced-motion";
 import { useViewport } from "./use-viewport";
 import "./game.css";
@@ -56,6 +67,40 @@ export default function GameShell() {
   const [perfRequested] = useState(() => new URLSearchParams(window.location.search).has("perf"));
   const leaveTimer = useRef<number | undefined>(undefined);
 
+  // Steering, and what the cat is standing next to.
+  const [hub] = useState(() => createInputHub());
+  const [device, setDevice] = useState<Device>(() => hub.device());
+  const [touchUi, setTouchUi] = useState(() => window.matchMedia("(pointer: coarse)").matches);
+  const [prompt, setPrompt] = useState<Interactable | null>(null);
+  const [caption, setCaption] = useState<string | null>(null);
+  const playerDebug = useRef<PlayerDebug | null>(null);
+  const [emoteOpen, setEmoteOpen] = useState(false);
+  const [emoteChoice, setEmoteChoice] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
+  // /play?coat=storm draws a different coat (for looking at them); /play?greybox=1 shows the collision shapes.
+  const [coat] = useState(() => coatById(new URLSearchParams(window.location.search).get("coat")));
+  // The refined cat is the default; /play?look=original draws the first version for comparison.
+  const [look] = useState<CatLook>(() => (new URLSearchParams(window.location.search).get("look") === "original" ? "original" : DEFAULT_LOOK));
+  const [greybox] = useState(() => new URLSearchParams(window.location.search).has("greybox"));
+  // /play?time=night (dawn, day, golden, dusk, night) holds the street at that moment, whatever the setting says;
+  // /play?hour=14.5 starts the day at that hour. Both are for looking at one moment, the way ?coat= is for coats.
+  const [urlTime] = useState(() => {
+    const v = new URLSearchParams(window.location.search).get("time");
+    return isTimeOfDay(v) ? v : null;
+  });
+  const [clock] = useState(() => {
+    const v = new URLSearchParams(window.location.search).get("hour");
+    const hour = v === null || v === "" ? NaN : Number(v);
+    // With ?time= the day opens at that moment, so a still is taken without waiting for the clock to ease there.
+    return createClock(Number.isFinite(hour) ? hour : urlTime ? HOUR_OF[urlTime] : undefined);
+  });
+  const timeSetting = urlTime ?? settings.time;
+  // /play?footlock=1 holds the planted paws still at the price of the body stepping with the frames (0 to 1; see cycleResidual).
+  const [footLock] = useState(() => {
+    const v = Number(new URLSearchParams(window.location.search).get("footlock"));
+    return Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : FOOT_LOCK_DEFAULT;
+  });
+
   const tier = settings.quality === "auto" ? autoTier : settings.quality;
   const phase = shell.phase;
 
@@ -68,7 +113,7 @@ export default function GameShell() {
   useEffect(() => {
     if (phase !== "loading" || assets) return;
     const controller = new AbortController();
-    loadGameAssets((done, total) => setProgress(done / total), controller.signal)
+    loadGameAssets((done, total) => setProgress(done / total), controller.signal, coat, look)
       .then((loaded) => {
         if (controller.signal.aborted) loaded.dispose();
         else setAssets(loaded);
@@ -78,8 +123,40 @@ export default function GameShell() {
         dispatch({ type: "error", message: error instanceof Error ? error.message : "The game files could not be loaded." });
       });
     return () => controller.abort();
-  }, [phase, shell.attempt, assets]);
+  }, [phase, shell.attempt, assets, coat, look]);
   useEffect(() => () => assets?.dispose(), [assets]);
+
+  // The keyboard steers the cat only while playing; pausing lets go of every key.
+  useEffect(() => {
+    if (phase !== "playing") {
+      hub.reset();
+      return;
+    }
+    return hub.attach();
+  }, [hub, phase]);
+  // The emote picker: Q opens it; the gamepad's left bumper names the emote it has chosen.
+  useEffect(() => hub.onEmoteMenu(() => setEmoteOpen((open) => !open)), [hub]);
+  useEffect(
+    () =>
+      hub.onEmoteSelect((i) => {
+        setEmoteChoice(i);
+        setToast(`Emote: ${EMOTES[i].label}`);
+      }),
+    [hub],
+  );
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), 1500);
+    return () => window.clearTimeout(id);
+  }, [toast]);
+  useEffect(
+    () =>
+      hub.onDeviceChange((d) => {
+        setDevice(d);
+        if (d === "touch") setTouchUi(true);
+      }),
+    [hub],
+  );
 
   // Keep the page still behind the game: no scrolling, no pull-to-refresh.
   useEffect(() => {
@@ -116,6 +193,7 @@ export default function GameShell() {
   );
 
   const pauseGame = useCallback(() => {
+    setEmoteOpen(false);
     bus.playUi("open");
     dispatch({ type: "pause" });
   }, [bus]);
@@ -214,9 +292,15 @@ export default function GameShell() {
         reportUiSounds: () => import("../debug/ui-sound-report").then((m) => m.reportUiSounds()),
         /** Feeds a frame duration to the quality governor, the same way the render loop does. */
         feedFrame: handleFrame,
+        /** The cat: its position, mode and the camera (see PlayerDebug), and the input hub for sending presses. */
+        player: () => playerDebug.current,
+        input: hub,
+        catBuildMs: () => assets?.catBuildMs ?? null,
+        /** The day's clock: the hour (0 to 24) and the name of that part of the day. */
+        clock: () => ({ hour: clock.hour, phase: phaseName(clock.hour), setting: timeSetting }),
       },
     });
-  }, [bus, showStats, handleFrame]);
+  }, [bus, showStats, handleFrame, hub, assets, clock, timeSetting]);
 
   const begin = useCallback(() => {
     // Creating and resuming the audio context has to happen inside this click.
@@ -232,15 +316,23 @@ export default function GameShell() {
         {assets && hasCanvas(phase) && (
           <GameCanvas
             key={shell.attempt}
+            map={MARKET_STREET}
             assets={assets}
             tier={tier}
-            time={DEFAULT_TIME}
+            time={timeSetting}
+            clock={clock}
             motion={motion}
             paused={!loopRunning(phase)}
             viewport={viewport}
             onFrame={handleFrame}
             onFirstFrames={() => dispatch({ type: "loaded" })}
             onContextLost={() => dispatch({ type: "contextLost" })}
+            hub={hub}
+            onPrompt={setPrompt}
+            onCaption={setCaption}
+            debugRef={playerDebug}
+            greybox={greybox}
+            footLock={footLock}
           />
         )}
       </div>
@@ -251,7 +343,19 @@ export default function GameShell() {
       {phase === "lost" && <ProblemScreen kind="lost" onRetry={() => dispatch({ type: "retry" })} />}
       {showRotate && <RotateScreen onDismiss={() => setRotateDismissed(true)} />}
       {phase === "ready" && !showRotate && <BeginScreen onBegin={begin} />}
-      {phase === "playing" && !showRotate && <PauseButton onPause={pauseGame} />}
+      {phase === "playing" && !showRotate && (
+        <>
+          <TouchLayer hub={hub} />
+          {touchUi && <RunButton hub={hub} />}
+          {touchUi && <JumpButton hub={hub} />}
+          <EmoteBar hub={hub} open={emoteOpen} selected={emoteChoice} onToggle={setEmoteOpen} />
+          {toast && <Toast text={toast} />}
+          {prompt && <InteractionPrompt prompt={prompt} device={touchUi && device !== "keyboard" && device !== "gamepad" ? "touch" : device} onActivate={() => hub.pressInteract()} />}
+          {caption && <Caption text={caption} />}
+          <PromptAnnouncer prompt={prompt} />
+          <PauseButton onPause={pauseGame} />
+        </>
+      )}
       {phase === "paused" && <PauseMenu settings={settings} onChange={changeSetting} onMove={(step) => bus.playUi("move", { step })} onResume={resumeGame} onLeave={leaveGame} />}
       {showStats && hasCanvas(phase) && <PerfOverlay />}
     </main>

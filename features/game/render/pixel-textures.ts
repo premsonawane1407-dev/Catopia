@@ -29,9 +29,9 @@ function mulberry32(seed: number) {
   };
 }
 
-type Setter = (x: number, y: number, r: number, g: number, b: number) => void;
+export type Setter = (x: number, y: number, r: number, g: number, b: number) => void;
 
-function dataTexture(size: number, seed: number, srgb: boolean, paint: (set: Setter, rand: () => number) => void): DataTexture {
+export function dataTexture(size: number, seed: number, srgb: boolean, paint: (set: Setter, rand: () => number) => void): DataTexture {
   const data = new Uint8ClampedArray(size * size * 4);
   // Drawn y-down; DataTexture rows start at the bottom, so flip while writing.
   const set: Setter = (x, y, r, g, b) => {
