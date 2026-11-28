@@ -1,7 +1,7 @@
 // Small props built in code (no model files), merged into a few meshes that share the street's surface
 // materials: `wood` (crates and barrels, which wear the plank pattern) and `plain` (iron hoops, fruit,
 // flower pots). Colour is baked into the vertices, so a whole market of props costs two draw calls.
-import { BoxGeometry, BufferGeometry, Color, Float32BufferAttribute, IcosahedronGeometry, LatheGeometry, Matrix4, TorusGeometry, Vector2 } from "three";
+import { BoxGeometry, BufferGeometry, Color, ConeGeometry, CylinderGeometry, Float32BufferAttribute, IcosahedronGeometry, LatheGeometry, Matrix4, SphereGeometry, TorusGeometry, Vector2 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Vec3 } from "./stage-constants";
 import type { PropSpecs } from "./map/load-map";
@@ -168,7 +168,126 @@ export function buildPropGeometries(specs: PropSpecs): PropGeometries {
     }
   }
 
+  buildCafeProps(specs, wood, plain);
   return { wood: wood.merge(), plain: plain.merge() };
+}
+
+const T = (x: number, y: number, z: number) => new Matrix4().makeTranslation(x, y, z);
+const S = (x: number, y: number, z: number) => new Matrix4().makeScale(x, y, z);
+const RX = (a: number) => new Matrix4().makeRotationX(a);
+const RZ = (a: number) => new Matrix4().makeRotationZ(a);
+const RY = (a: number) => new Matrix4().makeRotationY(a);
+const at = (group: Matrix4, ...steps: Matrix4[]) => steps.reduce((m, s) => m.multiply(s), group.clone());
+
+const TABLE_WOOD = "#a8703f";
+const CHAIR_WOOD = "#8a5a33";
+const STONE = "#cfc7b8";
+const STATUE = "#e2ddd3";
+const STATUE_SHADE = "#c9c3b8";
+const CHALK = "#e8e4d4";
+const BOARD = "#26322e";
+const PLATE = "#f2eee4";
+const CUP = "#f6f2ea";
+const COFFEE = "#6b4128";
+const PASTRY = "#d49a4a";
+const VASE = "#6aa6b8";
+
+/**
+ * The café's furniture and the fountain's cat statue, built from simple solids in the street's own colours: round tables
+ * with cups, plates and a vase, chairs with slatted backs, a striped parasol, A-frame chalkboards, and a stone cat on a
+ * pedestal. Wooden things go in the plank-patterned mesh, the rest in the plain one.
+ */
+function buildCafeProps(specs: PropSpecs, wood: PartList, plain: PartList): void {
+  const box = new BoxGeometry(1, 1, 1);
+  const disc = new CylinderGeometry(1, 1, 1, 16);
+  const ball = new SphereGeometry(1, 12, 9);
+
+  // Tables: a round top on a post and a foot, with something on it.
+  for (const t of specs.tables) {
+    const g = placementMatrix({ position: t.position });
+    wood.add(disc, TABLE_WOOD, at(g, T(0, 0.425, 0), S(t.radius, 0.03, t.radius)));
+    wood.add(disc, CHAIR_WOOD, at(g, T(0, 0.21, 0), S(0.026, 0.4, 0.026)));
+    wood.add(disc, CHAIR_WOOD, at(g, T(0, 0.01, 0), S(0.13, 0.02, 0.13)));
+    const rand = lcg(t.seed * 4421 + 13);
+    // A cup on its saucer, a plate with a pastry, and a small vase with a bloom.
+    const a = rand() * Math.PI * 2;
+    const spots = [0, 1, 2].map((i) => ({ x: Math.cos(a + (i * Math.PI * 2) / 3) * t.radius * 0.5, z: Math.sin(a + (i * Math.PI * 2) / 3) * t.radius * 0.5 }));
+    plain.add(disc, PLATE, at(g, T(spots[0].x, 0.443, spots[0].z), S(0.055, 0.006, 0.055)));
+    plain.add(disc, CUP, at(g, T(spots[0].x, 0.465, spots[0].z), S(0.026, 0.04, 0.026)));
+    plain.add(disc, COFFEE, at(g, T(spots[0].x, 0.483, spots[0].z), S(0.021, 0.004, 0.021)));
+    plain.add(disc, PLATE, at(g, T(spots[1].x, 0.443, spots[1].z), S(0.07, 0.006, 0.07)));
+    plain.add(ball, PASTRY, at(g, T(spots[1].x, 0.456, spots[1].z), S(0.04, 0.022, 0.03)));
+    plain.add(disc, VASE, at(g, T(spots[2].x, 0.463, spots[2].z), S(0.014, 0.04, 0.014)));
+    const bloomColor = new Color(FLOWER_COLORS[Math.floor(rand() * FLOWER_COLORS.length)]).multiplyScalar(1.15);
+    plain.add(ball, bloomColor, at(g, T(spots[2].x, 0.498, spots[2].z), S(0.024, 0.024, 0.024)));
+    plain.add(ball, LEAVES, at(g, T(spots[2].x + 0.012, 0.49, spots[2].z), S(0.014, 0.012, 0.014)));
+  }
+
+  // Chairs: a seat, four legs and a slatted back; at rotation 0 the seat faces +z and the back is behind it.
+  for (const c of specs.chairs) {
+    const g = placementMatrix({ position: c.position, rotationY: c.rotationY });
+    wood.add(box, CHAIR_WOOD, at(g, T(0, 0.27, 0), S(0.28, 0.03, 0.28)));
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) wood.add(box, CHAIR_WOOD, at(g, T(sx * 0.115, 0.13, sz * 0.115), S(0.026, 0.26, 0.026)));
+    for (const sx of [-1, 1]) wood.add(box, CHAIR_WOOD, at(g, T(sx * 0.115, 0.43, -0.125), S(0.026, 0.32, 0.026)));
+    wood.add(box, CHAIR_WOOD, at(g, T(0, 0.57, -0.125), S(0.28, 0.05, 0.024)));
+    wood.add(box, CHAIR_WOOD, at(g, T(0, 0.45, -0.125), S(0.24, 0.035, 0.018)));
+    wood.add(box, CHAIR_WOOD, at(g, T(0, 0.35, -0.125), S(0.24, 0.035, 0.018)));
+  }
+
+  // Parasols: a pole, and a canopy of striped wedges with a small finial.
+  const WEDGES = 12;
+  for (const u of specs.umbrellas) {
+    const g = placementMatrix({ position: u.position });
+    wood.add(disc, CHAIR_WOOD, at(g, T(0, u.height / 2, 0), S(0.02, u.height, 0.02)));
+    wood.add(disc, CHAIR_WOOD, at(g, T(0, 0.02, 0), S(0.16, 0.04, 0.16)));
+    const rise = Math.min(0.45, u.radius * 0.36);
+    for (let i = 0; i < WEDGES; i++) {
+      const wedge = new ConeGeometry(u.radius, rise, 2, 1, true, (i * Math.PI * 2) / WEDGES, (Math.PI * 2) / WEDGES);
+      plain.add(wedge, u.colors[i % 2], at(g, T(0, u.height - rise / 2, 0)));
+      wedge.dispose();
+    }
+    // A thin rim of cloth hanging from the edge.
+    for (let i = 0; i < WEDGES; i++) {
+      const a0 = (i * Math.PI * 2) / WEDGES;
+      const a1 = ((i + 1) * Math.PI * 2) / WEDGES;
+      const mid = (a0 + a1) / 2;
+      const w = 2 * u.radius * Math.sin(Math.PI / WEDGES);
+      plain.add(box, u.colors[i % 2], at(g, T(Math.cos(mid) * u.radius * 0.995, u.height - rise - 0.02, Math.sin(mid) * u.radius * 0.995), RY(-mid + Math.PI / 2), S(w, 0.04, 0.01)));
+    }
+    wood.add(ball, CHAIR_WOOD, at(g, T(0, u.height + 0.02, 0), S(0.035, 0.035, 0.035)));
+  }
+
+  // Chalkboards: a dark board in a wooden frame on two splayed legs, with a few lines of chalk.
+  for (const c of specs.chalkboards) {
+    const g = placementMatrix({ position: c.position, rotationY: c.rotationY });
+    wood.add(box, CHAIR_WOOD, at(g, T(0, 0.34, 0), RX(-0.1), S(0.42, 0.56, 0.03)));
+    plain.add(box, BOARD, at(g, T(0, 0.34, 0.012), RX(-0.1), S(0.36, 0.5, 0.012)));
+    for (const sx of [-1, 1]) wood.add(box, CHAIR_WOOD, at(g, T(sx * 0.17, 0.285, -0.1), RX(0.42), S(0.03, 0.6, 0.03)));
+    const rand = lcg(c.seed * 977 + 5);
+    for (let i = 0; i < 5; i++) {
+      const w = 0.1 + rand() * 0.16;
+      plain.add(box, CHALK, at(g, T((rand() - 0.5) * (0.3 - w), 0.5 - i * 0.065 + (rand() - 0.5) * 0.01, 0.024), RX(-0.1), S(w, 0.008, 0.004)));
+    }
+    plain.add(box, CHALK, at(g, T(0, 0.585, 0.024), RX(-0.1), S(0.22, 0.014, 0.004)));
+  }
+
+  // The statue: a round stone pedestal and a sitting cat, pale and simple, with upright ears.
+  const pedestal = lathe([[0, 0], [0.22, 0], [0.22, 0.06], [0.17, 0.09], [0.17, 0.1], [0.11, 0.14], [0.11, 0.34], [0.16, 0.37], [0.16, 0.42], [0, 0.42]], 20);
+  for (const s of specs.statues) {
+    const g = placementMatrix({ position: s.position, rotationY: s.rotationY, scale: s.scale });
+    plain.add(pedestal, STONE, g);
+    const y0 = 0.42;
+    plain.add(ball, STATUE, at(g, T(0, y0 + 0.16, 0), S(0.1, 0.17, 0.09)));
+    for (const sx of [-1, 1]) plain.add(ball, STATUE_SHADE, at(g, T(sx * 0.075, y0 + 0.08, 0.015), S(0.065, 0.08, 0.085)));
+    for (const sx of [-1, 1]) plain.add(disc, STATUE, at(g, T(sx * 0.04, y0 + 0.07, 0.09), S(0.022, 0.14, 0.022)));
+    plain.add(ball, STATUE, at(g, T(0, y0 + 0.37, 0.01), S(0.085, 0.075, 0.08)));
+    for (const sx of [-1, 1]) plain.add(new ConeGeometry(0.034, 0.075, 4), STATUE, at(g, T(sx * 0.05, y0 + 0.455, 0.0), RZ(-sx * 0.22)));
+    plain.add(ball, STATUE_SHADE, at(g, T(0, y0 + 0.35, 0.078), S(0.04, 0.03, 0.03)));
+    for (const sx of [-1, 1]) plain.add(ball, "#4a4a52", at(g, T(sx * 0.03, y0 + 0.385, 0.082), S(0.009, 0.011, 0.006)));
+    // The tail curls round the right side, from the haunch up behind the back.
+    const tail: [number, number, number, number][] = [[0.1, 0.05, -0.04, 0.03], [0.14, 0.1, -0.06, 0.028], [0.15, 0.17, -0.08, 0.026], [0.13, 0.23, -0.08, 0.024]];
+    for (const [tx, ty, tz, r] of tail) plain.add(ball, STATUE, at(g, T(tx, y0 + ty, tz), S(r, r, r)));
+  }
 }
 
 /** Triangular flags hanging in a curve between two points: position and colour, no normals (drawn unlit). */

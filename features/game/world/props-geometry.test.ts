@@ -11,6 +11,11 @@ const ALL_PROPS = {
   pots: [...MARKET_STREET.worldProps.pots, ...MARKET_STREET.framingProps.pots],
   awnings: [...MARKET_STREET.worldProps.awnings, ...MARKET_STREET.framingProps.awnings],
   planters: MARKET_STREET.worldProps.planters,
+  tables: MARKET_STREET.worldProps.tables,
+  chairs: MARKET_STREET.worldProps.chairs,
+  umbrellas: MARKET_STREET.worldProps.umbrellas,
+  chalkboards: MARKET_STREET.worldProps.chalkboards,
+  statues: MARKET_STREET.worldProps.statues,
 };
 
 describe("lcg", () => {
@@ -67,7 +72,7 @@ describe("buildPropGeometries", () => {
   });
 
   it("builds nothing, without failing, when there is nothing to build", () => {
-    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [] });
+    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [] });
     expect(empty.wood.getAttribute("position")).toBeUndefined();
     expect(empty.plain.getAttribute("position")).toBeUndefined();
   });
@@ -96,5 +101,42 @@ describe("buildSignChains", () => {
   it("makes two thin chains", () => {
     const g = buildSignChains();
     expect(g.getAttribute("position").count).toBe(2 * 36);
+  });
+});
+
+describe("the café furniture and the statue", () => {
+  const only = (extra: Partial<typeof ALL_PROPS>) => ({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], ...extra });
+  const verts = (g: ReturnType<typeof buildPropGeometries>) => (g.wood.getAttribute("position")?.count ?? 0) + (g.plain.getAttribute("position")?.count ?? 0);
+
+  it("are in the street: tables, chairs, a parasol, chalkboards and a statue", () => {
+    expect(MARKET_STREET.worldProps.tables.length).toBeGreaterThanOrEqual(5);
+    expect(MARKET_STREET.worldProps.chairs.length).toBeGreaterThanOrEqual(8);
+    expect(MARKET_STREET.worldProps.umbrellas).toHaveLength(1);
+    expect(MARKET_STREET.worldProps.chalkboards.length).toBeGreaterThanOrEqual(2);
+    expect(MARKET_STREET.worldProps.statues).toHaveLength(1);
+  });
+
+  it("each build something, standing on the ground and no wider than they should be", () => {
+    const one = {
+      tables: [{ position: [0, 0, 0] as [number, number, number], radius: 0.3, seed: 1 }],
+      chairs: [{ position: [0, 0, 0] as [number, number, number] }],
+      umbrellas: [{ position: [0, 0, 0] as [number, number, number], radius: 1.2, height: 1.7, colors: ["#ffffff", "#cccccc"] as [string, string] }],
+      chalkboards: [{ position: [0, 0, 0] as [number, number, number], seed: 1 }],
+      statues: [{ position: [0, 0, 0] as [number, number, number], scale: 1 }],
+    };
+    for (const [name, specs] of Object.entries(one)) {
+      const g = buildPropGeometries(only({ [name]: specs }));
+      expect(verts(g), name).toBeGreaterThan(20);
+      for (const part of [g.wood, g.plain]) if (part.getAttribute("position")) expect(part.boundingBox!.min.y, name).toBeGreaterThanOrEqual(-1e-6);
+    }
+    // A parasol is as wide as its radius and as tall as its height.
+    const u = buildPropGeometries(only({ umbrellas: one.umbrellas }));
+    u.plain.computeBoundingBox();
+    expect(u.plain.boundingBox!.max.x).toBeLessThanOrEqual(1.25);
+    expect(u.plain.boundingBox!.max.y).toBeLessThanOrEqual(1.8);
+  });
+
+  it("are solid where they should be: tables, parasol poles and chalkboards block the cat, flowers do not", () => {
+    for (const prefix of ["table-", "chair-", "umbrella-", "chalkboard-"]) expect(MARKET_STREET.colliders.some((c) => c.id.startsWith(prefix)), prefix).toBe(true);
   });
 });

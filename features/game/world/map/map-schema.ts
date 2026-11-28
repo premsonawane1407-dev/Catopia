@@ -121,6 +121,22 @@ export const awningSchema = z.strictObject({
 /** A window flower box (built from the houses' `windowBoxes`; the same shape can also be placed directly). */
 export const planterSchema = z.strictObject({ position: vec3, rotationY: num.optional(), width: num.min(0.1).max(2), seed: int });
 
+/** A round café table with a few things on it. */
+export const tableSchema = z.strictObject({ position: vec3, radius: num.min(0.15).max(0.6).default(0.3), seed: int });
+/** A wooden café chair; at rotation 0 its seat faces +z, and it turns the way the table is. */
+export const chairSchema = z.strictObject({ position: vec3, rotationY: num.optional() });
+/** A large striped parasol on a pole; `position` is the pole's foot. */
+export const umbrellaSchema = z.strictObject({
+  position: vec3,
+  radius: num.min(0.5).max(2.5).default(1.2),
+  height: num.min(1.2).max(2.4).default(1.65),
+  colors: z.tuple([z.string().regex(/^#[0-9a-f]{6}$/), z.string().regex(/^#[0-9a-f]{6}$/)]),
+});
+/** A freestanding A-frame chalkboard with a few chalk marks. */
+export const chalkboardSchema = z.strictObject({ position: vec3, rotationY: num.optional(), seed: int });
+/** A stone cat on a round pedestal, like the one on the fountain; `position` is the foot of the pedestal. */
+export const statueSchema = z.strictObject({ position: vec3, rotationY: num.optional(), scale: num.positive().default(1) });
+
 export const buntingSchema = z.strictObject({ from: vec3, to: vec3, sag: num, flags: int.min(1).max(60), size: num.positive() });
 export const posterSchema = z.strictObject({ position: vec3, seed: int, rotationZ: num });
 
@@ -180,6 +196,11 @@ export const mapSchema = z.strictObject({
     pots: z.array(potSchema),
     awnings: z.array(awningSchema).default([]),
     planters: z.array(planterSchema).default([]),
+    tables: z.array(tableSchema).default([]),
+    chairs: z.array(chairSchema).default([]),
+    umbrellas: z.array(umbrellaSchema).default([]),
+    chalkboards: z.array(chalkboardSchema).default([]),
+    statues: z.array(statueSchema).default([]),
   }),
   bunting: z.array(buntingSchema),
   posters: z.array(posterSchema),
@@ -200,6 +221,11 @@ export type ProduceSpec = z.infer<typeof produceSchema>;
 export type PotSpec = z.infer<typeof potSchema>;
 export type AwningSpec = z.infer<typeof awningSchema>;
 export type PlanterSpec = z.infer<typeof planterSchema>;
+export type TableSpec = z.infer<typeof tableSchema>;
+export type ChairSpec = z.infer<typeof chairSchema>;
+export type UmbrellaSpec = z.infer<typeof umbrellaSchema>;
+export type ChalkboardSpec = z.infer<typeof chalkboardSchema>;
+export type StatueSpec = z.infer<typeof statueSchema>;
 export type BuntingString = z.infer<typeof buntingSchema>;
 export type PosterSpec = z.infer<typeof posterSchema>;
 export type MapInteractable = z.infer<typeof interactableSchema>;

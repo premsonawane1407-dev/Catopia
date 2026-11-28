@@ -229,9 +229,9 @@ describe("the player", () => {
   });
 
   it("runs at about the run speed in the open", () => {
-    const p = createPlayer(-0.3, 0, 0, floorAt(-0.3, 0));
+    const p = createPlayer(-1.4, 1.6, 0, floorAt(-1.4, 1.6));
     let out = stepPlayer(p, idle, env);
-    for (let i = 0; i < 90; i++) out = stepPlayer(p, { ...idle, move: { x: 0, z: 1, gait: "run" } }, env);
+    for (let i = 0; i < 90; i++) out = stepPlayer(p, { ...idle, move: { x: 1, z: 0, gait: "run" } }, env);
     expect(out.mode).toBe("run");
     expect(out.speed).toBeGreaterThan(env.params.runSpeed * 0.95);
   });
