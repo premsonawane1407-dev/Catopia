@@ -175,9 +175,77 @@ export function buildPropGeometries(specs: PropSpecs): PropGeometries {
   buildCafeProps(specs, wood, plain);
   buildFlowerClusters(specs, plain);
   buildTrees(specs, plain);
+  buildHouseDetails(specs, wood, plain);
   buildBridges(specs, stone);
   buildBoats(specs, wood);
   return { wood: wood.merge(), plain: plain.merge(), stone: stone.merge() };
+}
+
+const DORMER_WALL = "#ece2c8";
+const DORMER_FRAME = "#5a3a22";
+const GLASS = "#f6d38a";
+const IVY_GREENS = ["#2c6a2e", "#3a7d34", "#4a9040", "#2a5f2b", "#58a046"];
+const ROSES = ["#e24a5e", "#f06a8a", "#f4f0e0", "#f48fb1"];
+
+/**
+ * What makes a house its own: roof dormers (a small cream box with a glazed window under a hipped roof in the house's roof colour),
+ * wooden balconies with a railing of posts and rails, and ivy with a scatter of roses climbing the front wall.
+ */
+function buildHouseDetails(specs: PropSpecs, wood: PartList, plain: PartList): void {
+  const box = new BoxGeometry(1, 1, 1);
+  for (const d of specs.dormers) {
+    const g = placementMatrix({ position: d.position });
+    const w = d.width;
+    // The body, set into the slope, with a sill and a small ledge.
+    plain.add(box, DORMER_WALL, at(g, T(0, 0.17, -0.04), S(w, 0.34, 0.3)));
+    plain.add(box, "#d8cdb0", at(g, T(0, 0.01, 0.13), S(w + 0.08, 0.03, 0.1)));
+    // The window: a dark frame, warm glass and a cross of bars.
+    plain.add(box, DORMER_FRAME, at(g, T(0, 0.18, 0.112), S(w * 0.66, 0.24, 0.012)));
+    plain.add(box, GLASS, at(g, T(0, 0.18, 0.12), S(w * 0.54, 0.2, 0.01)));
+    plain.add(box, DORMER_FRAME, at(g, T(0, 0.18, 0.127), S(0.016, 0.2, 0.008)));
+    plain.add(box, DORMER_FRAME, at(g, T(0, 0.18, 0.127), S(w * 0.54, 0.016, 0.008)));
+    // A little hipped roof in the roof's colour.
+    const pyramid = new ConeGeometry(w * 0.82, 0.2, 4);
+    plain.add(pyramid, d.roof, at(g, T(0, 0.34 + 0.1, -0.04), RY(Math.PI / 4)));
+    pyramid.dispose();
+  }
+  for (const b of specs.balconies) {
+    const g = placementMatrix({ position: b.position });
+    const W = b.width;
+    const D = b.depth;
+    wood.add(box, TABLE_WOOD, at(g, T(W / 2, 0, D / 2), S(W + 0.08, 0.05, D)));
+    // Two brackets under the slab.
+    for (const x of [0.12, W - 0.12]) wood.add(box, CHAIR_WOOD, at(g, T(x, -0.1, D * 0.45), RX(0.0), S(0.04, 0.16, D * 0.7)));
+    const rail = 0.34;
+    wood.add(box, CHAIR_WOOD, at(g, T(W / 2, rail, D - 0.02), S(W + 0.06, 0.035, 0.04)));
+    wood.add(box, CHAIR_WOOD, at(g, T(W / 2, 0.12, D - 0.02), S(W + 0.06, 0.025, 0.03)));
+    for (const x of [-0.02, W + 0.02]) {
+      wood.add(box, CHAIR_WOOD, at(g, T(x, rail / 2 + 0.02, D / 2), S(0.04, rail + 0.03, 0.04)));
+      wood.add(box, CHAIR_WOOD, at(g, T(x, rail, D / 2), S(0.04, 0.035, D)));
+    }
+    const posts = Math.max(3, Math.round(W / 0.12));
+    for (let i = 0; i <= posts; i++) wood.add(box, TABLE_WOOD, at(g, T((i / posts) * W, rail / 2 + 0.02, D - 0.02), S(0.022, rail - 0.02, 0.022)));
+  }
+  const leaf = new IcosahedronGeometry(1, 0);
+  for (const v of specs.ivy) {
+    const g = placementMatrix({ position: v.position });
+    const rand = lcg(v.seed * 4999 + 17);
+    const blobs = Math.round(v.width * v.height * 60);
+    for (let i = 0; i < blobs; i++) {
+      // Thicker near the bottom and one edge, ragged at the top, like a climber that has grown up from the corner.
+      const t = Math.pow(rand(), 1.4);
+      const y = t * v.height;
+      const spread = v.width * (1 - t * 0.55);
+      const x = rand() * spread + (v.width - spread) * 0.1;
+      const r = 0.04 + rand() * 0.05;
+      plain.add(leaf, new Color(pick(rand, IVY_GREENS)).multiplyScalar(0.92 + rand() * 0.16), at(g, T(x, y + 0.04, 0.02 + rand() * 0.035), S(r * 1.3, r, r * 0.55)));
+    }
+    const roses = 2 + Math.round(v.height * 3);
+    for (let i = 0; i < roses; i++) {
+      const y = (0.25 + rand() * 0.7) * v.height;
+      plain.add(new IcosahedronGeometry(1, 0), new Color(pick(rand, ROSES)).multiplyScalar(1.1), at(g, T(rand() * v.width * 0.8 + 0.05, y, 0.07), S(0.03, 0.03, 0.03)));
+    }
+  }
 }
 
 const BARK = ["#6b4a2e", "#5c3f27"];
@@ -427,6 +495,7 @@ function buildFlowerClusters(specs: PropSpecs, plain: PartList): void {
   }
 }
 
+const pick = <A,>(rand: () => number, list: readonly A[]): A => list[Math.floor(rand() * list.length)];
 const T = (x: number, y: number, z: number) => new Matrix4().makeTranslation(x, y, z);
 const S = (x: number, y: number, z: number) => new Matrix4().makeScale(x, y, z);
 const RX = (a: number) => new Matrix4().makeRotationX(a);

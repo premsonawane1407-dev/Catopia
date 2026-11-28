@@ -76,6 +76,12 @@ export const houseSchema = z
     chimneyAt: int.min(0).optional(),
     /** A flower box under every shuttered or glazed window (the small ones have no sill for one). */
     windowBoxes: z.boolean().optional(),
+    /** Roof dormers on the front slope, at these columns. */
+    dormers: z.array(int.min(0)).optional(),
+    /** A wooden balcony across columns `from` to `to` (inclusive) at the floor `floor` (1 is the first floor above the ground floor). */
+    balcony: z.strictObject({ floor: int.min(1).max(4), from: int.min(0), to: int.min(0) }).optional(),
+    /** Ivy and climbing roses up the front wall at these columns, `height` floors tall. */
+    ivy: z.array(z.strictObject({ col: int.min(0), height: num.min(0.5).max(4).default(1.6) })).optional(),
   })
   .refine((h) => h.floors.every((row) => row.length === h.cols), { message: "every floor row needs one letter per column" })
   .refine((h) => h.chimneyAt === undefined || h.chimneyAt < h.cols, { message: "the chimney must stand over one of the columns" });
@@ -150,6 +156,15 @@ export const boatSchema = z.strictObject({ position: vec3, rotationY: num.option
  * scales the whole thing; `seed` makes each one different.
  */
 export const treeSchema = z.strictObject({ position: vec3, kind: z.enum(["oak", "round", "bush", "flowering"]).default("oak"), scale: num.min(0.3).max(3).default(1), seed: int });
+
+/** A small dormer window set into a roof's front slope: `position` is the middle of its base on the slope. */
+export const dormerSchema = z.strictObject({ position: vec3, width: num.min(0.2).max(1).default(0.4), roof: z.string().regex(/^#[0-9a-f]{6}$/) });
+/** A wooden balcony with a railing, sticking out from a front wall: `position` is its left end at the wall, at floor level. */
+export const balconySchema = z.strictObject({ position: vec3, width: num.min(0.5).max(6), depth: num.min(0.2).max(1).default(0.4) });
+/** Ivy with a few roses on a front wall: `position` is the foot of its left edge, on the wall's face. */
+export const ivySchema = z.strictObject({ position: vec3, width: num.min(0.3).max(3).default(0.9), height: num.min(0.4).max(5), seed: int });
+/** A hanging shop sign on a bracket; the picture says what the shop is. */
+export const signSchema = z.strictObject({ position: vec3, kind: z.enum(["paw", "cup", "bread"]).default("paw") });
 
 /** A round café table with a few things on it. */
 export const tableSchema = z.strictObject({ position: vec3, radius: num.min(0.15).max(0.6).default(0.3), seed: int });
@@ -233,12 +248,17 @@ export const mapSchema = z.strictObject({
     statues: z.array(statueSchema).default([]),
     flowers: z.array(flowerClusterSchema).default([]),
     trees: z.array(treeSchema).default([]),
+    dormers: z.array(dormerSchema).default([]),
+    balconies: z.array(balconySchema).default([]),
+    ivy: z.array(ivySchema).default([]),
     bridges: z.array(bridgeSchema).default([]),
     boats: z.array(boatSchema).default([]),
   }),
   bunting: z.array(buntingSchema),
   posters: z.array(posterSchema),
   sign: z.strictObject({ position: vec3 }).optional(),
+  /** More hanging signs (the one above is the bakery's paw sign). */
+  signs: z.array(signSchema).default([]),
   /** Extra solid things that are not model pieces or props (invisible walls, say). */
   colliders: z.array(colliderSchema),
   interactables: z.array(interactableSchema),
@@ -262,6 +282,10 @@ export type ChalkboardSpec = z.infer<typeof chalkboardSchema>;
 export type StatueSpec = z.infer<typeof statueSchema>;
 export type FlowerClusterSpec = z.infer<typeof flowerClusterSchema>;
 export type TreeSpec = z.infer<typeof treeSchema>;
+export type DormerSpec = z.infer<typeof dormerSchema>;
+export type BalconySpec = z.infer<typeof balconySchema>;
+export type IvySpec = z.infer<typeof ivySchema>;
+export type SignSpec = z.infer<typeof signSchema>;
 export type BridgeSpec = z.infer<typeof bridgeSchema>;
 export type BoatSpec = z.infer<typeof boatSchema>;
 export type BuntingString = z.infer<typeof buntingSchema>;

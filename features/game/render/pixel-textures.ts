@@ -433,14 +433,16 @@ export function makeGroundSpillTexture(): CanvasTexture {
 }
 
 /** A paw-print shop sign. */
-export function makeSignTexture(): CanvasTexture {
+export type SignKind = "paw" | "cup" | "bread";
+
+export function makeSignTexture(kind: SignKind = "paw"): CanvasTexture {
   const w = 48;
   const h = 32;
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
   const ctx = c.getContext("2d")!;
-  ctx.fillStyle = "#2f5d4a";
+  ctx.fillStyle = kind === "paw" ? "#2f5d4a" : "#6b4228";
   ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = "#e9d8a8";
   ctx.fillRect(1, 1, w - 2, 2);
@@ -448,11 +450,32 @@ export function makeSignTexture(): CanvasTexture {
   ctx.fillRect(1, 1, 2, h - 2);
   ctx.fillRect(w - 3, 1, 2, h - 2);
   ctx.fillStyle = "#f4e6b8";
-  // Pad and four toes.
-  ctx.fillRect(18, 17, 12, 8);
-  ctx.fillRect(16, 19, 2, 4);
-  ctx.fillRect(30, 19, 2, 4);
-  for (const [x, y] of [[13, 12], [19, 8], [27, 8], [33, 12]]) ctx.fillRect(x, y, 3, 4);
+  if (kind === "paw") {
+    // Pad and four toes.
+    ctx.fillRect(18, 17, 12, 8);
+    ctx.fillRect(16, 19, 2, 4);
+    ctx.fillRect(30, 19, 2, 4);
+    for (const [x, y] of [[13, 12], [19, 8], [27, 8], [33, 12]]) ctx.fillRect(x, y, 3, 4);
+  } else if (kind === "cup") {
+    // A coffee cup on its saucer with a curl of steam.
+    ctx.fillRect(15, 14, 16, 10);
+    ctx.fillRect(17, 24, 12, 2);
+    ctx.fillRect(12, 26, 22, 2);
+    ctx.fillRect(31, 16, 4, 2);
+    ctx.fillRect(34, 16, 2, 6);
+    ctx.fillRect(31, 20, 4, 2);
+    ctx.fillStyle = "#c98a4a";
+    ctx.fillRect(17, 15, 12, 2);
+    ctx.fillStyle = "#f4e6b8";
+    for (const [x, y] of [[19, 11], [20, 9], [19, 7], [25, 11], [26, 9], [25, 7]]) ctx.fillRect(x, y, 2, 2);
+  } else {
+    // A loaf with three cuts.
+    ctx.fillRect(12, 14, 24, 10);
+    ctx.fillRect(14, 12, 20, 2);
+    ctx.fillRect(16, 10, 16, 2);
+    ctx.fillStyle = "#6b4228";
+    for (const x of [18, 23, 28]) ctx.fillRect(x, 13, 2, 5);
+  }
   return canvasTexture(c, true);
 }
 

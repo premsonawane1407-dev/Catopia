@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { DoubleSide, type Group } from "three";
 import { createGroundMaterial, createGroundTextures, createTerrainTexture } from "../render/ground-material";
-import { makePosterTexture, makeSignTexture } from "../render/pixel-textures";
+import { makePosterTexture, makeSignTexture, type SignKind } from "../render/pixel-textures";
 import { createSurfaceMaterial, type SurfaceTextures } from "../render/surface-material";
 import { createWaterMaterial } from "../render/water-material";
 import type { GameAssets } from "./game-assets";
@@ -101,9 +101,9 @@ export function Bunting({ strings, motion }: { strings: readonly BuntingString[]
 }
 
 /** A paw-print shop sign swinging on its bracket. */
-export function HangingSign({ position, motion }: { position: Vec3; motion: boolean }) {
+export function HangingSign({ position, motion, kind = "paw" }: { position: Vec3; motion: boolean; kind?: SignKind }) {
   const swing = useRef<Group>(null);
-  const map = useMemo(() => makeSignTexture(), []);
+  const map = useMemo(() => makeSignTexture(kind), [kind]);
   const chains = useMemo(() => buildSignChains(), []);
   useEffect(() => () => map.dispose(), [map]);
   useEffect(() => () => chains.dispose(), [chains]);

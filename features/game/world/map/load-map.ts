@@ -11,7 +11,7 @@ import { buildHouse, type WindowSpec } from "./build-house";
 import { BARREL, BUSH, CHAIR, CHALKBOARD, TREE_TRUNK, CRATE_RADIUS_PER_SIZE, HOUSE_HEIGHT, LAMP_POST, PIECE_PROFILES, POT, TABLE, UMBRELLA_POLE } from "./collision-profiles";
 import { heightAt, heightColliders, rasterizeTerrain, waterColliders, type TerrainGrid } from "./terrain";
 import { deckHeight } from "../stone-geometry";
-import { mapSchema, type AwningSpec, type BarrelSpec, type BuntingString, type BoatSpec, type BridgeSpec, type TreeSpec, type ChairSpec, type ChalkboardSpec, type CrateSpec, type FlowerClusterSpec, type StatueSpec, type TableSpec, type UmbrellaSpec, type MapCamera, type MapData, type PlanterSpec, type PosterSpec, type PotSpec, type ProduceSpec } from "./map-schema";
+import { mapSchema, type AwningSpec, type BarrelSpec, type BuntingString, type BalconySpec, type BoatSpec, type BridgeSpec, type DormerSpec, type IvySpec, type SignSpec, type TreeSpec, type ChairSpec, type ChalkboardSpec, type CrateSpec, type FlowerClusterSpec, type StatueSpec, type TableSpec, type UmbrellaSpec, type MapCamera, type MapData, type PlanterSpec, type PosterSpec, type PotSpec, type ProduceSpec } from "./map-schema";
 
 export class MapError extends Error {
   constructor(
@@ -44,6 +44,9 @@ export interface PropSpecs {
   statues: readonly StatueSpec[];
   flowers: readonly FlowerClusterSpec[];
   trees: readonly TreeSpec[];
+  dormers: readonly DormerSpec[];
+  balconies: readonly BalconySpec[];
+  ivy: readonly IvySpec[];
   bridges: readonly BridgeSpec[];
   boats: readonly BoatSpec[];
 }
@@ -77,6 +80,8 @@ export interface LoadedMap {
   bunting: BuntingString[];
   posters: PosterSpec[];
   sign: Vec3 | null;
+  /** More hanging shop signs, each with its picture. */
+  signs: { position: Vec3; kind: SignSpec["kind"] }[];
   colliders: Collider[];
   interactables: Interactable[];
 }
@@ -269,6 +274,26 @@ export function loadMap(raw: unknown): LoadedMap {
       planters.push({ position: [w.x, (w.base ?? 0) + w.level + SILL_Y[w.key] - 0.03, w.z + 0.05], width: w.key === "a" ? 0.46 : 0.36, seed: hi * 31 + wi * 7 + 1 });
     });
   });
+  // What each house asks for: dormers on the front slope, a balcony, ivy up the wall. (The house's own floor is already lifted by the ground.)
+  const ROOF_RISE: Record<string, number> = { "roof-high-gable": 1.11, "roof-high": 1.14, "roof-gable": 0.57 };
+  const ROOF_HEX = { terracotta: "#c8683e", slate: "#6d8499", moss: "#5e9a68" } as const;
+  const houseDormers: DormerSpec[] = [];
+  const houseBalconies: BalconySpec[] = [];
+  const houseIvy: IvySpec[] = [];
+  data.houses.forEach((h, hi) => {
+    const base = baseAt(h.x0 + (h.cols - 1) / 2, h.zFront - (h.depth - 1) / 2);
+    const top = h.floors.length;
+    const faceZ = h.zFront + 0.5;
+    for (const col of h.dormers ?? []) {
+      // The roof piece is scaled along its depth: the front eave is at the front, the ridge in the middle. A dormer sits part way up.
+      const f = 0.42;
+      const rise = (ROOF_RISE[h.roof] ?? 0.57) * (h.roofScaleY ?? 1.35);
+      const eaveZ = h.zFront - (h.depth - 1) / 2 + h.depth / 2;
+      houseDormers.push({ position: [h.x0 + col, base + top + f * rise - 0.06, eaveZ - f * (h.depth / 2)], width: 0.42, roof: ROOF_HEX[h.roofColor ?? (h.roof.startsWith("roof-high") ? "terracotta" : "moss")] });
+    }
+    if (h.balcony) houseBalconies.push({ position: [h.x0 + h.balcony.from - 0.5, base + h.balcony.floor - 0.02, faceZ], width: h.balcony.to - h.balcony.from + 1, depth: 0.4 });
+    (h.ivy ?? []).forEach((v, vi) => houseIvy.push({ position: [h.x0 + v.col - 0.45, base, faceZ + 0.012], width: 0.9, height: v.height, seed: hi * 17 + vi * 5 + 3 }));
+  });
   const liftProp = <T extends { position: [number, number, number]; layer?: "world" | "framing" }>(list: readonly T[]): T[] => list.map((p) => ({ ...p, position: lift(p.position, p.layer) }));
   const props = {
     crates: liftProp(data.props.crates),
@@ -283,6 +308,9 @@ export function loadMap(raw: unknown): LoadedMap {
     statues: liftProp(data.props.statues),
     flowers: liftProp(data.props.flowers),
     trees: liftProp(data.props.trees),
+    dormers: [...liftProp(data.props.dormers), ...houseDormers],
+    balconies: [...liftProp(data.props.balconies), ...houseBalconies],
+    ivy: [...liftProp(data.props.ivy), ...houseIvy],
     bridges: liftProp(data.props.bridges),
     boats: liftProp(data.props.boats),
   };
@@ -314,11 +342,12 @@ export function loadMap(raw: unknown): LoadedMap {
     glows,
     worldGlows: glows.filter((g) => g.kind !== "foreground"),
     framingGlows: glows.filter((g) => g.kind === "foreground"),
-    worldProps: { crates: framing(props.crates, false), barrels: framing(props.barrels, false), produce: props.produce, pots: framing(props.pots, false), awnings: framing(props.awnings, false), planters, tables: props.tables, chairs: props.chairs, umbrellas: props.umbrellas, chalkboards: props.chalkboards, statues: props.statues, flowers: props.flowers, trees: props.trees, bridges: props.bridges, boats: props.boats },
-    framingProps: { crates: framing(props.crates, true), barrels: framing(props.barrels, true), produce: [], pots: framing(props.pots, true), awnings: framing(props.awnings, true), planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], trees: [], bridges: [], boats: [] },
+    worldProps: { crates: framing(props.crates, false), barrels: framing(props.barrels, false), produce: props.produce, pots: framing(props.pots, false), awnings: framing(props.awnings, false), planters, tables: props.tables, chairs: props.chairs, umbrellas: props.umbrellas, chalkboards: props.chalkboards, statues: props.statues, flowers: props.flowers, trees: props.trees, dormers: props.dormers, balconies: props.balconies, ivy: props.ivy, bridges: props.bridges, boats: props.boats },
+    framingProps: { crates: framing(props.crates, true), barrels: framing(props.barrels, true), produce: [], pots: framing(props.pots, true), awnings: framing(props.awnings, true), planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], trees: [], dormers: [], balconies: [], ivy: [], bridges: [], boats: [] },
     bunting: data.bunting.map((b) => ({ ...b, from: lift(b.from as Vec3), to: lift(b.to as Vec3) })),
     posters: data.posters.map((p) => ({ ...p, position: lift(p.position as Vec3) })),
     sign: data.sign ? lift(data.sign.position as Vec3) : null,
+    signs: data.signs.map((s) => ({ position: lift(s.position as Vec3), kind: s.kind })),
     colliders,
     interactables: data.interactables.map<Interactable>((i) => ({ ...i, approach: i.approach ?? { x: i.x, z: i.z }, facing: i.facing ?? 0 })),
   };

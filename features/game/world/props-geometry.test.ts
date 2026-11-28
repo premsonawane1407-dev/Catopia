@@ -20,6 +20,9 @@ const ALL_PROPS = {
   bridges: MARKET_STREET.worldProps.bridges,
   boats: MARKET_STREET.worldProps.boats,
   trees: MARKET_STREET.worldProps.trees,
+  dormers: MARKET_STREET.worldProps.dormers,
+  balconies: MARKET_STREET.worldProps.balconies,
+  ivy: MARKET_STREET.worldProps.ivy,
 };
 
 describe("lcg", () => {
@@ -81,7 +84,7 @@ describe("buildPropGeometries", () => {
   });
 
   it("builds nothing, without failing, when there is nothing to build", () => {
-    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [] });
+    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], dormers: [], balconies: [], ivy: [] });
     expect(empty.wood.getAttribute("position")).toBeUndefined();
     expect(empty.plain.getAttribute("position")).toBeUndefined();
   });
@@ -114,7 +117,7 @@ describe("buildSignChains", () => {
 });
 
 describe("the café furniture and the statue", () => {
-  const only = (extra: Partial<typeof ALL_PROPS>): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], ...extra });
+  const only = (extra: Partial<typeof ALL_PROPS>): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees: [], dormers: [], balconies: [], ivy: [], ...extra });
   const verts = (g: ReturnType<typeof buildPropGeometries>) => (g.wood.getAttribute("position")?.count ?? 0) + (g.plain.getAttribute("position")?.count ?? 0);
 
   it("are in the street: tables, chairs, a parasol, chalkboards and a statue", () => {
@@ -151,7 +154,7 @@ describe("the café furniture and the statue", () => {
 });
 
 describe("leafy trees and bushes", () => {
-  const only = (trees: PropSpecsTrees): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], trees });
+  const only = (trees: PropSpecsTrees): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], dormers: [], balconies: [], ivy: [], trees });
   type PropSpecsTrees = typeof ALL_PROPS.trees;
   const verts = (g: ReturnType<typeof buildPropGeometries>) => g.plain.getAttribute("position")?.count ?? 0;
 

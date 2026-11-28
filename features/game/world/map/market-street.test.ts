@@ -297,3 +297,35 @@ describe("the bridge, the boat and the round terrace", () => {
     expect(post.scale).toBeGreaterThanOrEqual(1.3);
   });
 });
+
+describe("what makes each house its own", () => {
+  it("gives the houses dormers on their roofs, balconies, ivy with roses and shop signs", () => {
+    expect(M.worldProps.dormers.length).toBeGreaterThanOrEqual(8);
+    expect(M.worldProps.balconies.length).toBeGreaterThanOrEqual(2);
+    expect(M.worldProps.ivy.length).toBeGreaterThanOrEqual(8);
+    expect(M.signs.map((s) => s.kind)).toContain("cup");
+  });
+
+  it("puts each dormer on its roof's slope, above the floor of the house, in the roof's colour", () => {
+    for (const d of M.worldProps.dormers) {
+      const base = heightAt(M.terrainGrid, d.position[0], d.position[2]);
+      expect(d.position[1], `dormer at ${d.position}`).toBeGreaterThan(base + 1.0);
+      expect(d.roof).toMatch(/^#[0-9a-f]{6}$/);
+    }
+    expect(new Set(M.worldProps.dormers.map((d) => d.roof)).size).toBeGreaterThanOrEqual(2);
+  });
+
+  it("makes houses differ: not every house has the same details", () => {
+    const sig = data.houses.map((h) => JSON.stringify([h.dormers ?? [], h.balcony ?? null, (h.ivy ?? []).map((v) => v.col)]));
+    expect(new Set(sig).size).toBeGreaterThanOrEqual(5);
+  });
+
+  it("accepts a house with a balcony, ivy and dormers and refuses a bad one", () => {
+    const m = structuredClone(street) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    m.houses[0].balcony = { floor: 9, from: 0, to: 1 };
+    expect(mapSchema.safeParse(m).success).toBe(false);
+    m.houses[0].balcony = { floor: 1, from: 0, to: 1 };
+    m.houses[0].dormers = [0, 3];
+    expect(mapSchema.safeParse(m).success).toBe(true);
+  });
+});

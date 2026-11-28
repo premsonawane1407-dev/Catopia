@@ -264,7 +264,21 @@
       "windowBoxes": true,
       "roofColor": "terracotta",
       "roofScaleY": 1.05,
-      "chimneyAt": 1
+      "chimneyAt": 1,
+      "dormers": [
+        1,
+        2
+      ],
+      "ivy": [
+        {
+          "col": 0,
+          "height": 1.9
+        },
+        {
+          "col": 3,
+          "height": 1.2
+        }
+      ]
     },
     {
       "x0": 2,
@@ -280,7 +294,16 @@
       "windowBoxes": true,
       "roofColor": "slate",
       "roofScaleY": 0.95,
-      "chimneyAt": 1
+      "chimneyAt": 1,
+      "dormers": [
+        1
+      ],
+      "ivy": [
+        {
+          "col": 2,
+          "height": 1.5
+        }
+      ]
     },
     {
       "x0": 5,
@@ -297,7 +320,21 @@
       "windowBoxes": true,
       "roofColor": "slate",
       "roofScaleY": 0.85,
-      "chimneyAt": 2
+      "chimneyAt": 2,
+      "dormers": [
+        1
+      ],
+      "ivy": [
+        {
+          "col": 0,
+          "height": 2.6
+        }
+      ],
+      "balcony": {
+        "floor": 1,
+        "from": 1,
+        "to": 1
+      }
     },
     {
       "x0": 8,
@@ -313,7 +350,22 @@
       "windowBoxes": true,
       "roofColor": "terracotta",
       "roofScaleY": 0.9,
-      "chimneyAt": 2
+      "chimneyAt": 2,
+      "dormers": [
+        1,
+        2
+      ],
+      "balcony": {
+        "floor": 1,
+        "from": 1,
+        "to": 2
+      },
+      "ivy": [
+        {
+          "col": 3,
+          "height": 1.4
+        }
+      ]
     },
     {
       "x0": -11,
@@ -328,7 +380,20 @@
       "roof": "roof-high-gable",
       "windowBoxes": true,
       "roofColor": "terracotta",
-      "chimneyAt": 0
+      "chimneyAt": 0,
+      "dormers": [
+        1
+      ],
+      "ivy": [
+        {
+          "col": 0,
+          "height": 2
+        },
+        {
+          "col": 2,
+          "height": 1
+        }
+      ]
     },
     {
       "x0": -7,
@@ -342,7 +407,16 @@
       "roof": "roof-high-gable",
       "windowBoxes": true,
       "roofColor": "slate",
-      "roofScaleY": 0.8
+      "roofScaleY": 0.8,
+      "dormers": [
+        1
+      ],
+      "ivy": [
+        {
+          "col": 2,
+          "height": 0.9
+        }
+      ]
     }
   ],
   "watcher": {
@@ -2352,6 +2426,16 @@
         "z": 3.6
       },
       "facing": 0
+    }
+  ],
+  "signs": [
+    {
+      "position": [
+        7.62,
+        1.45,
+        2.56
+      ],
+      "kind": "cup"
     }
   ]
 }

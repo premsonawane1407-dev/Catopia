@@ -76,6 +76,9 @@ export function StageScene({ map, assets, preset, tier, motion, unitsPerPx, devi
       </group>
       <Bunting strings={map.bunting} motion={motion} />
       {map.sign && <HangingSign position={map.sign} motion={motion} />}
+      {map.signs.map((s, i) => (
+        <HangingSign key={i} position={s.position} kind={s.kind} motion={motion} />
+      ))}
       <Posters posters={map.posters} />
       <Particles scale={tier.particleScale} fireflySize={fireflySize} fireflyColor={FIREFLY_COLOR} look={preset} motion={motion} />
       <CatSprite visual={visual} textures={assets.cat} unitsPerPx={unitsPerPx} lean={SPRITE_LEAN} pitchDeg={map.camera.pitch} look={preset} castShadow={tier.shadows} />

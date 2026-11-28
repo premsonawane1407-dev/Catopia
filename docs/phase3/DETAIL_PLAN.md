@@ -138,3 +138,14 @@ The stock low-poly pines are gone; trees and bushes are now code-built props (`p
 - **Collision:** only a trunk (0.2 across, scaled) is solid, so the cat walks under the canopy; a bush is a low solid mound it can jump onto. A bush next to a fence made a pocket the roaming bot got stuck in, so those bushes were moved away from the fence.
 - **Checks:** tsc, eslint, 463 tests (new: the trees exist and the stock ones are gone, oak fuller than round fuller than bush, each tree different and repeatable, trunk and bush solid), build pass. Seen in the running game at day (`oaks-park.jpg`, `bushes-stairs.jpg`).
 - **Not matched yet:** the foliage is smooth lit blobs, not the reference's pixel-drawn leaf clusters (a leaf texture on the blobs would get closer); trunks are plain; no fallen leaves under the trees; dusk and night not checked on the trees.
+
+## Building details (2026-11-28)
+
+Each house now has its own set of details, set in the map data per house (`dormers`, `balcony`, `ivy`) and code-built (merged into the existing prop meshes, no new draw calls):
+- **Dormers:** a small cream box set into the front slope, with a dark frame, warm glazed window with a cross of bars, a sill, and a hipped roof in the house's own roof colour (terracotta, slate or moss). The position is worked out from the roof piece's size and the house's depth, so a dormer sits part way up the slope.
+- **Balconies:** wooden slab with brackets, a railing of posts, top and lower rails and end posts, across the chosen columns of a floor (the café's, as in the reference, and the tall house's).
+- **Ivy and roses:** a mass of leaf clusters in five greens, thick at the bottom and ragged at the top, with a scatter of roses (red, pink, white), climbing the front wall at chosen columns and heights (0.9 to 2.6 floors).
+- **Shop signs:** hanging signs now carry a picture: the bakery's paw (on a brown board, as in the reference) and the café's coffee cup (new, `signs` in the map data); a bread kind exists too.
+- **Per house:** the bakery has two dormers and ivy at both ends; the produce house one dormer and ivy; the tall house a dormer, a balcony and tall ivy; the café two dormers, a balcony and ivy; the red house a dormer and ivy at two columns; the slate cottage a dormer and a little ivy. A test checks the houses differ.
+- **Checks:** tsc, eslint, 467 tests (new: details exist, dormers sit on their roofs in their roof's colour, the houses differ, the schema refuses a bad balcony), build pass. Seen in the running game at day (`details-north.jpg`, `details-cafe.jpg`).
+- **Not matched yet:** shutters and door handles are only what the stock wall pieces have; no wall-mounted lanterns or small wall decorations; the notice board, signpost and bicycle; lily pads; a leaf texture for the trees; dusk and night not checked on the new details.
