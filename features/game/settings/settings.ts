@@ -1,6 +1,7 @@
 // Player preferences. Kept as plain data plus validation, so loading a stale or tampered value
 // from storage can never put the game into an impossible state.
 
+import { COAT_PRESETS } from "../cat/coat";
 import type { TimeSetting } from "../render/day-clock";
 
 export type QualitySetting = "auto" | "full" | "light" | "minimal";
@@ -12,6 +13,8 @@ export interface GameSettings {
   motion: MotionSetting;
   /** The time of day: "auto" lets the day pass, anything else holds the street at that moment. */
   time: TimeSetting;
+  /** Which cat you play: the id of one of the coats (Pumpkin, Ash, Salem, Oreo, Patches, Toffee). */
+  cat: string;
   /** Show the frame-time and draw-call overlay. */
   showStats: boolean;
 }
@@ -21,6 +24,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   quality: "auto",
   motion: "system",
   time: "auto",
+  cat: "marmalade",
   showStats: false,
 };
 
@@ -46,6 +50,7 @@ export function parseSettings(raw: string | null | undefined): GameSettings {
     quality: QUALITY.includes(d.quality as QualitySetting) ? (d.quality as QualitySetting) : DEFAULT_SETTINGS.quality,
     motion: MOTION.includes(d.motion as MotionSetting) ? (d.motion as MotionSetting) : DEFAULT_SETTINGS.motion,
     time: TIME.includes(d.time as TimeSetting) ? (d.time as TimeSetting) : DEFAULT_SETTINGS.time,
+    cat: typeof d.cat === "string" && COAT_PRESETS.some((c) => c.id === d.cat) ? d.cat : DEFAULT_SETTINGS.cat,
     showStats: typeof d.showStats === "boolean" ? d.showStats : DEFAULT_SETTINGS.showStats,
   };
 }

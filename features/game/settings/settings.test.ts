@@ -11,12 +11,12 @@ describe("parseSettings", () => {
   });
 
   it("round-trips valid settings", () => {
-    const custom = { muted: true, quality: "light", motion: "reduced", time: "night", showStats: true } as const;
+    const custom = { muted: true, quality: "light", motion: "reduced", time: "night", cat: "tuxedo", showStats: true } as const;
     expect(parseSettings(serializeSettings(custom))).toEqual(custom);
   });
 
   it("keeps valid fields and replaces invalid ones individually", () => {
-    const parsed = parseSettings(JSON.stringify({ muted: true, quality: "ultra", motion: 7, time: "midnight", showStats: "yes" }));
+    const parsed = parseSettings(JSON.stringify({ muted: true, quality: "ultra", motion: 7, time: "midnight", cat: "garfield", showStats: "yes" }));
     expect(parsed).toEqual({ ...DEFAULT_SETTINGS, muted: true });
   });
 

@@ -254,7 +254,7 @@ describe("the bridge, the boat and the round terrace", () => {
     expect(deck.length).toBeGreaterThan(10);
     for (let i = 1; i < deck.length; i++) expect(Math.abs((deck[i].height ?? 0) - (deck[i - 1].height ?? 0))).toBeLessThanOrEqual(0.18);
     // The roadway starts within a step of the quay and rises to a hump in the middle.
-    expect(Math.abs((deck[0].height ?? 0) - heightAt(M.terrainGrid, 12.4, 1.2))).toBeLessThanOrEqual(0.18);
+    expect(Math.abs((deck[0].height ?? 0) - heightAt(M.terrainGrid, 12.4, -1.6))).toBeLessThanOrEqual(0.18);
     expect(Math.max(...deck.map((c) => c.height ?? 0))).toBeGreaterThan((deck[0].height ?? 0) + 0.2);
     expect(M.colliders.filter((c) => c.id.startsWith("bridge-0-parapet-"))).toHaveLength(2);
   });
@@ -262,9 +262,9 @@ describe("the bridge, the boat and the round terrace", () => {
   it("leaves the water under the bridge's roadway open to the cat and the rest of the canal a wall", () => {
     const water = M.colliders.filter((c) => c.id.startsWith("water-"));
     const covers = (x: number, z: number) => water.some((w) => w.kind === "box" && Math.abs(x - w.x) <= w.hx && Math.abs(z - w.z) <= w.hz);
-    expect(covers(15.25, 1.2)).toBe(false);
+    expect(covers(15.25, -1.6)).toBe(false);
     expect(covers(15.25, 4)).toBe(true);
-    expect(covers(15.25, -3)).toBe(true);
+    expect(covers(15.25, -5)).toBe(true);
   });
 
   it("floats a rowing boat on the water", () => {

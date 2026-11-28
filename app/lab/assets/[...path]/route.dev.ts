@@ -15,7 +15,7 @@ const TYPES: Record<string, string> = {
   ".json": "application/json",
 };
 
-export async function GET(_request: Request, ctx: RouteContext<"/lab/assets/[...path]">) {
+export async function GET(_request: Request, ctx: { params: Promise<{ path: string[] }> }) {
   if (process.env.NODE_ENV === "production") notFound();
 
   const { path: segments } = await ctx.params;

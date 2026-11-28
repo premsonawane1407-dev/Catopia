@@ -1,5 +1,6 @@
 // The rules of the pause menu, away from the screen: which rows there are, what the arrow keys do on
 // each kind of row, and which setting a row changes. The menu component only draws this and reports clicks.
+import { COAT_PRESETS } from "../cat/coat";
 import type { TimeSetting } from "../render/day-clock";
 import type { GameSettings, MotionSetting, QualitySetting } from "../settings/settings";
 
@@ -30,7 +31,10 @@ export const TIME_CHOICES: readonly Choice<TimeSetting>[] = [
   { value: "night", label: "Night" },
 ];
 
-export type MenuItemId = "resume" | "sound" | "quality" | "motion" | "time" | "stats" | "leave";
+/** The cats you can play: every coat, by the cat's name. */
+export const CAT_CHOICES: readonly Choice<string>[] = COAT_PRESETS.map((c) => ({ value: c.id, label: `${c.name}, ${c.label.toLowerCase()}` }));
+
+export type MenuItemId = "resume" | "cat" | "sound" | "quality" | "motion" | "time" | "stats" | "leave";
 
 /** An action does something when chosen; a toggle flips on and off; a choice steps through a short list. */
 export type MenuItemKind = "action" | "toggle" | "choice";
@@ -51,6 +55,7 @@ const labelOf = <T extends string>(choices: readonly Choice<T>[], value: T) => c
 export function buildMenuItems(settings: GameSettings): MenuItem[] {
   return [
     { id: "resume", kind: "action", label: "Resume" },
+    { id: "cat", kind: "choice", label: "Your cat", value: labelOf(CAT_CHOICES, settings.cat) },
     { id: "sound", kind: "toggle", label: "Sound", on: !settings.muted, value: settings.muted ? "Off" : "On" },
     { id: "quality", kind: "choice", label: "Picture quality", value: labelOf(QUALITY_CHOICES, settings.quality) },
     { id: "motion", kind: "choice", label: "Motion", value: labelOf(MOTION_CHOICES, settings.motion) },
@@ -75,6 +80,8 @@ export function cycleChoice<T extends string>(choices: readonly Choice<T>[], cur
 /** The change to the settings that flipping a toggle or stepping a choice makes. Actions change nothing, so they give null. */
 export function settingsPatch(id: MenuItemId, direction: 1 | -1, settings: GameSettings): Partial<GameSettings> | null {
   switch (id) {
+    case "cat":
+      return { cat: cycleChoice(CAT_CHOICES, settings.cat, direction) };
     case "sound":
       return { muted: !settings.muted };
     case "stats":

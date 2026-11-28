@@ -85,8 +85,8 @@ describe("the greybox street", () => {
     expect(seen.has(key(-9, -2)), "the park").toBe(true);
     expect(seen.has(key(8, 6)), "the café terrace").toBe(true);
     expect(seen.has(key(12.2, 3)), "the quay").toBe(true);
-    expect(seen.has(key(15.2, 1.2)), "the middle of the bridge").toBe(true);
-    expect(seen.has(key(18.4, 1.2)), "the far bank").toBe(true);
+    expect(seen.has(key(15.2, -1.6)), "the middle of the bridge").toBe(true);
+    expect(seen.has(key(18.4, -1.6)), "the far bank").toBe(true);
     // The canal itself is not walkable, nor is the fountain's basin.
     expect(seen.has(key(15.2, 4)), "the canal").toBe(false);
     expect(seen.has(key(0, 0)), "the fountain").toBe(false);

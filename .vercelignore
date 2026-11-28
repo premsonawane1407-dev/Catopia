@@ -1,0 +1,4 @@
+# Not needed to build or run the site; keeps the upload small (the game's own files are in public/).
+docs
+assets
+references

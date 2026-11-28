@@ -33,6 +33,23 @@ async function fetchChecked(url: string, signal?: AbortSignal): Promise<Response
   return response;
 }
 
+/** Draws the cat's sprite sheets for a coat. Used when the player picks another cat while the game runs. */
+export async function drawCatTextures(coat: CatCoat, look: CatLook = DEFAULT_LOOK, onProgress?: (fraction: number) => void, signal?: AbortSignal): Promise<{ cat: CatTextures; ms: number }> {
+  const start = performance.now();
+  const atlas = await buildAtlas(
+    coat,
+    async (drawn, total) => {
+      onProgress?.(drawn / total);
+      // Let the page breathe between pieces so the menu stays alive while the cat is drawn.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      if (signal?.aborted) throw new DOMException("Drawing was cancelled", "AbortError");
+    },
+    12,
+    look,
+  );
+  return { cat: createCatTextures(atlas), ms: performance.now() - start };
+}
+
 export async function loadGameAssets(onProgress?: (done: number, total: number) => void, signal?: AbortSignal, coat: CatCoat = DEFAULT_COAT, look: CatLook = DEFAULT_LOOK): Promise<GameAssets> {
   let done = 0;
   const counted = <T>(promise: Promise<T>): Promise<T> =>

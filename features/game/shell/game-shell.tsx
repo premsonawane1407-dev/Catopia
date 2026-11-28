@@ -23,7 +23,7 @@ import { HOUR_OF, createClock, phaseName } from "../render/day-clock";
 import { isTimeOfDay } from "../render/time-presets";
 import { resolveMotion, type GameSettings } from "../settings/settings";
 import { useGameSettings } from "../settings/use-game-settings";
-import { loadGameAssets, type GameAssets } from "../world/game-assets";
+import { drawCatTextures, loadGameAssets, type GameAssets } from "../world/game-assets";
 import type { PlayerDebug } from "../world/player-rig";
 import { FOOT_LOCK_DEFAULT } from "../player/cat-state";
 import { Caption, EmoteBar, InteractionPrompt, JumpButton, PromptAnnouncer, RunButton, TouchLayer, Toast } from "./controls";
@@ -77,8 +77,10 @@ export default function GameShell() {
   const [emoteOpen, setEmoteOpen] = useState(false);
   const [emoteChoice, setEmoteChoice] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
-  // /play?coat=storm draws a different coat (for looking at them); /play?greybox=1 shows the collision shapes.
-  const [coat] = useState(() => coatById(new URLSearchParams(window.location.search).get("coat")));
+  // /play?coat=storm draws a different coat (for looking at them); /play?greybox=1 shows the collision shapes. Otherwise the cat is
+  // the one picked in the pause menu ("Your cat"), saved in the settings.
+  const [urlCoat] = useState(() => new URLSearchParams(window.location.search).get("coat"));
+  const coat = coatById(urlCoat ?? settings.cat);
   // The refined cat is the default; /play?look=original draws the first version for comparison.
   const [look] = useState<CatLook>(() => (new URLSearchParams(window.location.search).get("look") === "original" ? "original" : DEFAULT_LOOK));
   const [greybox] = useState(() => new URLSearchParams(window.location.search).has("greybox"));
@@ -109,6 +111,10 @@ export default function GameShell() {
     dispatch(!forcedNoWebGL() && supportsWebGL() ? { type: "supported" } : { type: "unsupported" });
   }, []);
 
+  // Which coat the loaded sprite sheets were drawn with.
+  const drawnCoat = useRef(coat.id);
+  const [, setCatVersion] = useState(0);
+
   // Fetch the world once. A retry after a lost context reuses what is already loaded.
   useEffect(() => {
     if (phase !== "loading" || assets) return;
@@ -116,7 +122,10 @@ export default function GameShell() {
     loadGameAssets((done, total) => setProgress(done / total), controller.signal, coat, look)
       .then((loaded) => {
         if (controller.signal.aborted) loaded.dispose();
-        else setAssets(loaded);
+        else {
+          drawnCoat.current = coat.id;
+          setAssets(loaded);
+        }
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
@@ -125,6 +134,32 @@ export default function GameShell() {
     return () => controller.abort();
   }, [phase, shell.attempt, assets, coat, look]);
   useEffect(() => () => assets?.dispose(), [assets]);
+
+  // Picking another cat in the pause menu: draw its sprite sheets (about two seconds, a little at a time, so the menu stays alive) and
+  // swap them in. The old sheets are freed once the new ones are on the cat.
+  useEffect(() => {
+    if (!assets || drawnCoat.current === coat.id) return;
+    const controller = new AbortController();
+    drawCatTextures(coat, look, undefined, controller.signal)
+      .then(({ cat }) => {
+        if (controller.signal.aborted) {
+          cat.color.dispose();
+          cat.normal.dispose();
+          return;
+        }
+        const old = assets.cat;
+        // The sheets are swapped in place: the geometry and colour map they share with the street must not be rebuilt.
+        assets.cat = cat;
+        drawnCoat.current = coat.id;
+        setCatVersion((v) => v + 1);
+        setTimeout(() => {
+          old.color.dispose();
+          old.normal.dispose();
+        }, 500);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, [assets, coat, look]);
 
   // The keyboard steers the cat only while playing; pausing lets go of every key.
   useEffect(() => {
