@@ -7,8 +7,11 @@ import type { Vec3 } from "./stage-constants";
 import type { PropSpecs } from "./map/load-map";
 import type { BuntingString } from "./map/map-schema";
 import { placementMatrix } from "./static-batch";
+import { archHeight, deckHeight, face } from "./stone-geometry";
 
 export interface PropGeometries {
+  /** Masonry: bridges. It wears the stone pattern. */
+  stone: BufferGeometry;
   /** Wooden things: they get the plank pattern. */
   wood: BufferGeometry;
   /** Everything else: iron hoops, fruit, clay pots, leaves and flowers. */
@@ -69,6 +72,7 @@ const lathe = (points: [number, number][], segments: number) => new LatheGeometr
 export function buildPropGeometries(specs: PropSpecs): PropGeometries {
   const wood = new PartList();
   const plain = new PartList();
+  const stone = new PartList();
 
   // Crates: a unit cube, scaled to size and stood on the ground.
   const cube = new BoxGeometry(1, 1, 1);
@@ -169,7 +173,170 @@ export function buildPropGeometries(specs: PropSpecs): PropGeometries {
   }
 
   buildCafeProps(specs, wood, plain);
-  return { wood: wood.merge(), plain: plain.merge() };
+  buildFlowerClusters(specs, plain);
+  buildBridges(specs, stone);
+  buildBoats(specs, wood);
+  return { wood: wood.merge(), plain: plain.merge(), stone: stone.merge() };
+}
+
+const STONE_TONES = ["#d3c9b2", "#cbc0a8", "#dad0ba", "#c5baa2"];
+
+/**
+ * Stone arch bridges. Two walls with a round arch cut through them, a vault between, a roadway with a gentle hump, parapets with
+ * caps and corner posts; the arch's outer edge is picked out with a lighter ring of stones. The cat's collision is made from the same
+ * shape (bridgeColliders in map/load-map.ts).
+ */
+function buildBridges(specs: PropSpecs, stone: PartList): void {
+  const box = new BoxGeometry(1, 1, 1);
+  for (const b of specs.bridges) {
+    const group = placementMatrix({ position: b.position, rotationY: b.axis === "z" ? -Math.PI / 2 : 0 });
+    const L = b.length;
+    const W = b.width;
+    const t = 0.38;
+    const span = b.archSpan ?? L * 0.68;
+    const slices = Math.max(8, Math.round(L / 0.1));
+    const top = (x: number) => deckHeight(x, L, b.endHeight, b.midHeight);
+    const rand = lcg(Math.round(b.position[0] * 31 + b.position[2] * 17 + 7));
+    const tone = () => STONE_TONES[Math.floor(rand() * STONE_TONES.length)];
+    const place = (geometry: BufferGeometry, color: string) => {
+      const g = geometry.clone();
+      g.applyMatrix4(group);
+      stone.add(g, color);
+      g.dispose();
+      geometry.dispose();
+    };
+    for (let i = 0; i < slices; i++) {
+      const x0 = -L / 2 + (i * L) / slices;
+      const x1 = -L / 2 + ((i + 1) * L) / slices;
+      const t0 = top(x0);
+      const t1 = top(x1);
+      const a0 = archHeight(x0, span, b.archRise);
+      const a1 = archHeight(x1, span, b.archRise);
+      const inner = W / 2 - t;
+      for (const s of [-1, 1]) {
+        const zo = s * (W / 2);
+        const zi = s * inner;
+        // The wall's outer and inner faces, with the arch cut out of the bottom.
+        place(face([x0, a0, zo], [x1, a1, zo], [x1, t1, zo], [x0, t0, zo], [0, 0, s]), tone());
+        place(face([x0, a0, zi], [x1, a1, zi], [x1, t1, zi], [x0, t0, zi], [0, 0, -s]), "#bdb29a");
+        // Inside the arch: the wall's thickness.
+        if (a0 > 0 || a1 > 0) place(face([x0, a0, zo], [x1, a1, zo], [x1, a1, zi], [x0, a0, zi], [0, -1, 0]), "#a69c86");
+        // The ring of lighter stones round the arch's outer edge.
+        if (a0 > 0.02 && a1 > 0.02) place(face([x0, a0, zo + s * 0.006], [x1, a1, zo + s * 0.006], [x1, a1 + 0.14, zo + s * 0.006], [x0, a0 + 0.14, zo + s * 0.006], [0, 0, s]), "#e6dcc6");
+        // The parapet on top and its cap.
+        const mid = (x0 + x1) / 2;
+        const lift = (t0 + t1) / 2;
+        stone.add(box, tone(), group.clone().multiply(new Matrix4().makeTranslation(mid, lift + 0.26, s * (W / 2 - t / 2)).multiply(new Matrix4().makeScale(x1 - x0 + 0.002, 0.52, 0.28))));
+        stone.add(box, "#e2d9c4", group.clone().multiply(new Matrix4().makeTranslation(mid, lift + 0.55, s * (W / 2 - t / 2)).multiply(new Matrix4().makeScale(x1 - x0 + 0.002, 0.06, 0.36))));
+      }
+      // The vault between the walls, and the roadway above.
+      if (a0 > 0 || a1 > 0) place(face([x0, a0, -inner], [x1, a1, -inner], [x1, a1, inner], [x0, a0, inner], [0, -1, 0]), "#a99f8c");
+      place(face([x0, t0, -inner], [x1, t1, -inner], [x1, t1, inner], [x0, t0, inner], [0, 1, 0]), i % 2 ? "#c9bda4" : "#c2b69c");
+    }
+    // Corner posts with caps at the four ends of the parapets.
+    for (const ex of [-1, 1]) for (const s of [-1, 1]) {
+      const x = ex * (L / 2 - 0.2);
+      const y = top(x);
+      stone.add(box, "#d9cfb8", group.clone().multiply(new Matrix4().makeTranslation(x, y + 0.42, s * (W / 2 - t / 2)).multiply(new Matrix4().makeScale(0.42, 0.84, 0.42))));
+      stone.add(box, "#e8dfca", group.clone().multiply(new Matrix4().makeTranslation(x, y + 0.88, s * (W / 2 - t / 2)).multiply(new Matrix4().makeScale(0.52, 0.09, 0.52))));
+    }
+  }
+}
+
+const HULL_OUTER = "#8a5a33";
+const HULL_INNER = "#b88450";
+const HULL_RIM = "#6f4524";
+const THWART = "#a8703f";
+
+/** Rowing boats: a pointed bow and a blunt stern, a hull of planks with an inside, a rim, and three seats. The bow points along +x. */
+function buildBoats(specs: PropSpecs, wood: PartList): void {
+  const box = new BoxGeometry(1, 1, 1);
+  const L = 1.75;
+  const B = 0.66;
+  const stations = 18;
+  const rings = 7;
+  type Pt = [number, number, number];
+  // The outline of the hull at station i, ring j (0 = keel, rings = gunwale), on one side; `inset` shrinks it for the inner shell.
+  const point = (i: number, j: number, side: number, inset: number): Pt => {
+    const u = -1 + (2 * i) / stations;
+    const bow = u > 0;
+    const w = Math.max(0.0, (B / 2) * Math.pow(Math.max(0, 1 - u * u), bow ? 0.85 : 0.4) - inset);
+    const top = 0.27 + 0.07 * u * u + (bow ? 0.05 * u * u : 0) - (inset > 0 ? 0.0 : 0);
+    const bottom = 0.03 + 0.06 * u * u + (inset > 0 ? 0.035 : 0);
+    const phi = (j / rings) * (Math.PI / 2);
+    return [(u * L) / 2, bottom + (top - bottom) * (1 - Math.cos(phi)), side * w * Math.sin(phi)];
+  };
+  const toward = (a: Pt, b: Pt, c: Pt, inside: Pt, outward: boolean): Pt => {
+    const e1 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+    const e2 = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+    let n: Pt = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
+    const len = Math.hypot(...n) || 1;
+    n = [n[0] / len, n[1] / len, n[2] / len];
+    const away = (a[0] - inside[0]) * n[0] + (a[1] - inside[1]) * n[1] + (a[2] - inside[2]) * n[2] > 0;
+    return away === outward ? n : [-n[0], -n[1], -n[2]];
+  };
+  for (const boat of specs.boats) {
+    const group = placementMatrix({ position: boat.position, rotationY: boat.rotationY, scale: boat.scale });
+    const centre: Pt = [0, 0.18, 0];
+    const place = (g: BufferGeometry, color: string) => {
+      const c = g.clone();
+      c.applyMatrix4(group);
+      wood.add(c, color);
+      c.dispose();
+      g.dispose();
+    };
+    for (const side of [-1, 1]) {
+      for (let i = 0; i < stations; i++) {
+        for (let j = 0; j < rings; j++) {
+          // The outside of the hull, the inside, and the rim between them at the top.
+          const o = [point(i, j, side, 0), point(i + 1, j, side, 0), point(i + 1, j + 1, side, 0), point(i, j + 1, side, 0)] as [Pt, Pt, Pt, Pt];
+          place(face(...o, toward(o[0], o[1], o[2], centre, true)), j % 2 ? HULL_OUTER : "#7d5030");
+          const n = [point(i, j, side, 0.035), point(i + 1, j, side, 0.035), point(i + 1, j + 1, side, 0.035), point(i, j + 1, side, 0.035)] as [Pt, Pt, Pt, Pt];
+          place(face(...n, toward(n[0], n[1], n[2], centre, false)), HULL_INNER);
+        }
+        const r = [point(i, rings, side, 0), point(i + 1, rings, side, 0), point(i + 1, rings, side, 0.035), point(i, rings, side, 0.035)] as [Pt, Pt, Pt, Pt];
+        place(face(...r, [0, 1, 0]), HULL_RIM);
+      }
+    }
+    // Three seats across the boat, and a small ring at the bow.
+    for (const x of [-0.48, 0.02, 0.5]) {
+      const u = (2 * x) / L;
+      const half = (B / 2) * Math.pow(Math.max(0, 1 - u * u), u > 0 ? 0.85 : 0.4) - 0.03;
+      wood.add(box, THWART, group.clone().multiply(new Matrix4().makeTranslation(x, 0.2, 0)).multiply(new Matrix4().makeScale(0.13, 0.03, Math.max(0.1, half * 2))));
+    }
+    wood.add(new TorusGeometry(0.035, 0.008, 5, 10), "#4a4650", group.clone().multiply(new Matrix4().makeTranslation(L / 2 - 0.05, 0.22, 0)).multiply(new Matrix4().makeRotationY(Math.PI / 2)));
+  }
+}
+
+const LEAF_TONES = ["#3f7a3a", "#4f8c42", "#356c33", "#5f9a48"];
+const BLOOM_TONES = ["#f06a8a", "#f4f0e0", "#f4d03f", "#e24a4a", "#a56be0", "#ff9a3c", "#f48fb1"];
+
+/** Flower clusters: a low mound of leaves with a dense scatter of small blooms, like the beds round the fountain. */
+function buildFlowerClusters(specs: PropSpecs, plain: PartList): void {
+  const leaf = new IcosahedronGeometry(1, 1);
+  const bloom = new IcosahedronGeometry(1, 0);
+  for (const f of specs.flowers) {
+    const g = placementMatrix({ position: f.position });
+    const rand = lcg(f.seed * 7243 + 29);
+    const r = f.radius;
+    const leaves = Math.max(4, Math.round(r * 16));
+    for (let i = 0; i < leaves; i++) {
+      const a = rand() * Math.PI * 2;
+      const d = Math.sqrt(rand()) * r * 0.8;
+      const s = r * (0.22 + rand() * 0.14);
+      plain.add(leaf, LEAF_TONES[Math.floor(rand() * LEAF_TONES.length)], g.clone().multiply(new Matrix4().makeTranslation(Math.cos(a) * d, s * 0.8, Math.sin(a) * d)).multiply(new Matrix4().makeScale(s, s * 0.8, s)));
+    }
+    const blooms = Math.max(8, Math.round(r * r * 90));
+    const palette = [BLOOM_TONES[Math.floor(rand() * BLOOM_TONES.length)], BLOOM_TONES[Math.floor(rand() * BLOOM_TONES.length)], BLOOM_TONES[Math.floor(rand() * BLOOM_TONES.length)]];
+    for (let i = 0; i < blooms; i++) {
+      const a = rand() * Math.PI * 2;
+      const d = Math.sqrt(rand()) * r;
+      const size = 0.028 + rand() * 0.02;
+      const height = r * 0.32 + (1 - d / r) * r * 0.28 + rand() * 0.05;
+      const color = new Color(rand() < 0.75 ? palette[Math.floor(rand() * palette.length)] : BLOOM_TONES[Math.floor(rand() * BLOOM_TONES.length)]).multiplyScalar(1.15);
+      plain.add(bloom, color, g.clone().multiply(new Matrix4().makeTranslation(Math.cos(a) * d, height, Math.sin(a) * d)).multiply(new Matrix4().makeScale(size, size, size)));
+    }
+  }
 }
 
 const T = (x: number, y: number, z: number) => new Matrix4().makeTranslation(x, y, z);

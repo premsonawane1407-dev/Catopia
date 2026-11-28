@@ -40,14 +40,15 @@ export function rasterizeTerrain(terrain: MapData["terrain"]): TerrainGrid {
         const x = minX + (c + 0.5) * cell;
         const inRect = stroke.rect && x >= stroke.rect.minX && x <= stroke.rect.maxX && z >= stroke.rect.minZ && z <= stroke.rect.maxZ;
         const inCircle = stroke.circle && Math.hypot(x - stroke.circle.x, z - stroke.circle.z) <= stroke.circle.r;
-        if (!inRect && !inCircle) continue;
+        const inEllipse = stroke.ellipse && ((x - stroke.ellipse.x) / stroke.ellipse.rx) ** 2 + ((z - stroke.ellipse.z) / stroke.ellipse.rz) ** 2 <= 1;
+        if (!inRect && !inCircle && !inEllipse) continue;
         const i = r * cols + c;
         if (surface !== null) data[i] = surface;
         if (stroke.height !== undefined) height[i] = stroke.height;
         if (stroke.stairs) {
           const { axis, from, to, tread } = stroke.stairs;
-          const lo = stroke.rect ? (axis === "x" ? stroke.rect.minX : stroke.rect.minZ) : axis === "x" ? stroke.circle!.x - stroke.circle!.r : stroke.circle!.z - stroke.circle!.r;
-          const hi = stroke.rect ? (axis === "x" ? stroke.rect.maxX : stroke.rect.maxZ) : axis === "x" ? stroke.circle!.x + stroke.circle!.r : stroke.circle!.z + stroke.circle!.r;
+          const lo = stroke.rect ? (axis === "x" ? stroke.rect.minX : stroke.rect.minZ) : stroke.circle ? (axis === "x" ? stroke.circle.x - stroke.circle.r : stroke.circle.z - stroke.circle.r) : axis === "x" ? stroke.ellipse!.x - stroke.ellipse!.rx : stroke.ellipse!.z - stroke.ellipse!.rz;
+          const hi = stroke.rect ? (axis === "x" ? stroke.rect.maxX : stroke.rect.maxZ) : stroke.circle ? (axis === "x" ? stroke.circle.x + stroke.circle.r : stroke.circle.z + stroke.circle.r) : axis === "x" ? stroke.ellipse!.x + stroke.ellipse!.rx : stroke.ellipse!.z + stroke.ellipse!.rz;
           const treads = Math.max(1, Math.round((hi - lo) / tread));
           const k = Math.min(treads - 1, Math.max(0, Math.floor(((axis === "x" ? x : z) - lo) / ((hi - lo) / treads))));
           height[i] = from + ((to - from) * (k + 1)) / treads;
@@ -119,9 +120,16 @@ function mergedBoxes(grid: TerrainGrid, pick: (index: number) => number | null, 
 }
 
 /** Water is not walkable: one wall per merged block of water squares. */
-export function waterColliders(grid: TerrainGrid): Collider[] {
+/** `holes` are rectangles the cat may cross (under a bridge's roadway): the water there is not a wall. */
+export function waterColliders(grid: TerrainGrid, holes: readonly { minX: number; maxX: number; minZ: number; maxZ: number }[] = []): Collider[] {
   const water = surfaceIndex("water");
-  return mergedBoxes(grid, (i) => (grid.data[i] === water ? 1 : null), (n) => `water-${n}`);
+  const open = (i: number) => {
+    if (holes.length === 0) return false;
+    const x = grid.minX + ((i % grid.cols) + 0.5) * grid.cell;
+    const z = grid.minZ + (Math.floor(i / grid.cols) + 0.5) * grid.cell;
+    return holes.some((h) => x >= h.minX && x <= h.maxX && z >= h.minZ && z <= h.maxZ);
+  };
+  return mergedBoxes(grid, (i) => (grid.data[i] === water && !open(i) ? 1 : null), (n) => `water-${n}`);
 }
 
 /**

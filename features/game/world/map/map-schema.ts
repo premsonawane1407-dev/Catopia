@@ -49,6 +49,8 @@ export const paintSchema = z
     height: num.min(0).max(8).optional(),
     rect: boundsSchema.optional(),
     circle: z.strictObject({ x: num, z: num, r: num.positive() }).optional(),
+    /** An oval: centre and the two radii. */
+    ellipse: z.strictObject({ x: num, z: num, rx: num.positive(), rz: num.positive() }).optional(),
     /**
      * A flight of stairs over the rectangle: the height goes from `from` to `to` along `axis` in treads of `tread` world
      * units deep (the first tread is one step up from `from`). Use it with a surface for the stone the steps are made of.
@@ -56,7 +58,7 @@ export const paintSchema = z
     stairs: z.strictObject({ axis: z.enum(["x", "z"]), from: num.min(0).max(8), to: num.min(0).max(8), tread: num.min(0.125).max(1).default(0.25) }).optional(),
   })
   .refine((p) => p.surface !== undefined || p.height !== undefined || p.stairs !== undefined, { message: "a stroke must change the surface, the height or both" })
-  .refine((p) => p.rect !== undefined || p.circle !== undefined, { message: "a stroke needs a rect or a circle" });
+  .refine((p) => p.rect !== undefined || p.circle !== undefined || p.ellipse !== undefined, { message: "a stroke needs a rect, a circle or an ellipse" });
 
 export const houseSchema = z
   .strictObject({
@@ -92,8 +94,8 @@ export const pieceSchema = z.strictObject({
 export const lampSchema = z.strictObject({
   /** The lamp's head: where its light and halo are. The post stands under it. */
   head: vec3,
-  postScale: num.positive().default(0.8),
-  glowSize: num.positive().default(1.4),
+  postScale: num.positive().default(1.35),
+  glowSize: num.positive().default(1.7),
 });
 
 export const glowSchema = z.strictObject({ position: vec3, size: num.positive(), kind: z.enum(["far", "foreground"]) });
@@ -120,6 +122,27 @@ export const awningSchema = z.strictObject({
 
 /** A window flower box (built from the houses' `windowBoxes`; the same shape can also be placed directly). */
 export const planterSchema = z.strictObject({ position: vec3, rotationY: num.optional(), width: num.min(0.1).max(2), seed: int });
+
+/** A cluster of flowers and leaves on the ground (not solid): a shrub in bloom, in the colours of a cottage garden. */
+export const flowerClusterSchema = z.strictObject({ position: vec3, radius: num.min(0.1).max(1.2).default(0.35), seed: int });
+
+/**
+ * A stone arch bridge over water, with a hump-backed roadway and parapets. `position` is the middle of the span on the water
+ * line; the bridge runs along `axis`. The roadway rises from `endHeight` (a little above the banks) to `midHeight` in the middle.
+ */
+export const bridgeSchema = z.strictObject({
+  position: vec3,
+  axis: z.enum(["x", "z"]).default("x"),
+  length: num.min(2).max(14),
+  width: num.min(1.4).max(5),
+  endHeight: num.min(0.2).max(3).default(0.95),
+  midHeight: num.min(0.3).max(3.5).default(1.25),
+  /** The opening under the arch: its width along the bridge, and how high it rises above the water. */
+  archSpan: num.min(1).max(12).optional(),
+  archRise: num.min(0.3).max(2.5).default(0.85),
+});
+/** A small wooden rowing boat with a pointed bow, seats and planks, floating at `position`. */
+export const boatSchema = z.strictObject({ position: vec3, rotationY: num.optional(), scale: num.positive().default(1) });
 
 /** A round café table with a few things on it. */
 export const tableSchema = z.strictObject({ position: vec3, radius: num.min(0.15).max(0.6).default(0.3), seed: int });
@@ -201,6 +224,9 @@ export const mapSchema = z.strictObject({
     umbrellas: z.array(umbrellaSchema).default([]),
     chalkboards: z.array(chalkboardSchema).default([]),
     statues: z.array(statueSchema).default([]),
+    flowers: z.array(flowerClusterSchema).default([]),
+    bridges: z.array(bridgeSchema).default([]),
+    boats: z.array(boatSchema).default([]),
   }),
   bunting: z.array(buntingSchema),
   posters: z.array(posterSchema),
@@ -226,6 +252,9 @@ export type ChairSpec = z.infer<typeof chairSchema>;
 export type UmbrellaSpec = z.infer<typeof umbrellaSchema>;
 export type ChalkboardSpec = z.infer<typeof chalkboardSchema>;
 export type StatueSpec = z.infer<typeof statueSchema>;
+export type FlowerClusterSpec = z.infer<typeof flowerClusterSchema>;
+export type BridgeSpec = z.infer<typeof bridgeSchema>;
+export type BoatSpec = z.infer<typeof boatSchema>;
 export type BuntingString = z.infer<typeof buntingSchema>;
 export type PosterSpec = z.infer<typeof posterSchema>;
 export type MapInteractable = z.infer<typeof interactableSchema>;

@@ -120,12 +120,16 @@ describe("raised ground and stairs", () => {
   it("makes the village's terrace, its stairs down to the lower level and the canal below the quay", () => {
     const g = MARKET_STREET.terrainGrid;
     expect(heightAt(g, 0, 0.6)).toBeCloseTo(0.8, 6);
-    expect(heightAt(g, 0, 10)).toBe(0);
-    expect(surfaceAt(g, 12, 0)).toBe("water");
-    expect(heightAt(g, 8.2, 0)).toBeCloseTo(0.8, 6);
+    expect(heightAt(g, 0, 16)).toBe(0);
+    expect(surfaceAt(g, 15, 0)).toBe("water");
+    expect(heightAt(g, 15, 0)).toBe(0);
+    expect(heightAt(g, 12.4, 0)).toBeCloseTo(0.8, 6);
+    // The terrace is oval: its rim falls away at the corners of the map.
+    expect(heightAt(g, 12, 8)).toBe(0);
+    expect(heightAt(g, -12, -8)).toBe(0);
     // The stairs down are walkable: no two neighbouring treads differ by more than a step.
-    let prev = heightAt(g, 0, 5.3);
-    for (let z = 5.5; z < 8; z += 0.25) {
+    let prev = heightAt(g, 0, 10.2);
+    for (let z = 10.4; z < 13.6; z += 0.05) {
       const h = heightAt(g, 0, z);
       expect(Math.abs(h - prev), `z=${z}`).toBeLessThanOrEqual(0.18);
       prev = h;

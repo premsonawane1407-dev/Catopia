@@ -16,6 +16,9 @@ const ALL_PROPS = {
   umbrellas: MARKET_STREET.worldProps.umbrellas,
   chalkboards: MARKET_STREET.worldProps.chalkboards,
   statues: MARKET_STREET.worldProps.statues,
+  flowers: MARKET_STREET.worldProps.flowers,
+  bridges: MARKET_STREET.worldProps.bridges,
+  boats: MARKET_STREET.worldProps.boats,
 };
 
 describe("lcg", () => {
@@ -62,17 +65,22 @@ describe("buildPropGeometries", () => {
   });
 
   it("keeps colours in a usable range", () => {
+    // (Looped by hand: the street has hundreds of thousands of values, and one expect each would take seconds.)
     for (const g of [wood, plain]) {
+      let lowest = Infinity;
+      let highest = -Infinity;
       for (const v of g.getAttribute("color").array) {
-        expect(v).toBeGreaterThanOrEqual(0);
-        // Flower blooms are brightened a little to stand in for the look test's glow.
-        expect(v).toBeLessThan(1.3);
+        if (v < lowest) lowest = v;
+        if (v > highest) highest = v;
       }
+      expect(lowest).toBeGreaterThanOrEqual(0);
+      // Flower blooms are brightened a little to stand in for the look test's glow.
+      expect(highest).toBeLessThan(1.3);
     }
   });
 
   it("builds nothing, without failing, when there is nothing to build", () => {
-    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [] });
+    const empty = buildPropGeometries({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [] });
     expect(empty.wood.getAttribute("position")).toBeUndefined();
     expect(empty.plain.getAttribute("position")).toBeUndefined();
   });
@@ -105,7 +113,7 @@ describe("buildSignChains", () => {
 });
 
 describe("the café furniture and the statue", () => {
-  const only = (extra: Partial<typeof ALL_PROPS>) => ({ crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], ...extra });
+  const only = (extra: Partial<typeof ALL_PROPS>): typeof ALL_PROPS => ({ ...ALL_PROPS, crates: [], barrels: [], produce: [], pots: [], awnings: [], planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [], ...extra });
   const verts = (g: ReturnType<typeof buildPropGeometries>) => (g.wood.getAttribute("position")?.count ?? 0) + (g.plain.getAttribute("position")?.count ?? 0);
 
   it("are in the street: tables, chairs, a parasol, chalkboards and a statue", () => {

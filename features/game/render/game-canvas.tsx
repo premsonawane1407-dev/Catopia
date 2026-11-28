@@ -17,7 +17,7 @@ import { cameraPose, viewDepth } from "../world/camera-pose";
 import { catFocusPoint } from "../world/cat-size";
 import type { GameAssets } from "../world/game-assets";
 import type { LoadedMap } from "../world/map/load-map";
-import { CAT_FRAME_PX } from "../world/stage-constants";
+import { CAT_BODY_CENTER, CAT_FRAME_PX } from "../world/stage-constants";
 import { StageScene } from "../world/stage-scene";
 import { PlainRender, PostStack } from "./post-stack";
 import { DayCycle } from "./day-cycle";
@@ -67,8 +67,9 @@ const WARMUP_FRAMES = 4;
 
 /** How far the cat is from the camera along the viewing direction; this is what sets its size per pixel. */
 function catDepth(map: LoadedMap): number {
-  const { camera, spawn } = map;
-  return viewDepth([spawn.x, 0.33, spawn.z], cameraPose(camera.target, camera.pitch, camera.distance));
+  // The camera keeps the cat where the preset puts it (the approved framing), wherever in the map the cat starts.
+  const { camera } = map;
+  return viewDepth(CAT_BODY_CENTER, cameraPose(camera.target, camera.pitch, camera.distance));
 }
 
 /** Reports each frame's duration, counts frames and collects renderer statistics for the stats overlay. */

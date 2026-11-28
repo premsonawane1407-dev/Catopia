@@ -2,17 +2,21 @@
 // pixel-art cat). Change them here, not inside components, and re-check the look when you do.
 
 export const LOOK = {
-  /** The miniature blur: sharp around the cat, strongly blurred above and below. */
+  /**
+   * The miniature blur, by depth: sharp at the cat's distance, then more blurred the farther a thing is from it along the view
+   * direction (distances are world units).
+   */
   blur: {
-    /** Sharp band above and below the cat, as a fraction of the screen height. */
-    focusUp: 0.26,
-    focusDown: 0.14,
-    /** Length of the ramp from sharp to fully blurred (below the cat it is 60% of this). */
-    feather: 0.3,
+    /** How far behind the cat's distance things stay sharp, and how long the ramp to full blur is. */
+    sharpFar: 2.6,
+    featherFar: 4.5,
+    /** The same for things nearer than the cat (roof tops, lamp heads). */
+    sharpNear: 1.6,
+    featherNear: 3.0,
     /** Strongest blur radius in pixels at 1080 rows. */
-    maxRadius: 30,
+    maxRadius: 24,
     /** How strongly bright lights melt into round bokeh orbs. */
-    boost: 1.6,
+    boost: 1.3,
   },
   bloom: { smoothing: 0.2, radius: 0.7 },
   vignetteOffset: 0.25,

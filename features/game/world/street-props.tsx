@@ -67,12 +67,14 @@ export function PropMeshes({ textures, specs }: { textures: SurfaceTextures; spe
   const geometries = useMemo(() => buildPropGeometries(specs), [specs]);
   const woodMaterial = useMemo(() => createSurfaceMaterial({ profile: "wood", textures, vertexColors: true }), [textures]);
   const plainMaterial = useMemo(() => createSurfaceMaterial({ profile: "none", textures, vertexColors: true }), [textures]);
-  useEffect(() => () => [geometries.wood, geometries.plain].forEach((g) => g.dispose()), [geometries]);
-  useEffect(() => () => [woodMaterial, plainMaterial].forEach((m) => m.dispose()), [woodMaterial, plainMaterial]);
+  const stoneMaterial = useMemo(() => createSurfaceMaterial({ profile: "stone", textures, vertexColors: true }), [textures]);
+  useEffect(() => () => [geometries.wood, geometries.plain, geometries.stone].forEach((g) => g.dispose()), [geometries]);
+  useEffect(() => () => [woodMaterial, plainMaterial, stoneMaterial].forEach((m) => m.dispose()), [woodMaterial, plainMaterial, stoneMaterial]);
   return (
     <group>
       <mesh geometry={geometries.wood} material={woodMaterial} castShadow receiveShadow />
       <mesh geometry={geometries.plain} material={plainMaterial} castShadow receiveShadow />
+      {geometries.stone.getAttribute("position") && <mesh geometry={geometries.stone} material={stoneMaterial} castShadow receiveShadow />}
     </group>
   );
 }

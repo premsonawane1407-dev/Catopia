@@ -13,7 +13,7 @@ import type { InputHub } from "../player/input-hub";
 import type { Interactable } from "../player/interactions";
 import { createPlayer, stepPlayer, type PlayerState, type SimEnv } from "../player/player-sim";
 import { cameraPose } from "./camera-pose";
-import { CAT_FOCUS_RATIO, CAT_FRAME_PX, type Vec3 } from "./stage-constants";
+import { CAT_FOCUS_RATIO, CAT_FRAME_PX, CAT_POSITION, type Vec3 } from "./stage-constants";
 import type { CatVisual } from "./cat-sprite";
 import type { LoadedMap } from "./map/load-map";
 import { heightAt } from "./map/terrain";
@@ -118,11 +118,11 @@ export function PlayerRig(props: PlayerRigProps) {
     const f = follow.current;
     // The camera rises and falls with the floor the cat is on (a terrace, a flight of stairs), a little behind it.
     camLift.current = camLift.current === null ? out.lift : camLift.current + (out.lift - camLift.current) * Math.min(1, dt * 3);
-    const pose = cameraPose([f.x, map.camera.target[1] + camLift.current, f.z + (map.camera.target[2] - map.spawn.z)], map.camera.pitch, map.camera.distance);
+    const pose = cameraPose([f.x, map.camera.target[1] + camLift.current, f.z + (map.camera.target[2] - CAT_POSITION[2])], map.camera.pitch, map.camera.distance);
     camera.position.set(...pose.position);
     camera.lookAt(...pose.target);
 
-    p.framing?.current?.position.set(f.x, camLift.current, f.z - map.spawn.z);
+    p.framing?.current?.position.set(f.x, camLift.current, f.z - CAT_POSITION[2]);
 
     // The sprite is drawn at whole screen pixels from the camera, so its own pixels never shimmer as it moves.
     const pitch = (map.camera.pitch * Math.PI) / 180;

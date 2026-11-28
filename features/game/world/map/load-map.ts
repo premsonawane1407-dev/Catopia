@@ -10,7 +10,8 @@ import type { Vec3 } from "../stage-constants";
 import { buildHouse, type WindowSpec } from "./build-house";
 import { BARREL, CHAIR, CHALKBOARD, CRATE_RADIUS_PER_SIZE, HOUSE_HEIGHT, LAMP_POST, PIECE_PROFILES, POT, TABLE, UMBRELLA_POLE } from "./collision-profiles";
 import { heightAt, heightColliders, rasterizeTerrain, waterColliders, type TerrainGrid } from "./terrain";
-import { mapSchema, type AwningSpec, type BarrelSpec, type BuntingString, type ChairSpec, type ChalkboardSpec, type CrateSpec, type StatueSpec, type TableSpec, type UmbrellaSpec, type MapCamera, type MapData, type PlanterSpec, type PosterSpec, type PotSpec, type ProduceSpec } from "./map-schema";
+import { deckHeight } from "../stone-geometry";
+import { mapSchema, type AwningSpec, type BarrelSpec, type BuntingString, type BoatSpec, type BridgeSpec, type ChairSpec, type ChalkboardSpec, type CrateSpec, type FlowerClusterSpec, type StatueSpec, type TableSpec, type UmbrellaSpec, type MapCamera, type MapData, type PlanterSpec, type PosterSpec, type PotSpec, type ProduceSpec } from "./map-schema";
 
 export class MapError extends Error {
   constructor(
@@ -41,6 +42,9 @@ export interface PropSpecs {
   umbrellas: readonly UmbrellaSpec[];
   chalkboards: readonly ChalkboardSpec[];
   statues: readonly StatueSpec[];
+  flowers: readonly FlowerClusterSpec[];
+  bridges: readonly BridgeSpec[];
+  boats: readonly BoatSpec[];
 }
 
 /** Where a window's sill is, within its floor, for each kind of window (the flower box sits just under it). */
@@ -146,6 +150,37 @@ export function buildColliders(data: MapData, grid: TerrainGrid): Collider[] {
   return out;
 }
 
+/** The footprint of a bridge's roadway (between its parapets), as a rectangle. */
+export function bridgeWalkway(b: BridgeSpec): { minX: number; maxX: number; minZ: number; maxZ: number } {
+  const half = b.width / 2 - 0.3;
+  const [x, , z] = b.position;
+  return b.axis === "x" ? { minX: x - b.length / 2, maxX: x + b.length / 2, minZ: z - half, maxZ: z + half } : { minX: x - half, maxX: x + half, minZ: z - b.length / 2, maxZ: z + b.length / 2 };
+}
+
+/**
+ * What the cat meets on a bridge: the roadway as a run of low blocks following its hump (so it is walked, a step at a time, like a
+ * stair) and the two parapets as walls. Heights are measured from the water line the bridge stands on.
+ */
+export function bridgeColliders(b: BridgeSpec, index: number, base: number): Collider[] {
+  const out: Collider[] = [];
+  const [x, , z] = b.position;
+  const slice = 0.25;
+  const half = b.width / 2 - 0.3;
+  const count = Math.max(1, Math.round(b.length / slice));
+  const sliceLength = b.length / count;
+  for (let i = 0; i < count; i++) {
+    const along = -b.length / 2 + (i + 0.5) * sliceLength;
+    const height = base + deckHeight(along, b.length, b.endHeight, b.midHeight);
+    out.push(b.axis === "x" ? { kind: "box", id: `bridge-${index}-deck-${i}`, x: x + along, z, hx: sliceLength / 2, hz: half, height } : { kind: "box", id: `bridge-${index}-deck-${i}`, x, z: z + along, hx: half, hz: sliceLength / 2, height });
+  }
+  const wall = b.width / 2 - 0.13;
+  const top = base + b.midHeight + 0.8;
+  for (const side of [-1, 1]) {
+    out.push(b.axis === "x" ? { kind: "box", id: `bridge-${index}-parapet-${side}`, x, z: z + side * wall, hx: b.length / 2, hz: 0.13, height: top } : { kind: "box", id: `bridge-${index}-parapet-${side}`, x: x + side * wall, z, hx: 0.13, hz: b.length / 2, height: top });
+  }
+  return out;
+}
+
 /** The problems with a map that a schema cannot express. */
 export function checkMap(data: MapData, colliders: readonly Collider[], windows: readonly WindowSpec[], grid: TerrainGrid): string[] {
   const problems: string[] = [];
@@ -239,9 +274,17 @@ export function loadMap(raw: unknown): LoadedMap {
     umbrellas: liftProp(data.props.umbrellas),
     chalkboards: liftProp(data.props.chalkboards),
     statues: liftProp(data.props.statues),
+    flowers: liftProp(data.props.flowers),
+    bridges: liftProp(data.props.bridges),
+    boats: liftProp(data.props.boats),
   };
 
-  const colliders = [...buildColliders(data, terrainGrid), ...waterColliders(terrainGrid), ...heightColliders(terrainGrid)];
+  const colliders = [
+    ...buildColliders(data, terrainGrid),
+    ...waterColliders(terrainGrid, props.bridges.map(bridgeWalkway)),
+    ...heightColliders(terrainGrid),
+    ...props.bridges.flatMap((b, i) => bridgeColliders(b, i, b.position[1])),
+  ];
   const problems = checkMap(data, colliders, windows, terrainGrid);
   if (problems.length) throw new MapError(data.id, problems);
 
@@ -263,8 +306,8 @@ export function loadMap(raw: unknown): LoadedMap {
     glows,
     worldGlows: glows.filter((g) => g.kind !== "foreground"),
     framingGlows: glows.filter((g) => g.kind === "foreground"),
-    worldProps: { crates: framing(props.crates, false), barrels: framing(props.barrels, false), produce: props.produce, pots: framing(props.pots, false), awnings: framing(props.awnings, false), planters, tables: props.tables, chairs: props.chairs, umbrellas: props.umbrellas, chalkboards: props.chalkboards, statues: props.statues },
-    framingProps: { crates: framing(props.crates, true), barrels: framing(props.barrels, true), produce: [], pots: framing(props.pots, true), awnings: framing(props.awnings, true), planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [] },
+    worldProps: { crates: framing(props.crates, false), barrels: framing(props.barrels, false), produce: props.produce, pots: framing(props.pots, false), awnings: framing(props.awnings, false), planters, tables: props.tables, chairs: props.chairs, umbrellas: props.umbrellas, chalkboards: props.chalkboards, statues: props.statues, flowers: props.flowers, bridges: props.bridges, boats: props.boats },
+    framingProps: { crates: framing(props.crates, true), barrels: framing(props.barrels, true), produce: [], pots: framing(props.pots, true), awnings: framing(props.awnings, true), planters: [], tables: [], chairs: [], umbrellas: [], chalkboards: [], statues: [], flowers: [], bridges: [], boats: [] },
     bunting: data.bunting.map((b) => ({ ...b, from: lift(b.from as Vec3), to: lift(b.to as Vec3) })),
     posters: data.posters.map((p) => ({ ...p, position: lift(p.position as Vec3) })),
     sign: data.sign ? lift(data.sign.position as Vec3) : null,

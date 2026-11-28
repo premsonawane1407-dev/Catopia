@@ -38,8 +38,9 @@ function TiltBokeh({ target, samples }: { target: Vec3; samples: number }) {
 
   useFrame(() => {
     camera.updateMatrixWorld();
-    point.set(target[0], target[1], target[2]).project(camera);
-    effect.setFocusY((point.y + 1) / 2);
+    // How far in front of the camera, along its view direction, the cat is: that distance is the one kept in focus.
+    point.set(target[0], target[1], target[2]).applyMatrix4(camera.matrixWorldInverse);
+    effect.setFocusDistance(-point.z);
   }, 0.5);
 
   useEffect(() => {

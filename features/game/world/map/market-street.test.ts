@@ -99,14 +99,14 @@ describe("what the street's data says", () => {
     expect(new Set(ids).size).toBe(ids.length);
     // The far houses are out of reach and left out; the near ones are solid and as tall as a wall.
     const houses = M.colliders.filter((c) => c.id.startsWith("house-"));
-    expect(houses.length).toBeGreaterThanOrEqual(7);
+    expect(houses.length).toBeGreaterThanOrEqual(6);
     for (const h of houses) expect(h.height).toBeGreaterThan(heightAt(M.terrainGrid, h.x, h.z) + 3);
     expect(M.colliders.filter((c) => c.id.startsWith("lamp-"))).toHaveLength(M.lamps.length);
     expect(M.colliders.some((c) => c.id.startsWith("fountain-round@"))).toBe(true);
     expect(M.colliders.some((c) => c.id.startsWith("water-"))).toBe(true);
     expect(M.colliders.some((c) => c.id.startsWith("ground-"))).toBe(true);
     // The park bench is 0.26 high and stands on the plaza terrace.
-    const bench = M.colliders.find((c) => c.id === "stall-bench@-6.2,-2");
+    const bench = M.colliders.find((c) => c.id === "stall-bench@-7.4,-1.2");
     expect(bench?.height).toBeCloseTo(heightAt(M.terrainGrid, -6.2, -2) + 0.26, 6);
   });
 
@@ -164,7 +164,7 @@ describe("loading a map that is not right", () => {
 
   it("rejects a spawn point inside a wall", () => {
     const m = clone();
-    m.spawn = { x: -2.5, z: -4, direction: 0 };
+    m.spawn = { x: -3.5, z: -7, direction: 0 };
     expect(problemsOf(m).join("\n")).toMatch(/spawn point is inside/);
   });
 
@@ -176,7 +176,7 @@ describe("loading a map that is not right", () => {
 
   it("rejects an interaction that cannot be reached, a repeated id and a look with no text", () => {
     const m = clone();
-    m.interactables[0].approach = { x: -2.5, z: -4 };
+    m.interactables[0].approach = { x: -3.5, z: -7 };
     m.interactables[1].id = "fountain";
     delete m.interactables[2].text;
     const text = problemsOf(m).join("\n");
@@ -244,5 +244,56 @@ describe("loading a map that is not right", () => {
     expect(g.colliders.map((c) => c.id)).toEqual(["tree@3,0"]);
     expect(g.windows).toEqual([]);
     expect(g.sign).toBeNull();
+  });
+});
+
+describe("the bridge, the boat and the round terrace", () => {
+  it("has a stone bridge whose roadway is walked a step at a time, between solid parapets", () => {
+    expect(M.worldProps.bridges).toHaveLength(1);
+    const deck = M.colliders.filter((c) => c.id.startsWith("bridge-0-deck-")).sort((a, b) => a.x - b.x);
+    expect(deck.length).toBeGreaterThan(10);
+    for (let i = 1; i < deck.length; i++) expect(Math.abs((deck[i].height ?? 0) - (deck[i - 1].height ?? 0))).toBeLessThanOrEqual(0.18);
+    // The roadway starts within a step of the quay and rises to a hump in the middle.
+    expect(Math.abs((deck[0].height ?? 0) - heightAt(M.terrainGrid, 12.4, 1.2))).toBeLessThanOrEqual(0.18);
+    expect(Math.max(...deck.map((c) => c.height ?? 0))).toBeGreaterThan((deck[0].height ?? 0) + 0.2);
+    expect(M.colliders.filter((c) => c.id.startsWith("bridge-0-parapet-"))).toHaveLength(2);
+  });
+
+  it("leaves the water under the bridge's roadway open to the cat and the rest of the canal a wall", () => {
+    const water = M.colliders.filter((c) => c.id.startsWith("water-"));
+    const covers = (x: number, z: number) => water.some((w) => w.kind === "box" && Math.abs(x - w.x) <= w.hx && Math.abs(z - w.z) <= w.hz);
+    expect(covers(15.25, 1.2)).toBe(false);
+    expect(covers(15.25, 4)).toBe(true);
+    expect(covers(15.25, -3)).toBe(true);
+  });
+
+  it("floats a rowing boat on the water", () => {
+    expect(M.worldProps.boats).toHaveLength(1);
+    expect(M.worldProps.boats[0].position[1]).toBe(0);
+  });
+
+  it("puts the fountain at the centre of the map, with the buildings a long way off and flowers all round it", () => {
+    const fountain = M.placements.find((p) => p.piece === "fountain-round")!;
+    expect([fountain.position[0], fountain.position[2]]).toEqual([0, 0]);
+    // The nearest wall of any house is farther than the flower ring plus a wide apron of cobbles.
+    for (const c of M.colliders.filter((x) => x.id.startsWith("house-"))) {
+      if (c.kind !== "box") continue;
+      const dx = Math.max(0, Math.abs(c.x) - c.hx);
+      const dz = Math.max(0, Math.abs(c.z) - c.hz);
+      expect(Math.hypot(dx, dz), c.id).toBeGreaterThan(5);
+    }
+    expect(M.worldProps.flowers.filter((f) => Math.hypot(f.position[0], f.position[2]) < 3.2).length).toBeGreaterThanOrEqual(18);
+  });
+
+  it("is round: the terrace is an oval, so its corners fall away and its rim is edged by walls", () => {
+    for (const [x, z] of [[13.5, -9], [-13.5, -9], [13.5, 11], [-13.5, 11]]) expect(heightAt(M.terrainGrid, x, z), `${x},${z}`).toBe(0);
+    expect(heightAt(M.terrainGrid, 0, 0)).toBeCloseTo(0.8, 6);
+    expect(heightAt(M.terrainGrid, 12.6, 1.4)).toBeCloseTo(0.8, 6);
+  });
+
+  it("has taller lamps than before, with the light at the top of the post", () => {
+    for (const l of M.lamps) expect(l[1]).toBeGreaterThan(1.9);
+    const post = M.placements.find((p) => p.piece === "lantern" && Math.abs(p.position[0] - M.lamps[0][0]) < 1e-6)!;
+    expect(post.scale).toBeGreaterThanOrEqual(1.3);
   });
 });

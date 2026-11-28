@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FOLLOW_TAU, followTarget, stepFollow } from "./follow-camera";
-import { STEP_UP, isClear } from "./colliders";
+import { STEP_UP, isClear, supportHeight } from "./colliders";
 import { pickInteractable } from "./interactions";
 import { createPlayer, stepPlayer, type SimEnv, type SimInput } from "./player-sim";
 import { MARKET_STREET as street } from "../world/map/market-street";
@@ -58,31 +58,40 @@ describe("the greybox street", () => {
     expect(CAMERA_BOUNDS.maxX).toBeLessThanOrEqual(WALK_BOUNDS.maxX);
   });
   it("lets the cat reach every interaction spot from the start (a grid search over clear ground)", () => {
-    const step = 0.05;
+    const step = 0.1;
+    const radius = env.params.radius;
     const key = (x: number, z: number) => `${Math.round(x / step)},${Math.round(z / step)}`;
-    const seen = new Set<string>([key(START.x, START.z)]);
-    const queue: [number, number][] = [[START.x, START.z]];
+    // Each spot visited remembers the height of the floor the cat stood on there, so stairs, terraces and the bridge are climbed a
+    // step at a time, never jumped.
+    const startY = floorAt(START.x, START.z);
+    const seen = new Map<string, number>([[key(START.x, START.z), startY]]);
+    const queue: [number, number, number][] = [[START.x, START.z, startY]];
     while (queue.length) {
-      const [x, z] = queue.pop() as [number, number];
+      const [x, z, y] = queue.pop() as [number, number, number];
       for (const [dx, dz] of [[step, 0], [-step, 0], [0, step], [0, -step]]) {
         const nx = x + dx;
         const nz = z + dz;
         const k = key(nx, nz);
-        // A step is a walk, not a jump: the floor may change by no more than a stair's rise between neighbouring spots.
-        const here = floorAt(x, z);
-        const there = floorAt(nx, nz);
-        if (seen.has(k) || Math.abs(there - here) > STEP_UP || !isClear({ x: nx, z: nz }, env.params.radius, colliders, WALK_BOUNDS, there)) continue;
-        seen.add(k);
-        queue.push([nx, nz]);
+        if (seen.has(k)) continue;
+        const there = Math.max(floorAt(nx, nz), supportHeight({ x: nx, z: nz }, radius, colliders, y));
+        if (Math.abs(there - y) > STEP_UP || !isClear({ x: nx, z: nz }, radius, colliders, WALK_BOUNDS, there)) continue;
+        seen.set(k, there);
+        queue.push([nx, nz, there]);
       }
     }
     for (const i of INTERACTABLES) expect(seen.has(key(i.approach.x, i.approach.z)), i.id).toBe(true);
-    // The stairs lead down to the lower level and up to the garden terrace.
-    expect(seen.has(key(0.5, 8.5)), "the lower level").toBe(true);
-    expect(seen.has(key(-7, -3)), "the park").toBe(true);
-    expect(seen.has(key(3.2, 4)), "the café terrace").toBe(true);
-    expect(seen.has(key(7.8, 3.5)), "the quay").toBe(true);
+    // The stairs lead down to the lower level; the park, the café terrace and the quay are on the square; the bridge leads over the canal.
+    expect(seen.has(key(0.5, 15)), "the lower level").toBe(true);
+    expect(seen.has(key(-9, -2)), "the park").toBe(true);
+    expect(seen.has(key(8, 6)), "the café terrace").toBe(true);
+    expect(seen.has(key(12.2, 3)), "the quay").toBe(true);
+    expect(seen.has(key(15.2, 1.2)), "the middle of the bridge").toBe(true);
+    expect(seen.has(key(18.4, 1.2)), "the far bank").toBe(true);
+    // The canal itself is not walkable, nor is the fountain's basin.
+    expect(seen.has(key(15.2, 4)), "the canal").toBe(false);
+    expect(seen.has(key(0, 0)), "the fountain").toBe(false);
   });
+
 });
 
 describe("the street's stairs", () => {
@@ -97,31 +106,31 @@ describe("the street's stairs", () => {
   };
 
   it("are walked down smoothly: the cat does not fall or jump, and ends on the lower floor", () => {
-    const p = createPlayer(0, 4.6, 0, floorAt(0, 4.6));
-    const { out, modes } = walk(p, 7, { x: 0, z: 1 });
+    const p = createPlayer(0, 9.4, 0, floorAt(0, 9.4));
+    const { out, modes } = walk(p, 10, { x: 0, z: 1 });
     expect(modes.has("jump")).toBe(false);
-    expect(out.z).toBeGreaterThan(8);
+    expect(out.z).toBeGreaterThan(14);
     expect(out.lift).toBeCloseTo(0, 2);
   });
 
   it("are walked up again, to the terrace", () => {
-    const p = createPlayer(0, 9, 0, 0);
-    const { out, modes } = walk(p, 7, { x: 0, z: -1 });
+    const p = createPlayer(0, 15, 0, 0);
+    const { out, modes } = walk(p, 10, { x: 0, z: -1 });
     expect(modes.has("jump")).toBe(false);
-    expect(out.z).toBeLessThan(5);
+    expect(out.z).toBeLessThan(10);
     expect(out.lift).toBeCloseTo(0.8, 2);
   });
 
   it("do not let the cat walk up a wall: the terrace's edge is a wall from below", () => {
-    const p = createPlayer(-6, 7, 0, 0);
-    const { out } = walk(p, 4, { x: 0, z: -1 });
-    // Held back at the foot of the terrace wall (z about 5.5 + the cat's radius), still on the lower floor.
-    expect(out.z).toBeGreaterThan(5.5);
+    const p = createPlayer(-6, 15, 0, 0);
+    const { out } = walk(p, 8, { x: 0, z: -1 });
+    // Held back at the foot of the terrace's curved wall (about z 11.7 at this spot), still on the lower floor.
+    expect(out.z).toBeGreaterThan(11.6);
     expect(out.lift).toBe(0);
   });
 
   it("step off the terrace's edge into a fall, from above", () => {
-    const p = createPlayer(-6, 4.9, 0, 0.8);
+    const p = createPlayer(-6, 11.0, 0, 0.8);
     const { modes, out } = walk(p, 4, { x: 0, z: 1 });
     expect(modes.has("jump")).toBe(true);
     expect(out.lift).toBe(0);
@@ -152,7 +161,7 @@ describe("the camera follow", () => {
 describe("interaction prompts", () => {
   const list = INTERACTABLES;
   it("show only within range", () => {
-    expect(pickInteractable({ x: 0, z: 2 }, list, null)).toBeNull();
+    expect(pickInteractable({ x: 6, z: -2.5 }, list, null)).toBeNull();
     const bench = list.find((i) => i.id === "bench")!;
     expect(pickInteractable({ x: bench.x, z: bench.z }, list, null)?.id).toBe("bench");
   });
